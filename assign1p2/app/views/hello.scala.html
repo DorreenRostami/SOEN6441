@@ -17,6 +17,7 @@
                 }
                 .container {
                     text-align: center;
+                    width: 60%;
                 }
                 .search-box {
                     display: flex;
@@ -33,15 +34,25 @@
                 }
                 .result {
                     margin-top: 20px;
-                    font-size: 18px;
+                    font-size: 14px; /* 缩小字体 */
+                    line-height: 1.4; /* 缩小行距 */
                     color: #333;
                     text-align: left;
-                    width: 80%;
-                    margin: 0 auto;
+                }
+                .keyword-group {
+                    margin-top: 20px;
+                }
+                .keyword-title {
+                    font-weight: bold;
+                    margin-bottom: 10px;
                 }
                 .video {
-                    border-bottom: 1px solid #ccc;
-                    padding: 10px 0;
+                    padding: 5px 0;
+                    margin-left: 15px;
+                }
+                .separator {
+                    border-top: 1px solid #ccc;
+                    margin: 20px 0;
                 }
         </style>
     </head>
@@ -61,11 +72,19 @@
                     <p>You searched for: "@searchResult"</p>
                 }
 
-                @for(detail <- videoDetails) {
-                    <div class="video">
-                        <p>@detail</p>
-                    </div>
+                    <!-- 分组显示视频结果，每个搜索结果分隔 -->
+                @if(videoDetails.nonEmpty) {
+                    @for((detail, index) <- videoDetails.zipWithIndex) {
+                        <!-- 添加分隔线，标记每个新的关键词组 -->
+                @if(index % 10 == 0 && index > 0) {
+                    <div class="separator"></div>
                 }
+                    <!-- 按编号显示每条视频信息 -->
+                <div class="video">
+                    <span>@(index + 1). @detail</span>
+                </div>
+            }
+            }
             </div>
         </div>
     </body>
