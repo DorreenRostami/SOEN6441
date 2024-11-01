@@ -1,0 +1,59 @@
+@(searchResult: String)
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Hello World</title>
+        <style>
+                /* 样式定义 */
+                body {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    min-height: 100vh;
+                    font-family: Arial, sans-serif;
+                }
+                .container {
+                    text-align: center;
+                }
+                .search-box {
+                    display: flex;
+                    justify-content: center;
+                    margin-bottom: 20px;
+                }
+                input[type="text"] {
+                    padding: 8px;
+                    width: 300px;
+                }
+                button {
+                    padding: 8px 15px;
+                    cursor: pointer;
+                }
+                .result {
+                    margin-top: 20px;
+                    font-size: 18px;
+                    color: #333;
+                }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Hello World</h1>
+            <div class="search-box">
+                    <!-- 搜索表单 -->
+                <form action="@routes.HomeController.search("") method="get">
+                    <input type="text" name="query" placeholder="Enter something..." required>
+                    <button type="submit">Search</button>
+                </form>
+            </div>
+                <!-- 显示搜索结果 -->
+            <div class="result">
+            @if(searchResult != null && !searchResult.isEmpty()) {
+                <p>You searched for: "@searchResult"</p>
+            }
+            </div>
+        </div>
+    </body>
+</html>
