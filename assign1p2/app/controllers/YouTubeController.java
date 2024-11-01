@@ -24,16 +24,30 @@ public class YouTubeController extends Controller {
         try {
             List<SearchResult> results = youtubeService.searchVideos(query);
 
-            // 将结果转换为简单字符串格式用于显示
+            // Convert results to HTML format for display
             String output = results.stream()
-                    .map(result -> String.format("Title: %s\nChannel: %s\nDescription: %s\nThumbnail: %s\n\n",
-                            result.getSnippet().getTitle(),
-                            result.getSnippet().getChannelTitle(),
-                            result.getSnippet().getDescription(),
-                            result.getSnippet().getThumbnails().getDefault().getUrl()))
-                    .collect(Collectors.joining("\n"));
+                    .map(result -> {
+                        String videoUrl = "https://www.youtube.com/watch?v=" + result.getId().getVideoId();
+                        String channelUrl = "https://www.youtube.com/channel/" + result.getSnippet().getChannelId();
+                        return String.format(
+                                "<div style='margin-bottom: 20px;'>"
+                                        + "<h3><a href='%s' target='_blank'>%s</a></h3>"  // Video title and link
+                                        + "<p>Channel: <a href='%s' target='_blank'>%s</a></p>"  // Channel title and link
+                                        + "<p>%s</p>"  // Video description
+                                        + "<img src='%s' alt='Thumbnail' style='max-width: 200px; height: auto;'/>"  // Thumbnail
+                                        + "</div>",
+                                videoUrl,
+                                result.getSnippet().getTitle(),
+                                channelUrl,
+                                result.getSnippet().getChannelTitle(),
+                                result.getSnippet().getDescription(),
+                                result.getSnippet().getThumbnails().getDefault().getUrl()
+                        );
+                    })
+                    .collect(Collectors.joining("<hr/>"));  // Separate each video with a horizontal line
 
-            return ok(output).as("text/plain");  // 以纯文本格式返回
+            // Return response with HTML content
+            return ok("<html><body>" + output + "</body></html>").as("text/html");
         } catch (IOException e) {
             e.printStackTrace();
             return internalServerError("Error fetching data from YouTube API");

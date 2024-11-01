@@ -1,4 +1,4 @@
-@(searchResult: String, videoDetails: List[String])
+@(searchResult: String, videoDetails: List[models.VideoData])
 
 <!DOCTYPE html>
 <html lang="en">
@@ -7,7 +7,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Hello World</title>
         <style>
-                /* 样式定义 */
+                /* Style definitions */
                 body {
                     display: flex;
                     justify-content: center;
@@ -34,21 +34,35 @@
                 }
                 .result {
                     margin-top: 20px;
-                    font-size: 14px; /* 缩小字体 */
-                    line-height: 1.4; /* 缩小行距 */
+                    font-size: 14px;
+                    line-height: 1.4;
                     color: #333;
                     text-align: left;
                 }
-                .keyword-group {
+                .video-group {
                     margin-top: 20px;
                 }
-                .keyword-title {
-                    font-weight: bold;
-                    margin-bottom: 10px;
+                .video-wrapper {
+                    display: flex;
+                    align-items: flex-start;
+                    justify-content: space-between;
+                    border-bottom: 1px solid #ccc;
+                    padding: 10px 0;
                 }
                 .video {
-                    padding: 5px 0;
-                    margin-left: 15px;
+                    max-width: 75%;
+                }
+                .video-title {
+                    font-size: 16px;
+                    font-weight: bold;
+                }
+                .channel-title {
+                    font-size: 14px;
+                    color: #555;
+                }
+                .thumbnail {
+                    max-width: 120px;
+                    margin-left: 20px;
                 }
                 .separator {
                     border-top: 1px solid #ccc;
@@ -60,31 +74,39 @@
         <div class="container">
             <h1>Hello World</h1>
             <div class="search-box">
-                    <!-- 搜索表单 -->
+                    <!-- Search form -->
                 <form action="@routes.HomeController.search("")" method="get">
                     <input type="text" name="query" value="@searchResult" placeholder="Enter something..." required>
                     <button type="submit">Search</button>
                 </form>
             </div>
-                <!-- 显示搜索结果 -->
+                <!-- Display search results -->
             <div class="result">
                 @if(searchResult != null && !searchResult.isEmpty()) {
                     <p>You searched for: "@searchResult"</p>
                 }
 
-                    <!-- 分组显示视频结果，每个搜索结果分隔 -->
-                @if(videoDetails.nonEmpty) {
-                    @for((detail, index) <- videoDetails.zipWithIndex) {
-                        <!-- 添加分隔线，标记每个新的关键词组 -->
-                @if(index % 10 == 0 && index > 0) {
-                    <div class="separator"></div>
+                @for((video, index) <- videoDetails.zipWithIndex) {
+                    @if(index > 0 && index % 10 == 0) {
+                        <div class="separator"></div>
+                    }
+                    <div class="video-wrapper">
+                            <!-- Video information section -->
+                        <div class="video">
+                            <div class="video-title">
+                                <a href="@video.videoUrl" target="_blank">@video.title</a>
+                            </div>
+                            <div class="channel-title">
+                                Channel: <a href="@video.channelUrl" target="_blank">@video.channelTitle</a>
+                            </div>
+                            <div>
+                                Description: @video.description
+                            </div>
+                        </div>
+                            <!-- Thumbnail section, positioned to the right of video information -->
+                        <img src="@video.thumbnailUrl" alt="Thumbnail" class="thumbnail">
+                    </div>
                 }
-                    <!-- 按编号显示每条视频信息 -->
-                <div class="video">
-                    <span>@(index + 1). @detail</span>
-                </div>
-            }
-            }
             </div>
         </div>
     </body>
