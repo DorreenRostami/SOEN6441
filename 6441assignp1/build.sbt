@@ -1,5 +1,5 @@
-name := """team"""
-organization := "demo"
+name := """6441assignp1"""
+organization := "com.example"
 
 version := "1.0-SNAPSHOT"
 
