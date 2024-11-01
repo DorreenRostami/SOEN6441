@@ -5,7 +5,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Hello World</title>
+        <title>Youtube Search</title>
         <style>
                 /* Style definitions */
                 body {
@@ -46,8 +46,8 @@
                     display: flex;
                     align-items: flex-start;
                     justify-content: space-between;
-                    border-bottom: 1px solid #ccc;
-                    padding: 10px 0;
+                    /*border-bottom: 1px solid #ccc;*/
+                    /*padding: 10px 0;*/
                 }
                 .video {
                     max-width: 75%;
@@ -72,7 +72,7 @@
     </head>
     <body>
         <div class="container">
-            <h1>Hello World</h1>
+            <h1>Youtube Search</h1>
             <div class="search-box">
                     <!-- Search form -->
                 <form action="@routes.HomeController.search("")" method="get">
@@ -83,7 +83,7 @@
                 <!-- Display search results -->
             <div class="result">
                 @if(searchResult != null && !searchResult.isEmpty()) {
-                    <p>You searched for: "@searchResult"</p>
+                    <p>You searched for "@searchResult" now.</p>
                 }
 
                 @for((video, index) <- videoDetails.zipWithIndex) {
