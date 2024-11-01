@@ -1,4 +1,4 @@
-@(searchResult: String)
+@(searchResult: String, videoDetails: List[String])
 
 <!DOCTYPE html>
 <html lang="en">
@@ -35,6 +35,13 @@
                     margin-top: 20px;
                     font-size: 18px;
                     color: #333;
+                    text-align: left;
+                    width: 80%;
+                    margin: 0 auto;
+                }
+                .video {
+                    border-bottom: 1px solid #ccc;
+                    padding: 10px 0;
                 }
         </style>
     </head>
@@ -43,16 +50,22 @@
             <h1>Hello World</h1>
             <div class="search-box">
                     <!-- 搜索表单 -->
-                <form action="@routes.HomeController.search("") method="get">
-                    <input type="text" name="query" placeholder="Enter something..." required>
+                <form action="@routes.HomeController.search("")" method="get">
+                    <input type="text" name="query" value="@searchResult" placeholder="Enter something..." required>
                     <button type="submit">Search</button>
                 </form>
             </div>
                 <!-- 显示搜索结果 -->
             <div class="result">
-            @if(searchResult != null && !searchResult.isEmpty()) {
-                <p>You searched for: "@searchResult"</p>
-            }
+                @if(searchResult != null && !searchResult.isEmpty()) {
+                    <p>You searched for: "@searchResult"</p>
+                }
+
+                @for(detail <- videoDetails) {
+                    <div class="video">
+                        <p>@detail</p>
+                    </div>
+                }
             </div>
         </div>
     </body>
