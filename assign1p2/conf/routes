@@ -4,11 +4,6 @@
 
 # An example controller showing a sample home page
 GET     /                           controllers.HomeController.hello
-# 显示 search 页面
-GET     /ytlytics                      controllers.HomeController.hello
-# 搜索并显示结果
 GET     /search                     controllers.HomeController.search(query: String)
-# YouTube Search Route
-GET     /ytsearch/:query          controllers.YouTubeController.search(query: String)
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
