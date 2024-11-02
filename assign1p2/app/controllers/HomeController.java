@@ -6,6 +6,7 @@ import play.mvc.Result;
 import services.YouTubeService;
 import com.google.api.services.youtube.model.SearchResult;
 import views.html.hello;
+import views.html.channel;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -84,7 +85,7 @@ public class HomeController extends Controller {
                 allSearchResults = allSearchResults.subList(0, 100);
             }
 
-            return ok(hello.render(channelId, allSearchResults));
+            return ok(channel.render(channelId, allSearchResults));
         } catch (IOException e) {
             e.printStackTrace();
             return internalServerError("Error fetching data from YouTube API");
