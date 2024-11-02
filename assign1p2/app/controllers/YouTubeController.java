@@ -30,4 +30,15 @@ public class YouTubeController extends Controller {
             return internalServerError("Error fetching data from YouTube API");
         }
     }
+
+    public Result searchChannelVideos(String channelId) {
+        try {
+            List<SearchResult> results = youtubeService.searchChannelVideos(channelId);
+            Html html = views.html.youtubeResults.render(results);
+            return ok(html).as("text/html");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return internalServerError("Error fetching data from YouTube API");
+        }
+    }
 }

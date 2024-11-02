@@ -1,17 +1,2 @@
 @(results: List[com.google.api.services.youtube.model.SearchResult])
-
 @import com.google.api.services.youtube.model.SearchResult
-
-<html>
-<body>
-    @for(result <- results) {
-        <div style="margin-bottom: 20px;">
-            <h3><a href="@("https://www.youtube.com/watch?v=" + result.getId.getVideoId)" target="_blank">@result.getSnippet.getTitle</a></h3>
-            <p>Channel: <a href="@("https://www.youtube.com/channel/" + result.getSnippet.getChannelId)" target="_blank">@result.getSnippet.getChannelTitle</a></p>
-            <p>@result.getSnippet.getDescription</p>
-            <img src="@result.getSnippet.getThumbnails.getDefault.getUrl" alt="Thumbnail" style="max-width: 200px; height: auto;"/>
-        </div>
-        <hr/>
-    }
-</body>
-</html>

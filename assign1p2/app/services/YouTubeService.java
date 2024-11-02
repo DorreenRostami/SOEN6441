@@ -37,4 +37,17 @@ public class YouTubeService {
 
         return response.getItems();
     }
+
+    public List<SearchResult> searchChannelVideos(String channelId) throws IOException {
+        YouTube.Search.List request = youtubeService.search().list("snippet");
+        SearchListResponse response = request
+                .setKey(API_KEY)
+                .setChannelId(channelId)
+                .setType("video")
+                .setOrder("date")
+                .setMaxResults(10L)
+                .execute();
+
+        return response.getItems();
+    }
 }

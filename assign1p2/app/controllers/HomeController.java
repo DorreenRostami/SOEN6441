@@ -59,4 +59,33 @@ public class HomeController extends Controller {
             return internalServerError("Error fetching data from YouTube API");
         }
     }
+
+    public Result searchchannel(String channelId) {
+        try {
+            List<SearchResult> results = youtubeService.searchChannelVideos(channelId);
+
+            // Convert each video result into a VideoData object
+            List<VideoData> videoDataList = results.stream().map(result -> new VideoData(
+                    result.getSnippet().getTitle(),
+                    "https://www.youtube.com/watch?v=" + result.getId().getVideoId(),
+                    result.getSnippet().getChannelTitle(),
+                    "https://www.youtube.com/channel/" + result.getSnippet().getChannelId(),
+                    result.getSnippet().getThumbnails().getDefault().getUrl(),
+                    result.getSnippet().getDescription()
+            )).collect(Collectors.toList());
+
+            // Add new results to the top of existing results
+            allSearchResults.addAll(0, videoDataList);
+
+            // keep 100
+            if (allSearchResults.size() > 100) {
+                allSearchResults = allSearchResults.subList(0, 100);
+            }
+
+            return ok(hello.render(channelId, allSearchResults));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return internalServerError("Error fetching data from YouTube API");
+        }
+    }
 }
