@@ -1,9 +1,12 @@
 package controllers;
 
+import models.ChannelData;
 import models.VideoData;
 import play.mvc.Controller;
 import play.mvc.Result;
 import services.YouTubeService;
+import com.google.api.services.youtube.model.Channel;
+import com.google.api.services.youtube.model.ChannelListResponse;
 import com.google.api.services.youtube.model.SearchResult;
 import views.html.hello;
 import views.html.channel;
@@ -80,15 +83,33 @@ public class HomeController extends Controller {
             // Add new results to the top of existing results
             allSearchResults.addAll(0, videoDataList);
 
-            // keep 100
-            if (allSearchResults.size() > 100) {
-                allSearchResults = allSearchResults.subList(0, 100);
+            // keep 10
+            if (allSearchResults.size() > 10) {
+                allSearchResults = allSearchResults.subList(0, 10);
             }
 
-            return ok(channel.render(channelId, allSearchResults));
+            // Fetch channel details
+            ChannelListResponse channelResponse = youtubeService.getChannelDetails(channelId);
+            Channel channel = channelResponse.getItems().get(0);
+            ChannelData channelData = getChannelData(channel);
+
+            return ok(views.html.channel.render(channelId, allSearchResults, channelData));
         } catch (IOException e) {
             e.printStackTrace();
             return internalServerError("Error fetching data from YouTube API");
         }
+    }
+
+    private ChannelData getChannelData(Channel channel) {
+        return new ChannelData(
+                channel.getSnippet().getTitle(),
+                channel.getId(),
+                "https://www.youtube.com/channel/" + channel.getId(),
+                channel.getSnippet().getThumbnails().getDefault().getUrl(),
+                channel.getSnippet().getDescription(),
+                channel.getStatistics().getSubscriberCount().longValue(),
+                channel.getStatistics().getVideoCount().longValue(),
+                channel.getStatistics().getViewCount().longValue()
+        );
     }
 }

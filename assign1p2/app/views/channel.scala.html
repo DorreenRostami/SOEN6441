@@ -1,13 +1,12 @@
-@(searchResult: String, videoDetails: List[models.VideoData])
+@(searchResult: String, videoDetails: List[models.VideoData], channelData: models.ChannelData)
 
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Youtube Search</title>
+        <title>@channelData.title</title>
         <style>
-                /* Style definitions */
                 body {
                     display: flex;
                     justify-content: center;
@@ -19,25 +18,12 @@
                     text-align: center;
                     width: 60%;
                 }
-                .search-box {
-                    display: flex;
-                    justify-content: center;
+                .channel-info {
                     margin-bottom: 20px;
                 }
-                input[type="text"] {
-                    padding: 8px;
-                    width: 300px;
-                }
-                button {
-                    padding: 8px 15px;
-                    cursor: pointer;
-                }
-                .result {
-                    margin-top: 20px;
-                    font-size: 14px;
-                    line-height: 1.4;
-                    color: #333;
-                    text-align: left;
+                .channel-info img {
+                    max-width: 100px;
+                    margin-bottom: 10px;
                 }
                 .video-group {
                     margin-top: 20px;
@@ -46,8 +32,7 @@
                     display: flex;
                     align-items: flex-start;
                     justify-content: space-between;
-                    /*border-bottom: 1px solid #ccc;*/
-                    /*padding: 10px 0;*/
+                    margin-bottom: 20px;
                 }
                 .video {
                     max-width: 75%;
@@ -68,34 +53,48 @@
                     border-top: 1px solid #ccc;
                     margin: 20px 0;
                 }
+                .home-button {
+                    margin-top: 20px;
+                }
         </style>
     </head>
     <body>
         <div class="container">
-            <h1>Youtube Search</h1>
-                <!-- Display search results -->
-            <div class="result">
-                @for((video, index) <- videoDetails.zipWithIndex) {
-                    @if(index > 0 && index % 10 == 0) {
-                        <div class="separator"></div>
-                    }
-                    <div class="video-wrapper">
-                            <!-- Video information section -->
-                        <div class="video">
-                            <div class="video-title">
-                                <a href="@video.videoUrl" target="_blank">@video.title</a>
-                            </div>
-                            <div class="channel-title">
+            <div class="home-button">
+                <a href="/">
+                    <button type="button">Return to Home</button>
+                </a>
+            </div>
+            <div class="channel-info">
+                <h1>@channelData.title</h1>
+                <img src="@channelData.thumbnailUrl" alt="Channel Thumbnail">
+                <p>@channelData.description</p>
+                <p>Subscribers: @channelData.subscriberCount</p>
+                <p>Videos: @channelData.videoCount</p>
+                <p>Views: @channelData.viewCount</p>
+@*                TODO*@
+                <p>Description: @channelData.description</p>
+                <a href="@channelData.channelUrl">Visit Channel</a>
+            </div>
+
+            <h2>Videos</h2>
+            <div class="video-group">
+            @for(video <- videoDetails) {
+                <div class="video-wrapper">
+                    <div class="video">
+                        <div class="video-title">
+                            <a href="@video.videoUrl" target="_blank">@video.title</a>
+                        </div>
+                        <div class="channel-title">
                                 Channel: <a href="/@video.channelId" target="_blank">@video.channelTitle</a>
                             </div>
-                            <div>
+                        <div>
                                 Description: @video.description
                             </div>
-                        </div>
-                            <!-- Thumbnail section, positioned to the right of video information -->
-                        <img src="@video.thumbnailUrl" alt="Thumbnail" class="thumbnail">
                     </div>
-                }
+                    <img src="@video.thumbnailUrl" alt="Video Thumbnail" class="thumbnail">
+                </div>
+            }
             </div>
         </div>
     </body>

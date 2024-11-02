@@ -20,4 +20,5 @@ public class VideoData {
         this.thumbnailUrl = thumbnailUrl;
         this.description = description;
     }
+
 }

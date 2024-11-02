@@ -6,11 +6,14 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
+import com.google.api.services.youtube.model.Channel;
+import com.google.api.services.youtube.model.ChannelListResponse;
+import models.ChannelData;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.List;
-//TODO
+
 public class YouTubeService {
     private static final String API_KEY = "AIzaSyCxx9hUhwCa4RlyJKp3tps1Q7xW398bxsc"; // 使用你的 API Key
     private static final String APPLICATION_NAME = "Play YouTube Search";
@@ -22,7 +25,8 @@ public class YouTubeService {
         youtubeService = new YouTube.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(),
                 JSON_FACTORY,
-                request -> {}
+                request -> {
+                }
         ).setApplicationName(APPLICATION_NAME).build();
     }
 
@@ -49,5 +53,15 @@ public class YouTubeService {
                 .execute();
 
         return response.getItems();
+    }
+
+    public ChannelListResponse getChannelDetails(String channelId) throws IOException {
+        YouTube.Channels.List request = youtubeService.channels().list("snippet,statistics");
+        ChannelListResponse response = request
+                .setKey(API_KEY)
+                .setId(channelId)
+                .execute();
+
+        return response;
     }
 }
