@@ -8,9 +8,20 @@ import views.html.hello;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+
 
 public class HomeController extends Controller {
     private static List<VideoInfo> allSearchResults = new ArrayList<>();
+
+    private final YouTubeService youtubeService;
+
+    @Inject
+    public HomeController() throws GeneralSecurityException, IOException {
+        this.youtubeService = new YouTubeService();
+    }
 
     // Clear search results and display homepage
     public Result hello() {
