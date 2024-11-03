@@ -1,4 +1,4 @@
-@(searchResult: String)
+@(searchResult: String, videoDetails: List[VideoInfo])
 
 <!DOCTYPE html>
 <html lang="en">
@@ -74,11 +74,38 @@
         <div class="container">
             <h1>Youtube Search</h1>
             <div class="search-box">
-                    <!-- Search form -->
                 <form action="@routes.HomeController.search("")" method="get">
                     <input type="text" name="query" value="@searchResult" placeholder="Enter something..." required>
                     <button type="submit">Search</button>
                 </form>
+            </div>
+
+            <div class="result">
+                @if(searchResult != null && searchResult.nonEmpty) {
+                    <p>You searched for "@searchResult" now.</p>
+                }
+
+                @for((video, index) <- videoDetails.zipWithIndex) {
+                    @if(index > 0 && index % 10 == 0) {
+                        <div class="separator"></div>
+                    }
+                    <div class="video-wrapper">
+                            <!-- Video information section -->
+                        <div class="video">
+                            <div class="video-title">
+                                <a href="@video.videoUrl" target="_blank">@video.videoTitle</a>
+                            </div>
+                            <div class="channel-title">
+                                Channel: <a href="@video.channelUrl" target="_blank">@video.channelTitle</a>
+                            </div>
+                            <div>
+                                Description: @video.description
+                            </div>
+                        </div>
+                            <!-- Thumbnail section, positioned to the right of video information -->
+                        <img src="@video.thumbnailUrl" alt="Thumbnail" class="thumbnail">
+                    </div>
+                }
             </div>
         </div>
     </body>

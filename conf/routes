@@ -3,5 +3,6 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET     /                           controllers.HomeController.hello
-GET     /search                     controllers.HomeController.search(query: String)
+GET     /                       controllers.RedirectController.redirectToYtLytics
+GET     /ytlytics               controllers.HomeController.hello
+GET     /search                 controllers.HomeController.search(query: String)
