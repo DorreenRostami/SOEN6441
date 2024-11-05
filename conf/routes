@@ -6,3 +6,5 @@
 GET     /                       controllers.RedirectController.redirectToYtLytics
 GET     /ytlytics               controllers.HomeController.hello
 GET     /search                 controllers.HomeController.search(query: String)
+
+GET     /channel                controllers.HomeController.searchchannel(query: String)
