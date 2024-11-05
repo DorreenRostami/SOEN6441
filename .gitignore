@@ -1,2 +1,9 @@
-.DS_Store
-.idea/
+logs
+target
+/.bsp
+/.idea
+/.idea_modules
+/.classpath
+/.project
+/.settings
+/RUNNING_PID

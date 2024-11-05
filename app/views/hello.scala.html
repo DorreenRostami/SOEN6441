@@ -1,0 +1,112 @@
+@(searchResult: String, videoDetails: List[VideoInfo])
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Youtube Search</title>
+        <style>
+                /* Style definitions */
+                body {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    min-height: 100vh;
+                    font-family: Arial, sans-serif;
+                }
+                .container {
+                    text-align: center;
+                    width: 60%;
+                }
+                .search-box {
+                    display: flex;
+                    justify-content: center;
+                    margin-bottom: 20px;
+                }
+                input[type="text"] {
+                    padding: 8px;
+                    width: 300px;
+                }
+                button {
+                    padding: 8px 15px;
+                    cursor: pointer;
+                }
+                .result {
+                    margin-top: 20px;
+                    font-size: 14px;
+                    line-height: 1.4;
+                    color: #333;
+                    text-align: left;
+                }
+                .video-group {
+                    margin-top: 20px;
+                }
+                .video-wrapper {
+                    display: flex;
+                    align-items: flex-start;
+                    justify-content: space-between;
+                    /*border-bottom: 1px solid #ccc;*/
+                    /*padding: 10px 0;*/
+                }
+                .video {
+                    max-width: 75%;
+                }
+                .video-title {
+                    font-size: 16px;
+                    font-weight: bold;
+                }
+                .channel-title {
+                    font-size: 14px;
+                    color: #555;
+                }
+                .thumbnail {
+                    max-width: 120px;
+                    margin-left: 20px;
+                }
+                .separator {
+                    border-top: 1px solid #ccc;
+                    margin: 20px 0;
+                }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Youtube Search</h1>
+            <div class="search-box">
+                <form action="@routes.HomeController.search("")" method="get">
+                    <input type="text" name="query" value="@searchResult" placeholder="Enter something..." required>
+                    <button type="submit">Search</button>
+                </form>
+            </div>
+
+            <div class="result">
+                @if(searchResult != null && searchResult.nonEmpty) {
+                    <p>You searched for "@searchResult" now.</p>
+                }
+
+                @for((video, index) <- videoDetails.zipWithIndex) {
+                    @if(index > 0 && index % 10 == 0) {
+                        <div class="separator"></div>
+                    }
+                    <div class="video-wrapper">
+                            <!-- Video information section -->
+                        <div class="video">
+                            <div class="video-title">
+                                <a href="@video.videoUrl" target="_blank">@video.videoTitle</a>
+                            </div>
+                            <div class="channel-title">
+                                Channel: <a href="@video.channelUrl" target="_blank">@video.channelTitle</a>
+                            </div>
+                            <div>
+                                Description: @video.description
+                            </div>
+                        </div>
+                            <!-- Thumbnail section, positioned to the right of video information -->
+                        <img src="@video.thumbnailUrl" alt="Thumbnail" class="thumbnail">
+                    </div>
+                }
+            </div>
+        </div>
+    </body>
+</html>

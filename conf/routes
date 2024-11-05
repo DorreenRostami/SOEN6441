@@ -1,0 +1,8 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# An example controller showing a sample home page
+GET     /                       controllers.RedirectController.redirectToYtLytics
+GET     /ytlytics               controllers.HomeController.hello
+GET     /search                 controllers.HomeController.search(query: String)
