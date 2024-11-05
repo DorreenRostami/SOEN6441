@@ -15,7 +15,7 @@ import java.security.GeneralSecurityException;
 import java.util.List;
 
 public class YouTubeService {
-    private static final String API_KEY = "AIzaSyCxx9hUhwCa4RlyJKp3tps1Q7xW398bxsc"; // 使用你的 API Key
+    private static final String API_KEY = "AIzaSyCxx9hUhwCa4RlyJKp3tps1Q7xW398bxsc";
     private static final String APPLICATION_NAME = "Play YouTube Search";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
@@ -25,8 +25,7 @@ public class YouTubeService {
         youtubeService = new YouTube.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(),
                 JSON_FACTORY,
-                request -> {
-                }
+                request -> {}
         ).setApplicationName(APPLICATION_NAME).build();
     }
 
