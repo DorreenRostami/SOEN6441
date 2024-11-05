@@ -81,16 +81,16 @@
                 <div class="video-wrapper">
                     <div class="video">
                         <div class="video-title">
-                            <a href="@video.videoUrl" target="_blank">@video.videoTitle</a>
+                            <a href="@video.getVideoUrl" target="_blank">@video.getVideoTitle</a>
                         </div>
                         <div class="channel-title">
 @*                                Channel: <a href="/@video.channelId" target="_blank">@video.channelTitle</a>*@
                             </div>
                         <div>
-                                Description: @video.description
+                                Description: @video.getDescription
                             </div>
                     </div>
-                    <img src="@video.thumbnailUrl" alt="Video Thumbnail" class="thumbnail">
+                    <img src="@video.getThumbnailUrl" alt="Video Thumbnail" class="thumbnail">
                 </div>
             }
             </div>
