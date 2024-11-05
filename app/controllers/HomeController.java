@@ -46,7 +46,7 @@ public class HomeController extends Controller {
                 List<VideoInfo> videoDataList = results.stream().map(result -> new VideoInfo(
                         result.getSnippet().getTitle(),
                         "https://www.youtube.com/watch?v=" + result.getId().getVideoId(),
-                        result.getId().getVideoId(),
+//                        result.getId().getVideoId(),
                         result.getSnippet().getChannelTitle(),
                         "channel?query=" + result.getSnippet().getChannelId(),
                         result.getSnippet().getThumbnails().getDefault().getUrl(),
@@ -81,7 +81,6 @@ public class HomeController extends Controller {
                         "https://www.youtube.com/watch?v=" + result.getId().getVideoId(),
                         result.getSnippet().getChannelTitle(),
                         "channel?query=" + result.getSnippet().getChannelId(),
-                        result.getSnippet().getChannelId(),
                         result.getSnippet().getThumbnails().getDefault().getUrl(),
                         result.getSnippet().getDescription()
                 )).collect(Collectors.toList());
