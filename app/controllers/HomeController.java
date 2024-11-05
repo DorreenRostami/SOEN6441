@@ -48,7 +48,7 @@ public class HomeController extends Controller {
                         result.getSnippet().getTitle(),
                         "https://www.youtube.com/watch?v=" + result.getId().getVideoId(),
                         result.getSnippet().getChannelTitle(),
-                        "https://www.youtube.com/channel/" + result.getSnippet().getChannelId(),
+                        "/channel?query=" + result.getSnippet().getChannelId(),
                         result.getSnippet().getThumbnails().getDefault().getUrl(),
                         result.getSnippet().getDescription()
                 )).toList();
