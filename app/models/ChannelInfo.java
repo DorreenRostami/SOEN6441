@@ -1,5 +1,9 @@
 package models;
 
+/**
+ * a class which contains all the information we need to keep about channels to show them in the main search page
+ * @author Hao
+ */
 public class ChannelInfo {
     public String title;
     public String channelId;

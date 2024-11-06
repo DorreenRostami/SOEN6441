@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.List;
 
+
 public class YouTubeService {
     private static final String API_KEY = "AIzaSyCxx9hUhwCa4RlyJKp3tps1Q7xW398bxsc"; // API key
     private static final String APPLICATION_NAME = "Play YouTube Search";
@@ -21,6 +22,11 @@ public class YouTubeService {
 
     private final YouTube youtubeService;
 
+    /**
+     * Constructor for the YouTubeService class which initializes the YouTube service
+     * @author Dorreen - initial implementation of searchVideos
+     * @author Hao - added channel video search and channel details
+     */
     public YouTubeService() throws GeneralSecurityException, IOException {
         youtubeService = new YouTube.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(),
