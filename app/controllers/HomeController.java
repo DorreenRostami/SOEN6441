@@ -159,7 +159,7 @@ public class HomeController extends Controller {
                         .filter(s -> !Objects.equals(s, ""))
                         .flatMap(text -> Arrays.stream(text.split(" ")))
                         .map(String::toLowerCase)
-                        .filter(word -> !word.equals(""))
+                        .filter(word -> !word.equals("") && word.matches("\\p{L}+")) //no non-letter words
                         .collect(Collectors.groupingBy(word -> word, Collectors.counting()));
 
                 // sort in descending order
@@ -175,5 +175,4 @@ public class HomeController extends Controller {
             }
         });
     }
-
 }
