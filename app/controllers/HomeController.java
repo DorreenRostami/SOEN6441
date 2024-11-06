@@ -3,6 +3,7 @@ package controllers;
 import models.SearchHistory;
 import models.VideoInfo;
 import models.ChannelInfo;
+import models.WordStatistics;
 import play.mvc.Controller;
 import play.mvc.Result;
 import scala.Tuple2;
@@ -51,33 +52,14 @@ public class HomeController extends Controller {
      *
      * @param query the query for which the videos are searched through
      * @return a CompletableFuture which includes the search history (queries until now and their top 10 videos)
-     * @author Dorreen - implementation
-     *
-     * @author Hao - changed channelURL so that clicking on it opens a web page containing all available profile
-     * information about a channel instead of opening the channel in Youtube
+     * @author Dorreen Rostami
      */
     public CompletionStage<Result> search(String query) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 List<SearchResult> results = youtubeService.searchVideos(query);
 
-                // Convert each result to a VideoInfo object
-                List<VideoInfo> videoInfoList = results.stream().map(result -> new VideoInfo(
-                        result.getSnippet().getTitle(),
-                        "https://www.youtube.com/watch?v=" + result.getId().getVideoId(),
-                        result.getSnippet().getChannelTitle(),
-                        "/channel?query=" + result.getSnippet().getChannelId(),
-                        result.getSnippet().getThumbnails().getDefault().getUrl(),
-                        result.getSnippet().getDescription()
-                )).toList();
-
-                // add the query and its results to the search history
-                searchHistoryList.add(0, new SearchHistory(query, videoInfoList));
-
-                // limit to 10 most recent searche histories
-                if (searchHistoryList.size() > 10) {
-                    searchHistoryList = searchHistoryList.subList(0, 10);
-                }
+                searchHistoryList = SearchHistory.addToSearchHistory(searchHistoryList, query, results);
 
                 return ok(hello.render(searchHistoryList));
             } catch (IOException e) {
@@ -150,23 +132,14 @@ public class HomeController extends Controller {
                 List<SearchResult> results = youtubeService.searchVideos(query).stream()
                         .limit(50).toList();
 
-                // get word frequency from video titles and descriptions
-                Map<String, Long> wordCount = results.stream()
+                List<String> resultText = results.stream()
                         .flatMap(result -> Stream.of(
                                 result.getSnippet().getTitle(),
                                 result.getSnippet().getDescription()
                         ))
-                        .filter(s -> !Objects.equals(s, ""))
-                        .flatMap(text -> Arrays.stream(text.split(" ")))
-                        .map(String::toLowerCase)
-                        .filter(word -> !word.equals("") && word.matches("\\p{L}+")) //no non-letter words
-                        .collect(Collectors.groupingBy(word -> word, Collectors.counting()));
-
-                // sort in descending order
-                List<Tuple2<String, Long>> sortedWordCount = wordCount.entrySet().stream()
-                        .sorted((e1, e2) -> Long.compare(e2.getValue(), e1.getValue()))
-                        .map(entry -> new Tuple2<>(entry.getKey(), entry.getValue()))
                         .collect(Collectors.toList());
+
+                List<Tuple2<String, Long>> sortedWordCount = WordStatistics.getWordStats(resultText);
 
                 return ok(views.html.statistics.render(query, sortedWordCount));
             } catch (IOException e) {
