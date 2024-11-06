@@ -81,7 +81,7 @@
 
             <div class="result">
             @for(searchHistory <- searchHistoryList) {
-                <h2>Results for "@searchHistory.getQuery"</h2>
+                <h2>Results for <a href="@routes.HomeController.showStatistics(searchHistory.getQuery)">"@searchHistory.getQuery"</a></h2>
 
                 @for((video, index) <- searchHistory.getResults.zipWithIndex) {
                     @if(index > 0 && index % 10 == 0) {

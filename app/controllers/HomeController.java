@@ -5,19 +5,21 @@ import models.VideoInfo;
 import models.ChannelInfo;
 import play.mvc.Controller;
 import play.mvc.Result;
+import scala.Tuple2;
 import views.html.hello;
 
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Channel;
 import com.google.api.services.youtube.model.ChannelListResponse;
-import java.util.ArrayList;
-import java.util.List;
+
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class HomeController extends Controller {
     private static List<SearchHistory> searchHistoryList = new ArrayList<>();
@@ -44,7 +46,7 @@ public class HomeController extends Controller {
                 List<SearchResult> results = youtubeService.searchVideos(query);
 
                 // Convert each result to a VideoInfo object
-                List<VideoInfo> videoDataList = results.stream().map(result -> new VideoInfo(
+                List<VideoInfo> videoInfoList = results.stream().map(result -> new VideoInfo(
                         result.getSnippet().getTitle(),
                         "https://www.youtube.com/watch?v=" + result.getId().getVideoId(),
                         result.getSnippet().getChannelTitle(),
@@ -54,7 +56,7 @@ public class HomeController extends Controller {
                 )).toList();
 
                 // Add the query and its results to the search history
-                searchHistoryList.add(0, new SearchHistory(query, videoDataList));
+                searchHistoryList.add(0, new SearchHistory(query, videoInfoList));
 
                 // Limit to the 10 most recent searches
                 if (searchHistoryList.size() > 10) {
@@ -116,4 +118,37 @@ public class HomeController extends Controller {
                 channel.getStatistics().getViewCount().longValue()
         );
     }
+    
+    public CompletionStage<Result> showStatistics(String query) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                List<SearchResult> results = youtubeService.searchVideos(query).stream()
+                        .limit(50).toList();
+
+                // get word frequency from video titles and descriptions
+                Map<String, Long> wordCount = results.stream()
+                        .flatMap(result -> Stream.of(
+                                result.getSnippet().getTitle(),
+                                result.getSnippet().getDescription()
+                        ))
+                        .filter(s -> !Objects.equals(s, ""))
+                        .flatMap(text -> Arrays.stream(text.split(" ")))
+                        .map(String::toLowerCase)
+                        .filter(word -> !word.equals(""))
+                        .collect(Collectors.groupingBy(word -> word, Collectors.counting()));
+
+                // sort in descending order
+                List<Tuple2<String, Long>> sortedWordCount = wordCount.entrySet().stream()
+                        .sorted((e1, e2) -> Long.compare(e2.getValue(), e1.getValue()))
+                        .map(entry -> new Tuple2<>(entry.getKey(), entry.getValue()))
+                        .collect(Collectors.toList());
+
+                return ok(views.html.statistics.render(query, sortedWordCount));
+            } catch (IOException e) {
+                e.printStackTrace();
+                return internalServerError("Error fetching data from YouTube API");
+            }
+        });
+    }
+
 }

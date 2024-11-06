@@ -8,3 +8,5 @@ GET     /ytlytics               controllers.HomeController.hello
 GET     /search                 controllers.HomeController.search(query: String)
 
 GET     /channel                controllers.HomeController.searchchannel(query: String)
+GET     /statistics/:query      controllers.HomeController.showStatistics(query: String)
+

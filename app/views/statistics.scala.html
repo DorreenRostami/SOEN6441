@@ -1,0 +1,32 @@
+@(query: String, wordCounts: List[(String, Long)])
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Word-Level Statistics for "@query"</title>
+    </head>
+    <body>
+        <button onclick="window.history.back();" class="back-button">Back to Results</button>
+        <div class="container">
+            <h1>Word-Level Statistics for "@query"</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Word</th>
+                        <th>Frequency</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @for((word, count) <- wordCounts) {
+                    <tr>
+                        <td>@word</td>
+                        <td>@count</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>
