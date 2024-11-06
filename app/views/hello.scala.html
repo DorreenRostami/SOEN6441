@@ -1,4 +1,4 @@
-@(searchResult: String, videoDetails: List[VideoInfo])
+@(searchHistoryList: List[SearchHistory])
 
 <!DOCTYPE html>
 <html lang="en">
@@ -7,7 +7,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Youtube Search</title>
         <style>
-                /* Style definitions */
                 body {
                     display: flex;
                     justify-content: center;
@@ -72,40 +71,39 @@
     </head>
     <body>
         <div class="container">
-            <h1>Youtube Search</h1>
+            <h1>YouTube Search</h1>
             <div class="search-box">
                 <form action="@routes.HomeController.search("")" method="get">
-                    <input type="text" name="query" value="@searchResult" placeholder="Enter something..." required>
+                    <input type="text" name="query" placeholder="Enter something..." required>
                     <button type="submit">Search</button>
                 </form>
             </div>
 
             <div class="result">
-                @if(searchResult != null && searchResult.nonEmpty) {
-                    <p>You searched for "@searchResult" now.</p>
-                }
+            @for(searchHistory <- searchHistoryList) {
+                <h2>Results for "@searchHistory.getQuery"</h2>
 
-                @for((video, index) <- videoDetails.zipWithIndex) {
+                @for((video, index) <- searchHistory.getResults.zipWithIndex) {
                     @if(index > 0 && index % 10 == 0) {
                         <div class="separator"></div>
                     }
                     <div class="video-wrapper">
-                            <!-- Video information section -->
                         <div class="video">
                             <div class="video-title">
-                                <a href="@video.videoUrl" target="_blank">@video.videoTitle</a>
+                                <a href="@video.getVideoUrl" target="_blank">@video.getVideoTitle</a>
                             </div>
                             <div class="channel-title">
-                                Channel: <a href="@video.channelUrl" target="_blank">@video.channelTitle</a>
-                            </div>
+                                    Channel: <a href="@video.getChannelUrl" target="_blank">@video.getChannelTitle</a>
+                                </div>
                             <div>
-                                Description: @video.description
-                            </div>
+                                    Description: @video.getDescription
+                                </div>
                         </div>
-                            <!-- Thumbnail section, positioned to the right of video information -->
-                        <img src="@video.thumbnailUrl" alt="Thumbnail" class="thumbnail">
+                        <img src="@video.getThumbnailUrl" alt="Thumbnail" class="thumbnail">
                     </div>
                 }
+                <div class="separator"></div>
+            }
             </div>
         </div>
     </body>

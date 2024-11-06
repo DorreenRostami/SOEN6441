@@ -1,5 +1,6 @@
 package controllers;
 
+import models.SearchHistory;
 import models.VideoInfo;
 import models.ChannelInfo;
 import play.mvc.Controller;
@@ -19,7 +20,7 @@ import java.security.GeneralSecurityException;
 import java.util.stream.Collectors;
 
 public class HomeController extends Controller {
-    private static List<VideoInfo> allSearchResults = new ArrayList<>();
+    private static List<SearchHistory> searchHistoryList = new ArrayList<>();
 
     private final YouTubeService youtubeService;
 
@@ -31,8 +32,8 @@ public class HomeController extends Controller {
     // Clear search results and display homepage asynchronously
     public CompletionStage<Result> hello() {
         return CompletableFuture.supplyAsync(() -> {
-            allSearchResults.clear();
-            return ok(hello.render("", allSearchResults));
+            searchHistoryList.clear();
+            return ok(hello.render(searchHistoryList));
         });
     }
 
@@ -42,26 +43,25 @@ public class HomeController extends Controller {
             try {
                 List<SearchResult> results = youtubeService.searchVideos(query);
 
-                // Convert each result into a VideoInfo
+                // Convert each result to a VideoInfo object
                 List<VideoInfo> videoDataList = results.stream().map(result -> new VideoInfo(
                         result.getSnippet().getTitle(),
                         "https://www.youtube.com/watch?v=" + result.getId().getVideoId(),
-//                        result.getId().getVideoId(),
                         result.getSnippet().getChannelTitle(),
-                        "channel?query=" + result.getSnippet().getChannelId(),
+                        "https://www.youtube.com/channel/" + result.getSnippet().getChannelId(),
                         result.getSnippet().getThumbnails().getDefault().getUrl(),
                         result.getSnippet().getDescription()
                 )).toList();
 
-                // Add new results to the top of existing results
-                allSearchResults.addAll(0, videoDataList);
+                // Add the query and its results to the search history
+                searchHistoryList.add(0, new SearchHistory(query, videoDataList));
 
-                // Keep only the 100 most recent results
-                if (allSearchResults.size() > 100) {
-                    allSearchResults = allSearchResults.subList(0, 100);
+                // Limit to the 10 most recent searches
+                if (searchHistoryList.size() > 10) {
+                    searchHistoryList = searchHistoryList.subList(0, 10);
                 }
 
-                return ok(hello.render(query, allSearchResults));
+                return ok(hello.render(searchHistoryList));
             } catch (IOException e) {
                 e.printStackTrace();
                 return internalServerError("Error fetching data from YouTube API");
@@ -85,12 +85,9 @@ public class HomeController extends Controller {
                         result.getSnippet().getDescription()
                 )).collect(Collectors.toList());
 
-                // Add new results to the top of existing results
-                allSearchResults.addAll(0, videoInfoList);
-
                 // Keep only the 10 most recent results
-                if (allSearchResults.size() > 10) {
-                    allSearchResults = allSearchResults.subList(0, 10);
+                if (videoInfoList.size() > 10) {
+                    videoInfoList.subList(0, 10);
                 }
 
                 // Fetch channel details
@@ -99,7 +96,7 @@ public class HomeController extends Controller {
                 ChannelInfo channelInfo = getChannelInfo(channel);
 
                 // Render and return the response
-                return ok(views.html.channel.render(channelId, allSearchResults, channelInfo));
+                return ok(views.html.channel.render(channelId, videoInfoList, channelInfo));
             } catch (IOException e) {
                 e.printStackTrace();
                 return internalServerError("Error fetching data from YouTube API");
