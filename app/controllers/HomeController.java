@@ -1,9 +1,6 @@
 package controllers;
 
-import models.SearchHistory;
-import models.VideoInfo;
-import models.ChannelInfo;
-import models.WordStatistics;
+import models.*;
 import play.mvc.Controller;
 import play.mvc.Result;
 import scala.Tuple2;
@@ -30,6 +27,16 @@ public class HomeController extends Controller {
     @Inject
     public HomeController() throws GeneralSecurityException, IOException {
         this.youtubeService = new YouTubeService();
+    }
+
+    /**
+     * redicrects the / route to /ytlytis route (typing in localhost:9000 will redirect to localhost:9000/ytlytics
+     * which is the main search page)
+     *
+     * @author - Dorreen Rostami
+     */
+    public Result redirectToYtLytics() {
+        return redirect(routes.HomeController.hello());
     }
 
     /**
