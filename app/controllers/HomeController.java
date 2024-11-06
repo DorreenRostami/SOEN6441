@@ -31,7 +31,12 @@ public class HomeController extends Controller {
         this.youtubeService = new YouTubeService();
     }
 
-    // Clear search results and display homepage asynchronously
+    /**
+     * method for showing the homepage with an empty search history
+     * @return a CompletableFuture containing a result which renders the hello page
+     * @author Hamza - initial implementation
+     * @author Dorreen - made it asynchronous
+     */
     public CompletionStage<Result> hello() {
         return CompletableFuture.supplyAsync(() -> {
             searchHistoryList.clear();
@@ -39,7 +44,18 @@ public class HomeController extends Controller {
         });
     }
 
-    // Get the results of a new search and save them asynchronously
+    /**
+     * Search for a query and asynchronously get the top 10 resulting videos from the Youtube API and append
+     * the query and list of videos to the search history (which includes the 10 most recent queries and 10 videos
+     * for each query, so 100 videos in total)
+     *
+     * @param query the query for which the videos are searched through
+     * @return a CompletableFuture which includes the search history (queries until now and their top 10 videos)
+     * @author Dorreen - implementation
+     *
+     * @author Hao - changed channelURL so that clicking on it opens a web page containing all available profile
+     * information about a channel instead of opening the channel in Youtube
+     */
     public CompletionStage<Result> search(String query) {
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -55,10 +71,10 @@ public class HomeController extends Controller {
                         result.getSnippet().getDescription()
                 )).toList();
 
-                // Add the query and its results to the search history
+                // add the query and its results to the search history
                 searchHistoryList.add(0, new SearchHistory(query, videoInfoList));
 
-                // Limit to the 10 most recent searches
+                // limit to 10 most recent searche histories
                 if (searchHistoryList.size() > 10) {
                     searchHistoryList = searchHistoryList.subList(0, 10);
                 }
@@ -71,7 +87,7 @@ public class HomeController extends Controller {
         });
     }
 
-    public CompletionStage<Result> searchchannel(String channelId) {
+    public CompletionStage<Result> searchChannel(String channelId) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 // Fetch videos for the channel
@@ -118,7 +134,16 @@ public class HomeController extends Controller {
                 channel.getStatistics().getViewCount().longValue()
         );
     }
-    
+
+    /**
+     * For a search query (one or multiple keywords), display word-level statistics for the 50 latest
+     * (less if fewer are available), counting all unique words in descending order (by frequency of the words)
+     *
+     * @param query the query for which the word statistics are computed
+     * @return a CompletableFuture which includes a list of all the words found when searching the query
+     * and the words' count with the list being sorted in descending order of count
+     * @author Dorreen Rostami
+     */
     public CompletionStage<Result> showStatistics(String query) {
         return CompletableFuture.supplyAsync(() -> {
             try {

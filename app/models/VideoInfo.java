@@ -1,5 +1,9 @@
 package models;
 
+/**
+ * a class which contains all the information we need to keep about videos to show them in the main search page
+ * @author Dorreen
+ */
 public class VideoInfo {
     private final String videoTitle;
     private final String videoUrl;
