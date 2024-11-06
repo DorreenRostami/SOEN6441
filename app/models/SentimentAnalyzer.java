@@ -1018,6 +1018,7 @@ public class SentimentAnalyzer {
      */
     public static Sentiment getSentiment(Stream<VideoInfo> videos){
         int sentimentValue = videos
+            .limit(50)
             .mapToInt(video -> {
                 String[] words = video.getDescription().split(" ");
                 words = Arrays.stream(words).map(word -> word.toLowerCase().replaceAll("\\p{Punct}", "")).toArray(String[]::new);
