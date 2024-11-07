@@ -25,7 +25,6 @@ public class YouTubeService {
     /**
      * Constructor for the YouTubeService class which initializes the YouTube service
      * @author Dorreen - initial implementation of searchVideos
-     * @author Hao - added channel video search and channel details
      */
     public YouTubeService() throws GeneralSecurityException, IOException {
         youtubeService = new YouTube.Builder(
@@ -46,7 +45,29 @@ public class YouTubeService {
 
         return response.getItems();
     }
+    /**
+     * Get the details of a channel
+     * @param channelId the id of the channel
+     * @return a ChannelListResponse object containing the details of the channel
+     * @author Hao - initial implementation and changed channelURL
+     * so that clicking on it opens a web page containing all available profile
+     */
+    public ChannelListResponse getChannelDetails(String channelId) throws IOException {
+        YouTube.Channels.List request = youtubeService.channels().list("snippet,statistics");
+        ChannelListResponse response = request
+                .setKey(API_KEY)
+                .setId(channelId)
+                .execute();
 
+        return response;
+    }
+    /**
+     * Print for videos in a channel
+     * @param channelId the id of the channel
+     * @return a list of search results containing the videos in the channel
+     * @author Hao - changed channelURL so that clicking on it opens a web page containing all available profile
+     * information about a channel instead of opening the channel in Youtube
+     */
     public List<SearchResult> searchChannelVideos(String channelId) throws IOException {
         YouTube.Search.List request = youtubeService.search().list("snippet");
         SearchListResponse response = request
@@ -58,15 +79,5 @@ public class YouTubeService {
                 .execute();
 
         return response.getItems();
-    }
-
-    public ChannelListResponse getChannelDetails(String channelId) throws IOException {
-        YouTube.Channels.List request = youtubeService.channels().list("snippet,statistics");
-        ChannelListResponse response = request
-                .setKey(API_KEY)
-                .setId(channelId)
-                .execute();
-
-        return response;
     }
 }

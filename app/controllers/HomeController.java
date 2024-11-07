@@ -80,27 +80,12 @@ public class HomeController extends Controller {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 // Fetch videos for the channel
-                List<SearchResult> results = youtubeService.searchChannelVideos(channelId);
-
-                // Convert each video result into a VideoData object
-                List<VideoInfo> videoInfoList = results.stream().map(result -> new VideoInfo(
-                        result.getSnippet().getTitle(),
-                        "https://www.youtube.com/watch?v=" + result.getId().getVideoId(),
-                        result.getSnippet().getChannelTitle(),
-                        "channel?query=" + result.getSnippet().getChannelId(),
-                        result.getSnippet().getThumbnails().getDefault().getUrl(),
-                        result.getSnippet().getDescription()
-                )).collect(Collectors.toList());
-
-                // Keep only the 10 most recent results
-                if (videoInfoList.size() > 10) {
-                    videoInfoList.subList(0, 10);
-                }
+                List<VideoInfo> videoInfoList = ChannelService.searchChannel(channelId, youtubeService);
 
                 // Fetch channel details
                 ChannelListResponse channelResponse = youtubeService.getChannelDetails(channelId);
                 Channel channel = channelResponse.getItems().get(0);
-                ChannelInfo channelInfo = getChannelInfo(channel);
+                ChannelInfo channelInfo = ChannelService.getChannelInfo(channel);
 
                 // Render and return the response
                 return ok(views.html.channel.render(channelId, videoInfoList, channelInfo));
@@ -109,19 +94,6 @@ public class HomeController extends Controller {
                 return internalServerError("Error fetching data from YouTube API");
             }
         });
-    }
-
-    private ChannelInfo getChannelInfo(Channel channel) {
-        return new ChannelInfo(
-                channel.getSnippet().getTitle(),
-                channel.getId(),
-                "https://www.youtube.com/channel/" + channel.getId(),
-                channel.getSnippet().getThumbnails().getDefault().getUrl(),
-                channel.getSnippet().getDescription(),
-                channel.getStatistics().getSubscriberCount().longValue(),
-                channel.getStatistics().getVideoCount().longValue(),
-                channel.getStatistics().getViewCount().longValue()
-        );
     }
 
     /**
