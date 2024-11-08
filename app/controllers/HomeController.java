@@ -122,7 +122,8 @@ public class HomeController extends Controller {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 List<SearchResult> results = youtubeService.searchVideos(query).stream()
-                        .limit(50).toList();
+                        .limit(50)
+                        .collect(Collectors.toList());
 
                 List<String> resultText = results.stream()
                         .flatMap(result -> Stream.of(
