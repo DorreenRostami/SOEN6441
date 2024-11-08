@@ -2,14 +2,9 @@ package models;
 
 import com.google.api.services.youtube.model.SearchResult;
 import services.SentimentAnalyzer;
-import services.YouTubeService;
 
 import java.io.IOException;
 import java.util.stream.Collectors;
-import com.google.api.services.youtube.model.Video;
-import services.YouTubeService;
-
-import java.io.IOException;
 import java.util.List;
 
 /**

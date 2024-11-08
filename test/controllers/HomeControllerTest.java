@@ -2,13 +2,10 @@ package controllers;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static play.mvc.Results.ok;
-import play.Application;
-import play.inject.guice.GuiceApplicationBuilder;
 
 import com.google.api.services.youtube.model.Video;
 import com.google.api.services.youtube.model.ChannelListResponse;
 import com.google.api.services.youtube.model.Channel;
-import com.google.api.services.youtube.model.SearchResult;
 import models.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,22 +15,17 @@ import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.test.WithApplication;
 import services.*;
-import views.html.hello;
-import views.html.videoDetails;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
-import static play.inject.Bindings.bind;
-
-import com.google.api.services.youtube.model.*;
 
 
-class HomeControllerTest extends WithApplication {
+
+class HomeControllerTest {
 
     @Mock private Cache cache;
     @Mock private YouTubeService youtubeService;
@@ -157,59 +149,5 @@ class HomeControllerTest extends WithApplication {
             mockedChannelService.verify(() -> ChannelService.getChannelInfo(any()), never());
             mockedChannelService.verify(() -> ChannelService.searchChannel(anyString(), any(Cache.class)), never());
         }
-    }
-}
-
-
-//TODO: change to give some more videos
-class MockYouTubeService implements YouTubeServiceInterface {
-
-    @Override
-    public List<SearchResult> searchVideos(String query) throws IOException {
-        // Create a mock SearchResult
-        SearchResult searchResult = new SearchResult();
-        searchResult.setId(new ResourceId().setVideoId("mockVideoId1"));
-        searchResult.setSnippet(new SearchResultSnippet().setTitle("Mock Video Title").setDescription("Mock video description"));
-
-        // Return a list with the mock SearchResult
-        return Collections.singletonList(searchResult);
-    }
-
-    @Override
-    public ChannelListResponse getChannelDetails(String channelId) throws IOException {
-        // Create a mock ChannelListResponse
-        Channel channel = new Channel();
-        channel.setId("mockChannelId");
-        channel.setSnippet(new ChannelSnippet().setTitle("Mock Channel Title"));
-
-        ChannelListResponse response = new ChannelListResponse();
-        response.setItems(Collections.singletonList(channel));
-
-        return response;
-    }
-
-    @Override
-    public List<SearchResult> searchChannelVideos(String channelId) throws IOException {
-        // Similar mock setup as searchVideos, returning mock SearchResults
-        SearchResult searchResult = new SearchResult();
-        searchResult.setId(new ResourceId().setVideoId("mockChannelVideoId1"));
-        searchResult.setSnippet(new SearchResultSnippet().setTitle("Mock Channel Video Title").setDescription("Mock channel video description"));
-
-        return Collections.singletonList(searchResult);
-    }
-
-    @Override
-    public List<Video> getVideoDetails(List<String> videoIds) throws IOException {
-        // Create a mock Video
-        Video video = new Video();
-        video.setId("mockVideoId1");
-        video.setSnippet(new VideoSnippet().setTitle("Mock Video Title").setDescription("Mock video description"));
-
-        return Collections.singletonList(video);
-    }
-
-    @Override
-    public String getDescription(String videoId) throws IOException {
-        return "Mock video description for video ID: " + videoId;
     }
 }

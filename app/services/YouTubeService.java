@@ -11,7 +11,7 @@ import java.security.GeneralSecurityException;
 import java.util.List;
 
 
-public class YouTubeService  implements YouTubeServiceInterface {
+public class YouTubeService {
     private static final String API_KEY = "AIzaSyACVI8Yoz4mFuWy_ZRfXIIrohZgNtHLRyQ"; // API key
     private static final String APPLICATION_NAME = "Play YouTube Search";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -20,7 +20,7 @@ public class YouTubeService  implements YouTubeServiceInterface {
 
     /**
      * Constructor for the YouTubeService class which initializes the YouTube service
-     * @author Dorreen - initial implementation of searchVideos
+     * @author Hao
      */
     public YouTubeService() throws GeneralSecurityException, IOException {
         youtubeService = new YouTube.Builder(
@@ -41,12 +41,12 @@ public class YouTubeService  implements YouTubeServiceInterface {
                 .execute();
         return response.getItems();
     }
+
     /**
      * Get the details of a channel
      * @param channelId the id of the channel
      * @return a ChannelListResponse object containing the details of the channel
-     * @author Hao - initial implementation and changed channelURL
-     * so that clicking on it opens a web page containing all available profile
+     * @author Hao
      */
     public ChannelListResponse getChannelDetails(String channelId) throws IOException {
         YouTube.Channels.List request = youtubeService.channels().list("snippet,statistics");
@@ -56,12 +56,12 @@ public class YouTubeService  implements YouTubeServiceInterface {
                 .execute();
         return response;
     }
+
     /**
      * Print for videos in a channel
      * @param channelId the id of the channel
      * @return a list of search results containing the videos in the channel
-     * @author Hao - changed channelURL so that clicking on it opens a web page containing all available profile
-     * information about a channel instead of opening the channel in Youtube
+     * @author Hao
      */
     public List<SearchResult> searchChannelVideos(String channelId) throws IOException {
         YouTube.Search.List request = youtubeService.search().list("snippet");
@@ -75,6 +75,7 @@ public class YouTubeService  implements YouTubeServiceInterface {
 
         return response.getItems();
     }
+
     public List<Video> getVideoDetails(List<String> videoIds) throws IOException {
         YouTube.Videos.List request = youtubeService.videos().list("snippet");
         VideoListResponse response = request
