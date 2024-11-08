@@ -104,7 +104,7 @@
                                     Channel: <a href="@video.getChannelUrl" target="_blank">@video.getChannelTitle</a>
                                 </div>
                             <div>
-                                    Description: @video.getDescription
+                                @if(video.getDescription.isEmpty) { ---No Description--- } else { Description: @video.getDescription }
                             </div>
                             <div class="tags">
                                      <a href="@video.getTagsUrl" target="_blank">Tags</a>
