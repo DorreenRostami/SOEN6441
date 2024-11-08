@@ -2,7 +2,9 @@ package models;
 
 import com.google.api.services.youtube.model.SearchResult;
 import services.SentimentAnalyzer;
+import services.YouTubeService;
 
+import java.io.IOException;
 import java.util.stream.Collectors;
 import java.util.List;
 
@@ -43,15 +45,24 @@ public class SearchHistory {
      * @author Hao - changed channelURL so that clicking on it opens a web page containing all available profile
      * information about a channel instead of opening the channel in Youtube
      */
-    public static List<SearchHistory> addToSearchHistory(List<SearchHistory> searchHistoryList, String query, List<SearchResult> results){
-        List<VideoInfo> videoInfoList = results.stream().map(result -> new VideoInfo(
-                result.getSnippet().getTitle(),
-                "https://www.youtube.com/watch?v=" + result.getId().getVideoId(),
-                result.getSnippet().getChannelTitle(),
-                "/channel?query=" + result.getSnippet().getChannelId(),
-                result.getSnippet().getThumbnails().getDefault().getUrl(),
-                result.getSnippet().getDescription()
-        )).collect(Collectors.toList());
+    public static List<SearchHistory> addToSearchHistory(List<SearchHistory> searchHistoryList, String query, List<SearchResult> results, YouTubeService youTubeService){
+        List<VideoInfo> videoInfoList = results.stream().map(result -> {
+            String videoId = result.getId().getVideoId();
+            String description = "";
+            try {
+                description = youTubeService.getDescription(videoId);
+            } catch (IOException e){
+                System.out.println("Unable to fetch description for videoId: " + videoId);
+            }
+            return new VideoInfo(
+                    result.getSnippet().getTitle(),
+                    "https://www.youtube.com/watch?v=" + videoId,
+                    result.getSnippet().getChannelTitle(),
+                    "/channel?query=" + result.getSnippet().getChannelId(),
+                    result.getSnippet().getThumbnails().getDefault().getUrl(),
+                    description
+            );
+        }).collect(Collectors.toList());
         SentimentAnalyzer.Sentiment sentiment = SentimentAnalyzer.getSentiment(videoInfoList.stream());
         searchHistoryList.add(0, new SearchHistory(query, videoInfoList, sentiment));
 
