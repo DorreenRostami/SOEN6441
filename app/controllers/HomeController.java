@@ -94,10 +94,10 @@ public class HomeController extends Controller {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 // Fetch videos for the channel
-                List<VideoInfo> videoInfoList = ChannelService.searchChannel(channelId, youtubeService);
+                List<VideoInfo> videoInfoList = ChannelService.searchChannel(channelId, cache);
 
                 // Fetch channel details
-                ChannelListResponse channelResponse = youtubeService.getChannelDetails(channelId);
+                ChannelListResponse channelResponse = cache.getChannelDetails(channelId);
                 Channel channel = channelResponse.getItems().get(0);
                 ChannelInfo channelInfo = ChannelService.getChannelInfo(channel);
 
