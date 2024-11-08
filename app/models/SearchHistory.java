@@ -33,24 +33,26 @@ public class SearchHistory {
     }
 
     /**
-     * Append the results found from the Youtube API to the search history (which includes the 10 most
+     * Append the results found from the YouTube API to the search history (which includes the 10 most
      * recent queries and 10 videos for each query, so 100 videos in total)
      *
      * @param searchHistoryList The current list of search history to which the new entry will be added
      * @param query The search query
-     * @param results A list of Youtube SearchResult objects containing video details
+     * @param results A list of YouTube SearchResult objects containing video details
      * @return The updated searchHistoryList containing the new entries
      * @author Dorreen Rostami - implementation
      *
      * @author Hao - changed channelURL so that clicking on it opens a web page containing all available profile
-     * information about a channel instead of opening the channel in Youtube
+     * information about a channel instead of opening the channel in YouTube
+     *
+     * @author Hamza Asghar Khan - Updated the video description
      */
-    public static List<SearchHistory> addToSearchHistory(List<SearchHistory> searchHistoryList, String query, List<SearchResult> results, YouTubeService youTubeService){
+    public static List<SearchHistory> addToSearchHistory(List<SearchHistory> searchHistoryList, String query, List<SearchResult> results, Cache cache){
         List<VideoInfo> videoInfoList = results.stream().map(result -> {
             String videoId = result.getId().getVideoId();
             String description = "";
             try {
-                description = youTubeService.getDescription(videoId);
+                description = cache.getDescription(videoId);
             } catch (IOException e){
                 System.out.println("Unable to fetch description for videoId: " + videoId);
             }

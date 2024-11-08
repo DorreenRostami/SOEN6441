@@ -75,6 +75,13 @@ public class YouTubeService {
         return response.getItems();
     }
 
+    /**
+     * Returns the description for the provided video
+     * @param videoId Target VideoId
+     * @return Description of the video or an empty string in case of no description
+     * @throws IOException In the event that the API fails.
+     * @author Hamza Asghar Khan
+     */
     public String getDescription(String videoId) throws IOException {
         YouTube.Videos.List request = youtubeService.videos().list("snippet");
         VideoListResponse response = request.setId(videoId).setKey(API_KEY).execute();
