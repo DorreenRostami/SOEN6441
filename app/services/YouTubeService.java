@@ -4,6 +4,9 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
+import com.google.api.services.youtube.model.SearchListResponse;
+import com.google.api.services.youtube.model.SearchResult;
+import com.google.api.services.youtube.model.ChannelListResponse;
 import com.google.api.services.youtube.model.*;
 import models.ChannelInfo;
 
@@ -83,5 +86,4 @@ public class YouTubeService {
                 .execute();
         return response.getItems();
     }
-
 }
