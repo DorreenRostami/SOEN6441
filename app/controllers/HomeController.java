@@ -103,7 +103,6 @@ public class HomeController extends Controller {
      * Provides a page containing all the information about the request channel.
      * @param channelId Id of the target channel
      * @return a CompletableFuture containing the webpage.
-     * @author Dorreen - initial implementation
      * @author Hao
      */
     public CompletionStage<Result> searchChannel(String channelId) {
@@ -117,7 +116,6 @@ public class HomeController extends Controller {
                 Channel channel = channelResponse.getItems().get(0);
                 ChannelInfo channelInfo = ChannelService.getChannelInfo(channel);
 
-                // Render and return the response
                 return ok(views.html.channel.render(channelId, videoInfoList, channelInfo));
             } catch (IOException e) {
                 e.printStackTrace();
