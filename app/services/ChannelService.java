@@ -1,7 +1,9 @@
-package models;
+package services;
 
 import com.google.api.services.youtube.model.Channel;
 import com.google.api.services.youtube.model.SearchResult;
+import models.ChannelInfo;
+import models.VideoInfo;
 
 import java.io.IOException;
 import java.util.List;

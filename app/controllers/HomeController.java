@@ -5,7 +5,10 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import scala.Tuple2;
+import services.ChannelService;
 import services.SessionsService;
+import services.WordStatistics;
+import services.YouTubeService;
 import views.html.hello;
 
 import com.google.api.services.youtube.model.SearchResult;
