@@ -36,6 +36,7 @@ public class YouTubeService {
                 .setKey(API_KEY)
                 .setQ(query)
                 .setType("video")
+                .setOrder("date")
                 .setMaxResults(10L)
                 .execute();
         return response.getItems();
