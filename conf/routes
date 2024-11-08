@@ -9,4 +9,3 @@ GET     /search                 controllers.HomeController.search(request: play.
 
 GET     /channel                controllers.HomeController.searchChannel(query: String)
 GET     /statistics/:query      controllers.HomeController.showStatistics(query: String)
-

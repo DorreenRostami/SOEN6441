@@ -27,9 +27,13 @@ public class SentimentAnalyzer {
      * Enumeration containing the three possible sentiments: POSITIVE, NEGATIVE, and NEUTRAL.
      */
     public enum Sentiment{
-        POSITIVE,
-        NEGATIVE,
-        NEUTRAL
+        POSITIVE(":-)"),
+        NEGATIVE(":-("),
+        NEUTRAL(":-|");
+        public final String emoji;
+        Sentiment(String emoji){
+            this.emoji = emoji;
+        }
     }
     private static final List<String> positiveWordsList = List.of(
             "a+", "abound", "abounds", "abundance", "abundant", "accessable", "accessible",
