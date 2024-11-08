@@ -11,7 +11,7 @@ import java.security.GeneralSecurityException;
 import java.util.List;
 
 
-public class YouTubeService {
+public class YouTubeService  implements YouTubeServiceInterface {
     private static final String API_KEY = "AIzaSyACVI8Yoz4mFuWy_ZRfXIIrohZgNtHLRyQ"; // API key
     private static final String APPLICATION_NAME = "Play YouTube Search";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
