@@ -42,7 +42,6 @@ public class YouTubeService {
                 .setType("video")
                 .setMaxResults(10L)
                 .execute();
-
         return response.getItems();
     }
     /**
@@ -58,7 +57,6 @@ public class YouTubeService {
                 .setKey(API_KEY)
                 .setId(channelId)
                 .execute();
-
         return response;
     }
     /**

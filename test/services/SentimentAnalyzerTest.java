@@ -1,7 +1,9 @@
-package models;
+package services;
 
+import models.VideoInfo;
 import org.junit.Assert;
 import org.junit.Test;
+
 import java.util.List;
 
 /**

@@ -2,8 +2,10 @@ package controllers;
 
 import models.*;
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Result;
 import scala.Tuple2;
+import services.SessionsService;
 import views.html.hello;
 
 import com.google.api.services.youtube.model.SearchResult;
@@ -20,7 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class HomeController extends Controller {
-    private static List<SearchHistory> searchHistoryList = new ArrayList<>();
+    private static final Database database = new Database();
 
     private final YouTubeService youtubeService;
 
@@ -45,10 +47,14 @@ public class HomeController extends Controller {
      * @author Hamza - initial implementation
      * @author Dorreen - made it asynchronous
      */
-    public CompletionStage<Result> hello() {
+    public CompletionStage<Result> hello(Http.Request request) {
         return CompletableFuture.supplyAsync(() -> {
-            searchHistoryList.clear();
-            return ok(hello.render(searchHistoryList));
+            String sessionId = SessionsService.getSessionId(request);
+            database.initRecord(sessionId);
+            if (SessionsService.hasSessionId(request)){
+                return ok(hello.render(database.get(sessionId)));
+            }
+            return ok(hello.render(database.get(sessionId))).addingToSession(request, "sessionId", sessionId);
         });
     }
 
@@ -61,14 +67,18 @@ public class HomeController extends Controller {
      * @return a CompletableFuture which includes the search history (queries until now and their top 10 videos)
      * @author Dorreen Rostami
      */
-    public CompletionStage<Result> search(String query) {
+    public CompletionStage<Result> search(Http.Request request, String query) {
         return CompletableFuture.supplyAsync(() -> {
             try {
+                String sessionId = SessionsService.getSessionId(request);
                 List<SearchResult> results = youtubeService.searchVideos(query);
-
-                searchHistoryList = SearchHistory.addToSearchHistory(searchHistoryList, query, results);
-
-                return ok(hello.render(searchHistoryList));
+                List<SearchHistory> searchHistory = SearchHistory.addToSearchHistory(database.get(sessionId), query, results);
+                database.put(sessionId, searchHistory);
+                Result response = ok(hello.render(searchHistory));
+                if (!SessionsService.hasSessionId(request)){
+                    response = response.addingToSession(request, "sessionId", sessionId);
+                }
+                return response;
             } catch (IOException e) {
                 e.printStackTrace();
                 return internalServerError("Error fetching data from YouTube API");

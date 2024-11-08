@@ -3,9 +3,9 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET     /                       controllers.HomeController.redirectToYtLytics
-GET     /ytlytics               controllers.HomeController.hello
-GET     /search                 controllers.HomeController.search(query: String)
+GET     /                       controllers.HomeController.redirectToYtLytics()
+GET     /ytlytics               controllers.HomeController.hello(request: play.mvc.Http.Request)
+GET     /search                 controllers.HomeController.search(request: play.mvc.Http.Request, query: String)
 
 GET     /channel                controllers.HomeController.searchChannel(query: String)
 GET     /statistics/:query      controllers.HomeController.showStatistics(query: String)

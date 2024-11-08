@@ -1,7 +1,6 @@
 package models;
 
 import com.google.api.services.youtube.model.Channel;
-import com.google.api.services.youtube.model.ChannelListResponse;
 import com.google.api.services.youtube.model.SearchResult;
 
 import java.io.IOException;
