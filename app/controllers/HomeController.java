@@ -75,7 +75,7 @@ public class HomeController extends Controller {
             try {
                 String sessionId = SessionsService.getSessionId(request);
                 List<SearchResult> results = youtubeService.searchVideos(query);
-                List<SearchHistory> searchHistory = SearchHistory.addToSearchHistory(database.get(sessionId), query, results);
+                List<SearchHistory> searchHistory = SearchHistory.addToSearchHistory(database.get(sessionId), query, results, youtubeService);
                 database.put(sessionId, searchHistory);
                 Result response = ok(hello.render(searchHistory));
                 if (!SessionsService.hasSessionId(request)){

@@ -4,10 +4,7 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.SearchListResponse;
-import com.google.api.services.youtube.model.SearchResult;
-import com.google.api.services.youtube.model.Channel;
-import com.google.api.services.youtube.model.ChannelListResponse;
+import com.google.api.services.youtube.model.*;
 import models.ChannelInfo;
 
 import java.io.IOException;
@@ -78,4 +75,13 @@ public class YouTubeService {
 
         return response.getItems();
     }
+    public List<Video> getVideoDetails(List<String> videoIds) throws IOException {
+        YouTube.Videos.List request = youtubeService.videos().list("snippet");
+        VideoListResponse response = request
+                .setKey(API_KEY)
+                .setId(String.join(",", videoIds))
+                .execute();
+        return response.getItems();
+    }
+
 }
