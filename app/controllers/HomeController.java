@@ -32,7 +32,7 @@ public class HomeController extends Controller {
     @Inject
     public HomeController() throws GeneralSecurityException, IOException {
         this.youtubeService = new YouTubeService();
-        cache = new Cache(this.youtubeService);
+        cache = new Cache(youtubeService);
     }
 
     /**

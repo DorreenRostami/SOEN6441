@@ -2,6 +2,7 @@ package models;
 
 import com.google.api.services.youtube.model.ChannelListResponse;
 import com.google.api.services.youtube.model.SearchResult;
+import services.YouTubeService;
 
 import java.io.IOException;
 import java.util.HashMap;
