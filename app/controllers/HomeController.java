@@ -23,12 +23,13 @@ import java.util.stream.Stream;
 
 public class HomeController extends Controller {
     private static final Database database = new Database();
-
+    private final Cache cache;
     private final YouTubeService youtubeService;
 
     @Inject
     public HomeController() throws GeneralSecurityException, IOException {
         this.youtubeService = new YouTubeService();
+        cache = new Cache(this.youtubeService);
     }
 
     /**
@@ -71,7 +72,7 @@ public class HomeController extends Controller {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 String sessionId = SessionsService.getSessionId(request);
-                List<SearchResult> results = youtubeService.searchVideos(query);
+                List<SearchResult> results = cache.get(query, false);
                 List<SearchHistory> searchHistory = SearchHistory.addToSearchHistory(database.get(sessionId), query, results);
                 database.put(sessionId, searchHistory);
                 Result response = ok(hello.render(searchHistory));
