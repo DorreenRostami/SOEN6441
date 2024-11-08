@@ -1,6 +1,6 @@
 // models/WordFrequencyAnalyzer.java
 
-package models;
+package services;
 
 import scala.Tuple2;
 
@@ -19,15 +19,16 @@ public class WordStatistics {
     public static List<Tuple2<String, Long>> getWordStats(List<String> text) {
         Map<String, Long> wordCount = text.stream()
                 .filter(s -> s != null && !s.trim().isEmpty())
-                .flatMap(t -> Arrays.stream(t.split(" ")))
+                .flatMap(t -> Arrays.stream(t.split("[^\\p{L}]+"))) //split by non-letter
                 .map(String::toLowerCase)
                 .filter(word -> word.matches("\\p{L}+"))  //no non-letter words
                 .collect(Collectors.groupingBy(word -> word, Collectors.counting()));
 
-        // sort in descending order
+        // Sort in descending order
         return wordCount.entrySet().stream()
                 .sorted((e1, e2) -> Long.compare(e2.getValue(), e1.getValue()))
                 .map(entry -> new Tuple2<>(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
     }
+
 }
