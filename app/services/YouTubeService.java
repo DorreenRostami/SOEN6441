@@ -16,7 +16,7 @@ import java.util.List;
 
 
 public class YouTubeService {
-    private static final String API_KEY = "AIzaSyCxx9hUhwCa4RlyJKp3tps1Q7xW398bxsc"; // API key
+    private static final String API_KEY = "AIzaSyACqubjXenoz7mp2idclHETDE3oyJO47Uo"; // API key
     private static final String APPLICATION_NAME = "Play YouTube Search";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 

@@ -41,6 +41,7 @@ public class ChannelService {
                 "channel?query=" + result.getSnippet().getChannelId(),
                 result.getSnippet().getThumbnails().getDefault().getUrl(),
                 result.getSnippet().getDescription()
+
         )).collect(Collectors.toList());
 
         // Keep only the 10 most recent results
