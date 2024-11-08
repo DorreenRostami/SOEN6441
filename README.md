@@ -1,1 +1,3 @@
-google API key: AIzaSyCxx9hUhwCa4RlyJKp3tps1Q7xW398bxsc
+available google API key: 
+AIzaSyCxx9hUhwCa4RlyJKp3tps1Q7xW398bxsc
+AIzaSyB5mlvHtkz-BD5LDx2xyJGirRQvl-Yz6GI
