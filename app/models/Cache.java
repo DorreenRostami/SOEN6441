@@ -2,8 +2,10 @@ package models;
 
 import com.google.api.services.youtube.model.ChannelListResponse;
 import com.google.api.services.youtube.model.SearchResult;
+import com.google.api.services.youtube.model.Video;
 import services.YouTubeService;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,16 +30,18 @@ public class Cache {
      */
     private final Map<String, String> descriptionCache = new HashMap<>();
     /**
-     * A map containing all the videoIds mapped to their tags.
+     * A map containing all the videoIds mapped to their according constructed Video object.
      */
-    private final Map<String, List<String>> tagsCache = new HashMap<>();
+    private final Map<String, Video> videoCache = new HashMap<>();
 
     private final YouTubeService youTubeService;
+
     /**
      * Public constructor for Cache
      * @param youTubeService YouTubeService Object
      * @author Hamza Asghar Khan
      */
+    @Inject
     public Cache(YouTubeService youTubeService){
         this.youTubeService = youTubeService;
     }
@@ -112,16 +116,16 @@ public class Cache {
     }
 
     /**
-     * Retrieve "tags" field for the provided videoId. In the event of a cache hit, the tags are fetched from the
-     * cache. In the event of a cache miss, the cache is populated using the YouTube API and the tags are returned
+     * Retrieve Video object for the provided videoId. In the event of a cache hit, the according Video object is
+     * fetched from the cache. In the event of a cache miss, the cache is populated using the YouTube API
      * @param videoId Target VideoId
      */
-    public List<String> getTags(String videoId) throws IOException {
-        if (tagsCache.containsKey(videoId)) {
-            return tagsCache.get(videoId);
+    public Video getVideo(String videoId) throws IOException {
+        if (videoCache.containsKey(videoId)) {
+            return videoCache.get(videoId);
         }
-        List<String> tags = youTubeService.getVideoDetails(Collections.singletonList(videoId)).get(0).getSnippet().getTags();
-        tagsCache.put(videoId, tags);
-        return tags;
+        Video video = youTubeService.getVideoDetails(Collections.singletonList(videoId)).get(0);
+        videoCache.put(videoId, video);
+        return video;
     }
 }

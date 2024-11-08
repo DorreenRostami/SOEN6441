@@ -61,12 +61,12 @@ public class SearchHistory {
                 System.out.println("Unable to fetch description for videoId: " + videoId);
             }
 
-            List<String> tags = List.of();
-            try {
-                tags = cache.getTags(videoId);
-            } catch (IOException e){
-                System.out.println("Unable to fetch tags for videoId: " + videoId);
-            }
+//            List<String> tags = List.of();
+//            try {
+//                tags = cache.getTags(videoId);
+//            } catch (IOException e){
+//                System.out.println("Unable to fetch tags for videoId: " + videoId);
+//            }
 
             return new VideoInfo(
                     result.getSnippet().getTitle(),
@@ -75,7 +75,7 @@ public class SearchHistory {
                     "/channel?query=" + result.getSnippet().getChannelId(),
                     result.getSnippet().getThumbnails().getDefault().getUrl(),
                     description,
-                    tags
+                    "/video?videoId=" + videoId
             );
         }).collect(Collectors.toList());
         SentimentAnalyzer.Sentiment sentiment = SentimentAnalyzer.getSentiment(videoInfoList.stream());

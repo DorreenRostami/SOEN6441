@@ -59,6 +59,10 @@
                     font-size: 14px;
                     color: #555;
                 }
+                .tags {
+                    font-size: 14px;
+                    color: #555;
+                }
                 .thumbnail {
                     max-width: 120px;
                     margin-left: 20px;
@@ -102,8 +106,8 @@
                             <div>
                                     Description: @video.getDescription
                             </div>
-                            <div>
-                                Tags: @video.getTags
+                            <div class="tags">
+                                     <a href="@video.getTagsUrl" target="_blank">Tags</a>
                             </div>
                         </div>
                         <img src="@video.getThumbnailUrl" alt="Thumbnail" class="thumbnail">

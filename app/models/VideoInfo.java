@@ -11,15 +11,17 @@ public class VideoInfo {
     private String thumbnailUrl;
     private String description;
     private List<String> tags;
+    private String tagsUrl;
 
-    public VideoInfo(String videoTitle, String videoUrl, String channelTitle, String channelUrl, String thumbnailUrl, String description, List<String> tags) {
+    public VideoInfo(String videoTitle, String videoUrl, String channelTitle, String channelUrl, String thumbnailUrl,
+                     String description, String tagsUrl) {
         this.videoTitle = videoTitle;
         this.videoUrl = videoUrl;
         this.channelTitle = channelTitle;
         this.channelUrl = channelUrl;
         this.thumbnailUrl = thumbnailUrl;
         this.description = description;
-        this.tags = tags;
+        this.tagsUrl = tagsUrl;
     }
 
     public String getVideoTitle() {
@@ -48,5 +50,9 @@ public class VideoInfo {
 
     public List<String> getTags() {
         return tags;
+    }
+
+    public String getTagsUrl() {
+        return tagsUrl;
     }
 }

@@ -1,5 +1,6 @@
 package controllers;
 
+import com.google.api.services.youtube.model.Video;
 import models.*;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -9,11 +10,13 @@ import services.ChannelService;
 import services.SessionsService;
 import services.WordStatistics;
 import services.YouTubeService;
+import services.VideoDetailSevice;
 import views.html.hello;
 
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Channel;
 import com.google.api.services.youtube.model.ChannelListResponse;
+import views.html.videoDetails;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -28,11 +31,17 @@ public class HomeController extends Controller {
     private static final Database database = new Database();
     private final Cache cache;
     private final YouTubeService youtubeService;
+    private final VideoDetailSevice videoDetailSevice;
 
     @Inject
-    public HomeController() throws GeneralSecurityException, IOException {
-        this.youtubeService = new YouTubeService();
-        cache = new Cache(youtubeService);
+    public HomeController(YouTubeService youTubeService, Cache cache, VideoDetailSevice videoDetailSevice) throws GeneralSecurityException,
+            IOException {
+//        this.youtubeService = new YouTubeService();
+//        cache = new Cache(youtubeService);
+//        videoDetailSevice = new VideoDetailSevice(cache);
+        this.youtubeService = youTubeService;
+        this.cache = cache;
+        this.videoDetailSevice = videoDetailSevice;
     }
 
     /**
@@ -143,6 +152,45 @@ public class HomeController extends Controller {
                 List<Tuple2<String, Long>> sortedWordCount = WordStatistics.getWordStats(resultText);
 
                 return ok(views.html.statistics.render(query, sortedWordCount));
+            } catch (IOException e) {
+                e.printStackTrace();
+                return internalServerError("Error fetching data from YouTube API");
+            }
+        });
+    }
+
+    /**
+     * Search for videos by tag and display the 10 latest videos containing this tag.
+     * @param tag the tag to search for
+     * @return a CompletableFuture containing the result which renders the tagResults page
+     */
+    public CompletionStage<Result> searchByTag(String tag) {
+        return CompletableFuture.supplyAsync(() -> {
+            return ok();
+//            try {
+////                List<SearchResult> results = youtubeService.searchVideosByTag(tag).stream()
+////                        .limit(10)
+////                        .collect(Collectors.toList());
+////                return ok(tagResults.render(tag, results));
+//
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//                return internalServerError("Error fetching data from YouTube API");
+//            }
+        });
+    }
+
+    /**
+     * Show video details including title, channel, description, and tags. The video details are fetched from the
+     * cache service
+     * @param videoId the ID of the video
+     * @return a CompletableFuture containing the result which renders the videoDetails page
+     */
+    public CompletionStage<Result> showVideoDetails(String videoId) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Video video = cache.getVideo(videoId);
+                return ok(videoDetails.render(video));
             } catch (IOException e) {
                 e.printStackTrace();
                 return internalServerError("Error fetching data from YouTube API");

@@ -1,0 +1,27 @@
+@import com.google.api.services.youtube.model.SearchResult
+@(tag: String, results: List[SearchResult])
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Videos for Tag: @tag</title>
+    </head>
+    <body>
+        <h1>Videos for Tag: @tag</h1>
+        <div>
+        @for(result <- results) {
+            <div>
+                <h2><a href="@routes.HomeController.showVideoDetails(result.getId.getVideoId)">@result.getSnippet.getTitle</a></h2>
+                <p>Channel: <a href="@routes.HomeController.searchChannel(result.getSnippet.getChannelId)">@result.getSnippet.getChannelTitle</a></p>
+                <p>Description: @result.getSnippet.getDescription</p>
+@*                <p>Tags:*@
+@*                    @for(tag <- result.getSnippet.getTags.asScala) {*@
+@*                        <a href="@routes.HomeController.searchByTag(tag)">@tag</a>*@
+@*                    }*@
+@*                </p>*@
+            </div>
+        }
+        </div>
+    </body>
+</html>

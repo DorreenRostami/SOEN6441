@@ -9,3 +9,6 @@ GET     /search                 controllers.HomeController.search(request: play.
 
 GET     /channel                controllers.HomeController.searchChannel(query: String)
 GET     /statistics/:query      controllers.HomeController.showStatistics(query: String)
+
+GET     /tags/:tag              controllers.HomeController.searchByTag(tag: String)
+GET     /video                  controllers.HomeController.showVideoDetails(videoId: String)

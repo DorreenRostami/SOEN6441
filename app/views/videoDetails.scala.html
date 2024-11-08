@@ -1,0 +1,20 @@
+@import com.google.api.services.youtube.model.Video
+@(video: Video)
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>@video.getSnippet.getTitle</title>
+    </head>
+    <body>
+        <h1>@video.getSnippet.getTitle</h1>
+        <p>Channel: <a href="@routes.HomeController.searchChannel(video.getSnippet.getChannelId)">@video.getSnippet.getChannelTitle</a></p>
+        <p>Description: @video.getSnippet.getDescription</p>
+        <p>Tags:
+            @for(tag <- video.getSnippet.getTags.asScala) {
+                <a href="@routes.HomeController.searchByTag(tag)">@tag</a>
+            }
+        </p>
+    </body>
+</html>
