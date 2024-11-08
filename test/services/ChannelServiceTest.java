@@ -1,6 +1,8 @@
-package models;
+package services;
 
 import com.google.api.services.youtube.model.*;
+import models.ChannelInfo;
+import models.VideoInfo;
 import org.junit.Before;
 import org.junit.Test;
 
