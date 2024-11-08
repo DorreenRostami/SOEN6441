@@ -6,6 +6,9 @@ import models.ChannelInfo;
 import models.VideoInfo;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -15,31 +18,41 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
-public class YoutubeServiceTest {
+public class YouTubeServiceTest {
 
+    @InjectMocks
     private YouTubeService youtubeService;
+
+    @Mock
     private Channel channel;
+
+    @Mock
     private SearchResult searchResult;
+
+    @Mock
     private Thumbnail thumbnail;
+
+    @Mock
     private ThumbnailDetails thumbnailDetails;
+
+    @Mock
     private ChannelSnippet channelSnippet;
+
+    @Mock
     private ChannelStatistics channelStatistics;
+
+    @Mock
     private SearchResultSnippet searchResultSnippet;
+
+    @Mock
     private ResourceId resourceId;
+
+    @Mock
     private Cache cache;
 
     @Before
     public void setUp() {
-        youtubeService = mock(YouTubeService.class);
-        channel = mock(Channel.class);
-        searchResult = mock(SearchResult.class);
-        thumbnail = mock(Thumbnail.class);
-        thumbnailDetails = mock(ThumbnailDetails.class);
-        channelSnippet = mock(ChannelSnippet.class);
-        channelStatistics = mock(ChannelStatistics.class);
-        searchResultSnippet = mock(SearchResultSnippet.class);
-        resourceId = mock(ResourceId.class);
-        cache = mock(Cache.class);
+        MockitoAnnotations.openMocks(this);
 
         when(channel.getSnippet()).thenReturn(channelSnippet);
         when(channel.getStatistics()).thenReturn(channelStatistics);
@@ -49,6 +62,7 @@ public class YoutubeServiceTest {
 
     @Test
     public void testGetChannelInfo() {
+
         when(channelSnippet.getTitle()).thenReturn("Test Channel");
         when(channel.getId()).thenReturn("12345");
         when(channelSnippet.getThumbnails()).thenReturn(thumbnailDetails);
@@ -73,6 +87,7 @@ public class YoutubeServiceTest {
 
     @Test
     public void testSearchChannel() throws IOException {
+
         List<SearchResult> searchResults = new ArrayList<>();
         searchResults.add(searchResult);
 
