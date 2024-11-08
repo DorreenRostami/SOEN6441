@@ -2,6 +2,7 @@ package services;
 
 import com.google.api.services.youtube.model.Channel;
 import com.google.api.services.youtube.model.SearchResult;
+import models.Cache;
 import com.google.api.services.youtube.model.Video;
 import models.ChannelInfo;
 import models.VideoInfo;
@@ -10,6 +11,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * a class which contains methods for getting channel information and searching for videos of a channel
+ * through the Youtube API
+ * @author Hao
+ */
 public class ChannelService {
 
     public static ChannelInfo getChannelInfo(Channel channel) {
@@ -25,27 +31,21 @@ public class ChannelService {
         );
     }
 
-    public static List<VideoInfo> searchChannel(String channelId, YouTubeService youtubeService) throws IOException {
+    public static List<VideoInfo> searchChannel(String channelId, Cache cache) throws IOException {
         // Fetch videos for the channel
-        List<SearchResult> results = youtubeService.searchChannelVideos(channelId);
+        List<SearchResult> results = cache.get(channelId, true);
 
-        // Extract video IDs
-        List<String> videoIds = results.stream()
-                .map(result -> result.getId().getVideoId())
-                .collect(Collectors.toList());
+        // Convert each video result into a VideoData object
+        List<VideoInfo> videoInfoList = results.stream().map(result -> new VideoInfo(
+                result.getSnippet().getTitle(),
+                "https://www.youtube.com/watch?v=" + result.getId().getVideoId(),
+                result.getSnippet().getChannelTitle(),
+                "channel?query=" + result.getSnippet().getChannelId(),
+                result.getSnippet().getThumbnails().getDefault().getUrl(),
+                result.getSnippet().getDescription(),
+                null
 
-        // Fetch video details
-        List<Video> videoDetails = youtubeService.getVideoDetails(videoIds);
-
-        // Convert each video detail into a VideoData object
-        List<VideoInfo> videoInfoList = videoDetails.stream().map(video -> new VideoInfo(
-                video.getSnippet().getTitle(),
-                "https://www.youtube.com/watch?v=" + video.getId(),
-                video.getSnippet().getChannelTitle(),
-                "channel?query=" + video.getSnippet().getChannelId(),
-                video.getSnippet().getThumbnails().getDefault().getUrl(),
-                video.getSnippet().getDescription(),  // Correctly set the video's description
-                video.getSnippet().getTags())).collect(Collectors.toList());
+        )).collect(Collectors.toList());
 
         // Keep only the 10 most recent results
         if (videoInfoList.size() > 10) {

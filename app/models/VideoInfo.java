@@ -1,6 +1,7 @@
 package models;
 
 import java.util.List;
+import com.google.api.services.youtube.model.Video;
 
 public class VideoInfo {
     private String videoTitle;

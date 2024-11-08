@@ -76,7 +76,7 @@ public class HomeController extends Controller {
             try {
                 String sessionId = SessionsService.getSessionId(request);
                 List<SearchResult> results = cache.get(query, false);
-                List<SearchHistory> searchHistory = SearchHistory.addToSearchHistory(database.get(sessionId), query, results, youtubeService);
+                List<SearchHistory> searchHistory = SearchHistory.addToSearchHistory(database.get(sessionId), query, results, cache);
                 database.put(sessionId, searchHistory);
                 Result response = ok(hello.render(searchHistory));
                 if (!SessionsService.hasSessionId(request)){
@@ -90,14 +90,21 @@ public class HomeController extends Controller {
         });
     }
 
+    /**
+     * Provides a page containing all the information about the request channel.
+     * @param channelId Id of the target channel
+     * @return a CompletableFuture containing the webpage.
+     * @author Dorreen - initial implementation
+     * @author Hao
+     */
     public CompletionStage<Result> searchChannel(String channelId) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 // Fetch videos for the channel
-                List<VideoInfo> videoInfoList = ChannelService.searchChannel(channelId, youtubeService);
+                List<VideoInfo> videoInfoList = ChannelService.searchChannel(channelId, cache);
 
                 // Fetch channel details
-                ChannelListResponse channelResponse = youtubeService.getChannelDetails(channelId);
+                ChannelListResponse channelResponse = cache.getChannelDetails(channelId);
                 Channel channel = channelResponse.getItems().get(0);
                 ChannelInfo channelInfo = ChannelService.getChannelInfo(channel);
 
@@ -122,7 +129,7 @@ public class HomeController extends Controller {
     public CompletionStage<Result> showStatistics(String query) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                List<SearchResult> results = youtubeService.searchVideos(query).stream()
+                List<SearchResult> results = cache.get(query, false).stream()
                         .limit(50)
                         .collect(Collectors.toList());
 

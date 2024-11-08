@@ -4,11 +4,7 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.SearchListResponse;
-import com.google.api.services.youtube.model.SearchResult;
-import com.google.api.services.youtube.model.ChannelListResponse;
 import com.google.api.services.youtube.model.*;
-import models.ChannelInfo;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -16,7 +12,7 @@ import java.util.List;
 
 
 public class YouTubeService {
-    private static final String API_KEY = "AIzaSyCxx9hUhwCa4RlyJKp3tps1Q7xW398bxsc"; // API key
+    private static final String API_KEY = "AIzaSyACVI8Yoz4mFuWy_ZRfXIIrohZgNtHLRyQ"; // API key
     private static final String APPLICATION_NAME = "Play YouTube Search";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
@@ -40,6 +36,7 @@ public class YouTubeService {
                 .setKey(API_KEY)
                 .setQ(query)
                 .setType("video")
+                .setOrder("date")
                 .setMaxResults(10L)
                 .execute();
         return response.getItems();
@@ -85,5 +82,23 @@ public class YouTubeService {
                 .setId(String.join(",", videoIds))
                 .execute();
         return response.getItems();
+    }
+
+    /**
+     * Returns the description for the provided video
+     * @param videoId Target VideoId
+     * @return Description of the video or an empty string in case of no description
+     * @throws IOException In the event that the API fails.
+     * @author Hamza Asghar Khan
+     */
+    public String getDescription(String videoId) throws IOException {
+        YouTube.Videos.List request = youtubeService.videos().list("snippet");
+        VideoListResponse response = request.setId(videoId).setKey(API_KEY).execute();
+        List<Video> items = response.getItems();
+        if (!items.isEmpty()){
+            return items.get(0).getSnippet().getDescription();
+        } else {
+            return "";
+        }
     }
 }

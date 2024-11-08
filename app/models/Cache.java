@@ -5,6 +5,7 @@ import com.google.api.services.youtube.model.SearchResult;
 import services.YouTubeService;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,14 @@ public class Cache {
      * A map containing all the queries that return a ChannelListResponse object as a response
      */
     private final Map<String, ChannelListResponse> channelCache = new HashMap<>();
+    /**
+     * A map containing all the videoIds mapped to their descriptions.
+     */
+    private final Map<String, String> descriptionCache = new HashMap<>();
+    /**
+     * A map containing all the videoIds mapped to their tags.
+     */
+    private final Map<String, List<String>> tagsCache = new HashMap<>();
 
     private final YouTubeService youTubeService;
     /**
@@ -31,6 +40,13 @@ public class Cache {
      */
     public Cache(YouTubeService youTubeService){
         this.youTubeService = youTubeService;
+    }
+
+    /**
+     * get youTubeService
+     */
+    public YouTubeService getYouTubeService() {
+        return youTubeService;
     }
 
     /**
@@ -76,5 +92,36 @@ public class Cache {
         ChannelListResponse response = youTubeService.getChannelDetails(channelId);
         channelCache.put(channelId, response);
         return response;
+    }
+
+    /**
+     * Retrieves the description for the provided videoId. In the event of a cache hit, the description is fetched
+     * from the cache. In the event of a cache miss, the cache is populated using the YouTube API and the description is
+     * returned
+     * @param videoId Target VideoId
+     * @return Description of the request video
+     * @throws IOException In case of API failures
+     */
+    public String getDescription(String videoId) throws IOException{
+        if (descriptionCache.containsKey(videoId)){
+            return descriptionCache.get(videoId);
+        }
+        String description = youTubeService.getDescription(videoId);
+        descriptionCache.put(videoId, description);
+        return description;
+    }
+
+    /**
+     * Retrieve "tags" field for the provided videoId. In the event of a cache hit, the tags are fetched from the
+     * cache. In the event of a cache miss, the cache is populated using the YouTube API and the tags are returned
+     * @param videoId Target VideoId
+     */
+    public List<String> getTags(String videoId) throws IOException {
+        if (tagsCache.containsKey(videoId)) {
+            return tagsCache.get(videoId);
+        }
+        List<String> tags = youTubeService.getVideoDetails(Collections.singletonList(videoId)).get(0).getSnippet().getTags();
+        tagsCache.put(videoId, tags);
+        return tags;
     }
 }
