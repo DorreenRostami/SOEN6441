@@ -2,6 +2,7 @@ package services;
 
 import com.google.api.services.youtube.model.Channel;
 import com.google.api.services.youtube.model.SearchResult;
+import models.Cache;
 import models.ChannelInfo;
 import models.VideoInfo;
 
@@ -29,9 +30,9 @@ public class ChannelService {
         );
     }
 
-    public static List<VideoInfo> searchChannel(String channelId, YouTubeService youtubeService) throws IOException {
+    public static List<VideoInfo> searchChannel(String channelId, Cache cache) throws IOException {
         // Fetch videos for the channel
-        List<SearchResult> results = youtubeService.searchChannelVideos(channelId);
+        List<SearchResult> results = cache.get(channelId, true);
 
         // Convert each video result into a VideoData object
         List<VideoInfo> videoInfoList = results.stream().map(result -> new VideoInfo(

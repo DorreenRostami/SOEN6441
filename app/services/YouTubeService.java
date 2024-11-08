@@ -6,9 +6,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
-import com.google.api.services.youtube.model.Channel;
 import com.google.api.services.youtube.model.ChannelListResponse;
-import models.ChannelInfo;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -16,7 +14,7 @@ import java.util.List;
 
 
 public class YouTubeService {
-    private static final String API_KEY = "AIzaSyACqubjXenoz7mp2idclHETDE3oyJO47Uo"; // API key
+    private static final String API_KEY = "AIzaSyACVI8Yoz4mFuWy_ZRfXIIrohZgNtHLRyQ"; // API key
     private static final String APPLICATION_NAME = "Play YouTube Search";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
