@@ -1,6 +1,7 @@
 package services;
 
 import com.google.api.services.youtube.model.*;
+import models.Cache;
 import models.ChannelInfo;
 import models.VideoInfo;
 import org.junit.Before;
@@ -14,7 +15,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
-public class ChannelServiceTest {
+public class YoutubeServiceTest {
 
     private YouTubeService youtubeService;
     private Channel channel;
@@ -25,6 +26,7 @@ public class ChannelServiceTest {
     private ChannelStatistics channelStatistics;
     private SearchResultSnippet searchResultSnippet;
     private ResourceId resourceId;
+    private Cache cache;
 
     @Before
     public void setUp() {
@@ -37,6 +39,7 @@ public class ChannelServiceTest {
         channelStatistics = mock(ChannelStatistics.class);
         searchResultSnippet = mock(SearchResultSnippet.class);
         resourceId = mock(ResourceId.class);
+        cache = mock(Cache.class);
 
         when(channel.getSnippet()).thenReturn(channelSnippet);
         when(channel.getStatistics()).thenReturn(channelStatistics);
@@ -73,7 +76,7 @@ public class ChannelServiceTest {
         List<SearchResult> searchResults = new ArrayList<>();
         searchResults.add(searchResult);
 
-        when(youtubeService.searchChannelVideos("12345")).thenReturn(searchResults);
+        when(cache.get("12345", true)).thenReturn(searchResults);
         when(searchResultSnippet.getTitle()).thenReturn("Test Video");
         when(resourceId.getVideoId()).thenReturn("video123");
         when(searchResultSnippet.getChannelTitle()).thenReturn("Test Channel");
@@ -83,7 +86,7 @@ public class ChannelServiceTest {
         when(thumbnail.getUrl()).thenReturn("https://example.com/video_thumbnail.jpg");
         when(searchResultSnippet.getDescription()).thenReturn("This is a test video.");
 
-        List<VideoInfo> videoInfoList = ChannelService.searchChannel("12345", youtubeService);
+        List<VideoInfo> videoInfoList = ChannelService.searchChannel("12345", cache);
 
         assertEquals(1, videoInfoList.size());
         VideoInfo videoInfo = videoInfoList.get(0);
