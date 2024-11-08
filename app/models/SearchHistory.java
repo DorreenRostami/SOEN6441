@@ -1,6 +1,7 @@
 package models;
 
 import com.google.api.services.youtube.model.SearchResult;
+import java.util.stream.Collectors;
 import java.util.List;
 
 /**
@@ -45,7 +46,7 @@ public class SearchHistory {
                 "/channel?query=" + result.getSnippet().getChannelId(),
                 result.getSnippet().getThumbnails().getDefault().getUrl(),
                 result.getSnippet().getDescription()
-        )).toList();
+        )).collect(Collectors.toList());
 
         searchHistoryList.add(0, new SearchHistory(query, videoInfoList));
 

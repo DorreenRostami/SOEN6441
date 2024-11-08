@@ -25,4 +25,12 @@ public class ChannelInfo {
         this.videoCount = videoCount;
         this.viewCount = viewCount;
     }
+    public String getTitle() { return title; }
+    public String getChannelId() { return channelId; }
+    public String getChannelUrl() { return channelUrl; }
+    public String getThumbnailUrl() { return thumbnailUrl; }
+    public String getDescription() { return description; }
+    public long getSubscriberCount() { return subscriberCount; }
+    public long getVideoCount() { return videoCount; }
+    public long getViewCount() { return viewCount; }
 }
