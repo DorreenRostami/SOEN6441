@@ -5,10 +5,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import scala.Tuple2;
-import services.ChannelService;
-import services.SessionsService;
-import services.WordStatistics;
-import services.YouTubeService;
+import services.*;
 import views.html.hello;
 
 import com.google.api.services.youtube.model.SearchResult;
@@ -90,6 +87,13 @@ public class HomeController extends Controller {
         });
     }
 
+    /**
+     * Provides a page containing all the information about the request channel.
+     * @param channelId Id of the target channel
+     * @return a CompletableFuture containing the webpage.
+     * @author Dorreen - initial implementation
+     * @author Hao
+     */
     public CompletionStage<Result> searchChannel(String channelId) {
         return CompletableFuture.supplyAsync(() -> {
             try {

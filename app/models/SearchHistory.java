@@ -1,6 +1,8 @@
 package models;
 
 import com.google.api.services.youtube.model.SearchResult;
+import services.SentimentAnalyzer;
+
 import java.util.stream.Collectors;
 import java.util.List;
 
@@ -11,15 +13,18 @@ import java.util.List;
 public class SearchHistory {
     private final String query;
     private final List<VideoInfo> results;
+    private final SentimentAnalyzer.Sentiment sentiment;
 
-    public SearchHistory(String query, List<VideoInfo> results) {
+    public SearchHistory(String query, List<VideoInfo> results, SentimentAnalyzer.Sentiment sentiment) {
         this.query = query;
         this.results = results;
+        this.sentiment = sentiment;
     }
 
     public String getQuery() {
         return query;
     }
+    public String getSentimentEmoji(){return sentiment.emoji;}
 
     public List<VideoInfo> getResults() {
         return results;
@@ -47,8 +52,8 @@ public class SearchHistory {
                 result.getSnippet().getThumbnails().getDefault().getUrl(),
                 result.getSnippet().getDescription()
         )).collect(Collectors.toList());
-
-        searchHistoryList.add(0, new SearchHistory(query, videoInfoList));
+        SentimentAnalyzer.Sentiment sentiment = SentimentAnalyzer.getSentiment(videoInfoList.stream());
+        searchHistoryList.add(0, new SearchHistory(query, videoInfoList, sentiment));
 
         // limit to 10 most recent search histories
         if (searchHistoryList.size() > 10) {
