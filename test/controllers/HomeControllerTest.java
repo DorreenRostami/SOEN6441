@@ -38,12 +38,6 @@ class HomeControllerTest {
 
     @InjectMocks private HomeController homeController;
 
-    @Override
-    protected Application provideApplication() {
-        return new GuiceApplicationBuilder()
-                .overrides(bind(YouTubeServiceInterface.class).to(MockYouTubeService.class))
-                .build();
-    }
 
     @BeforeEach
     void setup() throws GeneralSecurityException, IOException {
@@ -134,16 +128,13 @@ class HomeControllerTest {
     void testSearchChannelIOException() throws IOException {
         String channelId = "testChannelId";
 
-        // 模拟抛出 IOException 异常
         when(cache.getChannelDetails(channelId)).thenThrow(new IOException());
 
-        // 使用 MockedStatic 模拟 ChannelService 的静态方法
         try (MockedStatic<ChannelService> mockedChannelService = mockStatic(ChannelService.class)) {
-            // 调用方法并获取结果
+
             CompletionStage<Result> resultStage = homeController.searchChannel(channelId);
             Result result = resultStage.toCompletableFuture().join();
 
-            // 验证异常处理的结果
             assertEquals(500, result.status());  // HTTP 500 - Internal Server Error
             verify(cache, times(1)).getChannelDetails(channelId);
             mockedChannelService.verify(() -> ChannelService.getChannelInfo(any()), never());
