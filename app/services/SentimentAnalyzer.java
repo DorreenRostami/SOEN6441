@@ -1045,9 +1045,9 @@ public class SentimentAnalyzer {
                 }
             })
             .sum();
-        if (sentimentValue > 5) {
+        if (sentimentValue > 3) {
             return Sentiment.POSITIVE;
-        } else if (sentimentValue < -5) {
+        } else if (sentimentValue < -3) {
             return Sentiment.NEGATIVE;
         }
         return Sentiment.NEUTRAL;
