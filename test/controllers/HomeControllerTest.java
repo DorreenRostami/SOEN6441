@@ -20,6 +20,7 @@ import services.*;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 
@@ -36,6 +37,7 @@ class HomeControllerTest {
     @Mock private Video video;
 
     @InjectMocks private HomeController homeController;
+
 
     @BeforeEach
     void setup() throws GeneralSecurityException, IOException {
@@ -93,5 +95,24 @@ class HomeControllerTest {
         Result result = resultStage.toCompletableFuture().join();
 
         assertEquals(500, result.status());
+    }
+
+
+    @Test
+    void testSearchChannelIOException() throws IOException {
+        String channelId = "testChannelId";
+
+        when(cache.getChannelDetails(channelId)).thenThrow(new IOException());
+
+        try (MockedStatic<ChannelService> mockedChannelService = mockStatic(ChannelService.class)) {
+
+            CompletionStage<Result> resultStage = homeController.searchChannel(channelId);
+            Result result = resultStage.toCompletableFuture().join();
+
+            assertEquals(500, result.status());  // HTTP 500 - Internal Server Error
+            verify(cache, times(1)).getChannelDetails(channelId);
+            mockedChannelService.verify(() -> ChannelService.getChannelInfo(any()), never());
+            mockedChannelService.verify(() -> ChannelService.searchChannel(anyString(), any(Cache.class)), never());
+        }
     }
 }

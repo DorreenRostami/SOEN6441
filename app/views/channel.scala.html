@@ -84,9 +84,9 @@
                         <div class="channel-title">
 @*                                Channel: <a href="/@video.channelId" target="_blank">@video.channelTitle</a>*@
                             </div>
-                        <div>
-                                Description: @video.getDescription
-                            </div>
+                        @if(video.getDescription.isEmpty) { ---No Description--- } else {
+                            Description: @video.getDescription.substring(0, Math.min(video.getDescription.length, 100)))
+                        }
                     </div>
                     <img src="@video.getThumbnailUrl" alt="Video Thumbnail" class="thumbnail">
                 </div>

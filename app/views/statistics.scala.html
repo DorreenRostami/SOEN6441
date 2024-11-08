@@ -6,10 +6,48 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Word-Level Statistics for "@query"</title>
+        <style>
+                body {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    min-height: 100vh;
+                    font-family: Arial, sans-serif;
+                }
+                .container {
+                    text-align: center;
+                    width: 60%;
+                }
+                .back-button {
+                    margin-top: 20px;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 20px;
+                }
+                th, td {
+                    padding: 10px;
+                    border: 1px solid #ddd;
+                    text-align: left;
+                }
+                th {
+                    background-color: #f2f2f2;
+                    font-weight: bold;
+                }
+                tr:nth-child(even) {
+                    background-color: #f9f9f9;
+                }
+                h1 {
+                    margin-bottom: 20px;
+                }
+        </style>
     </head>
     <body>
-        <button onclick="window.history.back();" class="back-button">Back to Results</button>
         <div class="container">
+            <div class="back-button">
+                <button type="button" onclick="window.history.back();">Back to Results</button>
+            </div>
             <h1>Word-Level Statistics for "@query"</h1>
             <table>
                 <thead>

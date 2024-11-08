@@ -31,6 +31,11 @@ public class ChannelService {
         );
     }
 
+    /**
+     * Get the channel information for a given channel ID
+     * @param channelId The ID of the channel
+     * @author Hao
+     */
     public static List<VideoInfo> searchChannel(String channelId, Cache cache) throws IOException {
         // Fetch videos for the channel
         List<SearchResult> results = cache.get(channelId, true);
