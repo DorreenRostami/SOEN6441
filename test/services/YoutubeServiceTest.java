@@ -16,7 +16,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 public class YoutubeServiceTest {
-
     private YouTubeService youtubeService;
     private Channel channel;
     private SearchResult searchResult;

@@ -3,6 +3,7 @@ import models.VideoInfo;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -1026,11 +1027,12 @@ public class SentimentAnalyzer {
         int sentimentValue = videos
             .limit(50)
             .mapToInt(video -> {
-                String[] words = video.getDescription().split(" ");
-                words = Arrays.stream(words).map(word -> word.toLowerCase().replaceAll("\\p{Punct}", "")).toArray(String[]::new);
-                if (words.length == 0){
+                String description = video.getDescription();
+                if (Objects.equals(description, "")){
                     return 0;
                 }
+                String[] words = video.getDescription().split(" ");
+                words = Arrays.stream(words).map(word -> word.toLowerCase().replaceAll("\\p{Punct}", "")).toArray(String[]::new);
                 long positiveWordsCount = Stream.of(words).filter(positiveWordsList::contains).count();
                 long negativeWordsCount = Stream.of(words).filter(negativeWordsList::contains).count();
                 long totalWords = words.length;
