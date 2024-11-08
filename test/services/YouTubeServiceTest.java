@@ -52,7 +52,16 @@ public class YouTubeServiceTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
+        youtubeService = mock(YouTubeService.class);
+        channel = mock(Channel.class);
+        searchResult = mock(SearchResult.class);
+        thumbnail = mock(Thumbnail.class);
+        thumbnailDetails = mock(ThumbnailDetails.class);
+        channelSnippet = mock(ChannelSnippet.class);
+        channelStatistics = mock(ChannelStatistics.class);
+        searchResultSnippet = mock(SearchResultSnippet.class);
+        resourceId = mock(ResourceId.class);
+        cache = mock(Cache.class);
 
         when(channel.getSnippet()).thenReturn(channelSnippet);
         when(channel.getStatistics()).thenReturn(channelStatistics);
@@ -62,7 +71,6 @@ public class YouTubeServiceTest {
 
     @Test
     public void testGetChannelInfo() {
-
         when(channelSnippet.getTitle()).thenReturn("Test Channel");
         when(channel.getId()).thenReturn("12345");
         when(channelSnippet.getThumbnails()).thenReturn(thumbnailDetails);

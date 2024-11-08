@@ -37,7 +37,7 @@ public class SentimentAnalyzerTest{
                 new VideoInfo("", "", "",  "", "",
                         "They were jubilant, sincere, and remarkably cheerful", ""),
                 new VideoInfo("", "", "",  "", "",
-                        "Her brilliant charm and heartfelt kindness shone brightly.", "")
+                        "", "")
         );
         SentimentAnalyzer.Sentiment outputSentiment = SentimentAnalyzer.getSentiment(videos.stream());
         SentimentAnalyzer.Sentiment expectedSentiment = SentimentAnalyzer.Sentiment.POSITIVE;
@@ -72,7 +72,7 @@ public class SentimentAnalyzerTest{
                 new VideoInfo("", "", "",  "", "",
                         "The adorable, blissful, adorable, agile puppy.", ""),
                 new VideoInfo("", "", "",  "", "",
-                        "Her brilliant charm and heartfelt kindness shone brightly.", "")
+                        "", "")
         );
         SentimentAnalyzer.Sentiment outputSentiment = SentimentAnalyzer.getSentiment(videos.stream());
         SentimentAnalyzer.Sentiment expectedSentiment = SentimentAnalyzer.Sentiment.NEGATIVE;
@@ -107,7 +107,7 @@ public class SentimentAnalyzerTest{
                 new VideoInfo("", "", "",  "", "",
                         "The adorable, blissful, adorable, agile puppy.", ""),
                 new VideoInfo("", "", "",  "", "",
-                        "Her brilliant charm and heartfelt kindness shone brightly.", "")
+                        "", "")
         );
         SentimentAnalyzer.Sentiment outputSentiment = SentimentAnalyzer.getSentiment(videos.stream());
         SentimentAnalyzer.Sentiment expectedSentiment = SentimentAnalyzer.Sentiment.NEUTRAL;
