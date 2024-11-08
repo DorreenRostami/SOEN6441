@@ -122,7 +122,7 @@ public class HomeController extends Controller {
     public CompletionStage<Result> showStatistics(String query) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                List<SearchResult> results = youtubeService.searchVideos(query).stream()
+                List<SearchResult> results = cache.get(query, false).stream()
                         .limit(50)
                         .collect(Collectors.toList());
 
