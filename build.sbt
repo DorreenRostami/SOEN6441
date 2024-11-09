@@ -2,7 +2,7 @@ name := """assign1p2"""
 
 version := "1.0-SNAPSHOT"
 
-lazy val root = (project in file(".")).enablePlugins(PlayJava)
+lazy val root = (project in file(".")).enablePlugins(PlayJava).enablePlugins(JacocoPlugin)
 ThisBuild / javacOptions ++= Seq("--release", "11")
 scalaVersion := "2.13.15"
 
@@ -14,3 +14,5 @@ libraryDependencies += "org.mockito" % "mockito-core" % "5.11.0" % Test
 libraryDependencies += "org.mockito" %% "mockito-scala" % "1.17.37" % Test
 libraryDependencies += "org.mockito" %% "mockito-scala-scalatest" % "1.17.37" % Test
 libraryDependencies += "org.mockito" % "mockito-inline" % "5.2.0" % Test
+
+fork in Test := false

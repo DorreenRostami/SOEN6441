@@ -49,12 +49,13 @@ public class SearchHistory {
     public static List<SearchHistory> addToSearchHistory(List<SearchHistory> searchHistoryList, String query, List<SearchResult> results, Cache cache){
         List<VideoInfo> videoInfoList = results.stream().map(result -> {
             String videoId = result.getId().getVideoId();
-            String description = "";
-            try {
-                description = cache.getDescription(videoId);
-            } catch (IOException e){
-                System.out.println("Unable to fetch description for videoId: " + videoId);
-            }
+//
+//            String description = "";
+//            try {
+//                description = cache.getDescription(videoId);
+//            } catch (IOException e){
+//                System.out.println("Unable to fetch description for videoId: " + videoId);
+//            }
 
 //            List<String> tags = List.of();
 //            try {
@@ -69,7 +70,7 @@ public class SearchHistory {
                     result.getSnippet().getChannelTitle(),
                     "/channel?query=" + result.getSnippet().getChannelId(),
                     result.getSnippet().getThumbnails().getDefault().getUrl(),
-                    description,
+                    result.getSnippet().getDescription(),
                     "/video?videoId=" + videoId
             );
         }).collect(Collectors.toList());
