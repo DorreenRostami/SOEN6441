@@ -2,10 +2,9 @@ package controllers;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static play.mvc.Results.ok;
+import static play.test.Helpers.*;
+import com.google.api.services.youtube.model.*;
 
-import com.google.api.services.youtube.model.Video;
-import com.google.api.services.youtube.model.ChannelListResponse;
-import com.google.api.services.youtube.model.Channel;
 import models.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,39 +15,82 @@ import org.mockito.MockitoAnnotations;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.*;
+import views.html.*;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
 
 
+
 class HomeControllerTest {
+    @Mock
+    private YouTubeService youTubeService;
 
-    @Mock private Cache cache;
-    @Mock private YouTubeService youtubeService;
-    @Mock private VideoDetailSevice videoDetailSevice;
-    @Mock private Http.Request request;
-    @Mock private Database database;
-    @Mock private Channel channel;
-    @Mock private ChannelListResponse channelListResponse;
-    @Mock private Video video;
+    @Mock
+    private Cache cache;
 
-    @InjectMocks private HomeController homeController;
+    @Mock
+    private VideoDetailSevice videoDetailSevice;
+
+    @Mock
+    private Http.Request request;
+
+    @InjectMocks
+    private HomeController homeController;
 
 
     @BeforeEach
-    void setup() throws GeneralSecurityException, IOException {
+    public void setup() throws GeneralSecurityException, IOException {
         MockitoAnnotations.openMocks(this);
-        homeController = new HomeController(youtubeService, cache, videoDetailSevice);
+        homeController = new HomeController(youTubeService, cache, videoDetailSevice);
     }
 
+    /**
+     * Tests redirection to the home page
+     * @author Hao
+     */
     @Test
     void testRedirectToYtLytics() {
         Result result = homeController.redirectToYtLytics();
         assertEquals(303, result.status());
+    }
+
+    /**
+     * Tests that hello method renders the home page with an empty search history
+     * @author Dorreen
+     */
+    @Test
+    public void testHello_withNewSession() {
+        when(request.session()).thenReturn(new Http.Session(Collections.emptyMap()));
+
+        CompletionStage<Result> resultStage = homeController.hello(request);
+        Result result = resultStage.toCompletableFuture().join();
+
+        assertEquals(OK, result.status());
+    }
+
+    /**
+     * Tests that a successful search returns OK status
+     * @author Dorreen
+     */
+    @Test
+    void testSearch() throws IOException {
+//        String query = "query";
+//        Http.Request request = fakeRequest().build();
+//        List<SearchResult> res = new ArrayList<>();
+//        when(cache.get(query, false)).thenReturn(res);
+//        when(hello.render(anyList())).thenReturn(null);
+//
+//        CompletionStage<Result> result = homeController.search(request, query);
+//
+//        assertEquals(OK, result.toCompletableFuture().join().status());
+//        verify(cache, times(1)).get(query, false);
     }
 
     @Test

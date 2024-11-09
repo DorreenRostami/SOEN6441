@@ -51,6 +51,8 @@ public class DatabaseTest {
     @Test
     void testPutAndGet() {
         String sessionId = "id";
+        assertEquals(0, database.get(sessionId).size());
+
         List<SearchHistory> sh = new ArrayList<>();
         sh.add(new SearchHistory("queryy", new ArrayList<>(), null));
         database.put(sessionId, sh);
