@@ -37,6 +37,7 @@ public class YouTubeService {
                 .setKey(API_KEY)
                 .setQ(query)
                 .setType("video")
+                .setVideoDuration("medium") //filter out short videos
                 .setOrder("date")
                 .setMaxResults(10L)
                 .execute();
