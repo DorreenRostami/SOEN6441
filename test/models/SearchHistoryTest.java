@@ -16,6 +16,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for the {@link SearchHistory} class
+ * @author Dorreen & Hao
+ */
 public class SearchHistoryTest {
 
     @Mock
@@ -72,11 +76,14 @@ public class SearchHistoryTest {
      * @author Dorreen Rostami
      */
     @Test
-    void testAddToSearchHistory() {
+    void testAddToSearchHistory() throws IOException {
         List<SearchHistory> searchHistoryList = new ArrayList<>();
         String query = "query";
+        String cachedDescription = "Cached description";
+        String videoId = "v1";
+        when(cache.getDescription(videoId)).thenReturn(cachedDescription);
 
-        SearchResult res = createMockSearchResult("v1", "Title", "Channel", "c1", "https://thumbnail/1", "description");
+        SearchResult res = createMockSearchResult(videoId, "Title", "Channel", "c1", "https://thumbnail/1", cachedDescription);
         List<SearchResult> results = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             results.add(res);
@@ -94,8 +101,9 @@ public class SearchHistoryTest {
         assertEquals("Channel", firstResult.getChannelTitle());
         assertEquals("/channel?query=c1", firstResult.getChannelUrl());
         assertEquals("https://thumbnail/1", firstResult.getThumbnailUrl());
-        assertEquals("description", firstResult.getDescription());
+        assertEquals(cachedDescription, firstResult.getDescription());
         assertEquals("/video?videoId=v1", firstResult.getTagsUrl());
+        verify(cache, times(10)).getDescription(videoId);
     }
 
     /**
@@ -104,8 +112,11 @@ public class SearchHistoryTest {
      * @author Dorreen Rostami
      */
     @Test
-    void testAddToSearchHistory_keep10() {
-        SearchResult res = createMockSearchResult("v1", "Title", "Channel", "c1", "https://thumbnail/1", "description");
+    void testAddToSearchHistory_keep10() throws IOException {
+        String cachedDescription = "Cached description";
+        String videoId = "v1";
+        when(cache.getDescription(videoId)).thenReturn(cachedDescription);
+        SearchResult res = createMockSearchResult(videoId, "Title", "Channel", "c1", "https://thumbnail/1", cachedDescription);
         List<SearchResult> results = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             results.add(res);
@@ -119,6 +130,31 @@ public class SearchHistoryTest {
         assertEquals(10, searchHistoryList.size());
     }
 
+    /**
+     * Tests that the description becomes an empty string when the cache throws an exception in the
+     * {@link SearchHistory#addToSearchHistory} method
+     * @author Dorreen Rostami
+     */
+    @Test
+    void testAddToSearchHistory_throwException() throws IOException {
+        String videoId = "v1";
+        when(cache.getDescription(videoId)).thenThrow(new IOException("Mocked IOException"));
+        SearchResult res = createMockSearchResult(videoId, "Title", "Channel", "c1", "https://thumbnail/1", "desc");
+        List<SearchResult> results = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            results.add(res);
+        }
+        List<SearchHistory> searchHistoryList = SearchHistory.addToSearchHistory(new ArrayList<>(), "query", results, cache);;
+
+        VideoInfo firstResult = searchHistoryList.get(0).getResults().get(0);
+        assertEquals("", firstResult.getDescription());
+        assertEquals(1, searchHistoryList.size());
+    }
+
+    /**
+     * Tests that the getters and setters of the {@link SearchHistory} class
+     * @author Hao
+     */
     @Test
     public void testSearchHistoryConstructorAndGetters() {
         List<VideoInfo> videoInfoList = List.of(
@@ -133,39 +169,4 @@ public class SearchHistoryTest {
         assertEquals(videoInfoList, searchHistory.getResults());
         assertEquals(sentiment.emoji, searchHistory.getSentimentEmoji());
     }
-
-
-//    @Test
-//    public void testAddToSearchHistoryHandlesIOException() throws IOException {
-//        // Arrange
-//        List<SearchHistory> searchHistoryList = new ArrayList<>();
-//        String query = "test query";
-//
-//        List<SearchResult> searchResults = List.of(
-//                createMockSearchResult("videoId1", "Video Title 1", "Channel 1", "channelId1", "https://thumbnail1")
-//        );
-//
-//        when(cache.getDescription("videoId1")).thenThrow(new IOException("Test IOException"));
-//
-//        SentimentAnalyzer.Sentiment sentiment = SentimentAnalyzer.Sentiment.NEGATIVE;
-//        when(SentimentAnalyzer.getSentiment(any())).thenReturn(sentiment);
-//
-//        // Act
-//        List<SearchHistory> updatedHistory = SearchHistory.addToSearchHistory(searchHistoryList, query, searchResults, cache);
-//
-//        // Assert
-//        assertEquals(1, updatedHistory.size());
-//        SearchHistory newHistory = updatedHistory.get(0);
-//        assertEquals("test query", newHistory.getQuery());
-//        assertEquals(1, newHistory.getResults().size());
-//
-//        VideoInfo video = newHistory.getResults().get(0);
-//        assertEquals("Video Title 1", video.getVideoTitle());
-//        assertEquals("https://www.youtube.com/watch?v=videoId1", video.getVideoUrl());
-//        assertEquals("Channel 1", video.getChannelTitle());
-//        assertEquals("/channel?query=channelId1", video.getChannelUrl());
-//        assertEquals("https://thumbnail1", video.getThumbnailUrl());
-//        assertEquals("", video.getDescription());  // Description should be empty due to IOException
-//        assertEquals("/video?videoId=videoId1", video.getTagsUrl());
-//    }
 }

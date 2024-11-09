@@ -7,7 +7,7 @@ import org.junit.Test;
 import java.util.List;
 
 /**
- * This class contains the unit tests for SentimentAnalyzer
+ * This class contains the unit tests for {@link SentimentAnalyzer}
  * @author Hamza Asghar Khan
  */
 public class SentimentAnalyzerTest{

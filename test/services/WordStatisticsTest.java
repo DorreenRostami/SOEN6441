@@ -1,5 +1,3 @@
-// test/services/WordStatisticsTest.java
-
 package services;
 
 import org.junit.Test;
@@ -12,7 +10,7 @@ import static org.junit.Assert.assertEquals;
 
 
 /**
- * This class contains unit tests for WordStatistics.java
+ * This class contains unit tests for {@link WordStatistics}
  * @author Dorreen Rostami
  */
 public class WordStatisticsTest {

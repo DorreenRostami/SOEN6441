@@ -44,18 +44,18 @@ public class SearchHistory {
      * @author Hao - changed channelURL so that clicking on it opens a web page containing all available profile
      * information about a channel instead of opening the channel in YouTube
      *
-     * @author Hamza Asghar Khan - Updated the video description
+     * @author Hamza Asghar Khan - Updated the video description to get the full description and not a snippet
      */
     public static List<SearchHistory> addToSearchHistory(List<SearchHistory> searchHistoryList, String query, List<SearchResult> results, Cache cache){
         List<VideoInfo> videoInfoList = results.stream().map(result -> {
             String videoId = result.getId().getVideoId();
-//
-//            String description = "";
-//            try {
-//                description = cache.getDescription(videoId);
-//            } catch (IOException e){
-//                System.out.println("Unable to fetch description for videoId: " + videoId);
-//            }
+
+            String description = "";
+            try {
+                description = cache.getDescription(videoId);
+            } catch (IOException e){
+                System.out.println("Unable to fetch description for videoId: " + videoId);
+            }
 
 //            List<String> tags = List.of();
 //            try {
@@ -70,7 +70,7 @@ public class SearchHistory {
                     result.getSnippet().getChannelTitle(),
                     "/channel?query=" + result.getSnippet().getChannelId(),
                     result.getSnippet().getThumbnails().getDefault().getUrl(),
-                    result.getSnippet().getDescription(),
+                    description,
                     "/video?videoId=" + videoId
             );
         }).collect(Collectors.toList());
