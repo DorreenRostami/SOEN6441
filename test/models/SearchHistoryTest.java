@@ -19,21 +19,15 @@ import static org.mockito.Mockito.*;
 public class SearchHistoryTest {
 
     @Mock
-    private Cache cache;  // Example of a mock object
+    private Cache cache;
 
 
     @Mock
     private SentimentAnalyzer sentimentAnalyzer;
-    private AutoCloseable closeable;
 
     @BeforeEach
     public void setUp() {
-        closeable = MockitoAnnotations.openMocks(this);
-    }
-
-    @AfterEach
-    public void tearDown() throws Exception {
-        closeable.close();
+        MockitoAnnotations.openMocks(this);
     }
 
 
