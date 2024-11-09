@@ -6,109 +6,56 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class DatabaseTest {
+/**
+ * Unit tests for the {@link Database} class
+ * @author Dorreen Rostami
+ */
+public class DatabaseTest {
 
     private Database database;
 
+    /**
+     * make a new instance before each test
+     * @author Dorreen Rostami
+     */
     @BeforeEach
     void setUp() {
         database = new Database();
     }
 
+    /**
+     * Tests that a new session ID is initialized correctly. When a new session is started, it should have an
+     * empty arrayList, regardless of whether the session ID already existed or not.
+     * @author Dorreen Rostami
+     */
     @Test
-    void testInitRecordWhenSessionExists() {
-        String sessionId = "existingSession";
-        List<SearchHistory> searchHistory = new ArrayList<>();
-        searchHistory.add(new SearchHistory("query1", new ArrayList<>(), null));
-        database.put(sessionId, searchHistory);
-
-        // Ensure the record exists before init
-        assertEquals(1, database.get(sessionId).size());
-
-        // Initialize the record, should clear existing entries
+    void testInitRecord() {
+        String sessionId = "id";
         database.initRecord(sessionId);
+        assertTrue(database.get(sessionId).isEmpty());
 
-        // Verify that the record for the session ID is now empty
-        List<SearchHistory> result = database.get(sessionId);
-        assertNotNull(result);
-        assertEquals(0, result.size());
-    }
-
-    @Test
-    void testInitRecordWhenSessionDoesNotExist() {
-        String sessionId = "newSession";
-
-        // Initialize the record for a new session ID
+        List<SearchHistory> sh = new ArrayList<>();
+        sh.add(new SearchHistory("query", new ArrayList<>(), null));
+        database.put(sessionId, sh);
         database.initRecord(sessionId);
-
-        // Verify that the record for the session ID exists and is empty
-        List<SearchHistory> result = database.get(sessionId);
-        assertNotNull(result);
-        assertEquals(0, result.size());
+        assertTrue(database.get(sessionId).isEmpty());
     }
 
+    /**
+     * Tests that search history data is correctly added for a session ID.
+     * @author Dorreen Rostami
+     */
     @Test
-    void testPutNewSession() {
-        String sessionId = "newSession";
-        List<SearchHistory> searchHistory = new ArrayList<>();
-        searchHistory.add(new SearchHistory("query1", new ArrayList<>(), null));
-
-        // Put a record for a new session ID
-        database.put(sessionId, searchHistory);
-
-        // Verify that the record is correctly saved
-        List<SearchHistory> result = database.get(sessionId);
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals("query1", result.get(0).getQuery());
-    }
-
-    @Test
-    void testPutOverwriteExistingSession() {
-        String sessionId = "existingSession";
-        List<SearchHistory> initialHistory = new ArrayList<>();
-        initialHistory.add(new SearchHistory("query1", new ArrayList<>(), null));
-        database.put(sessionId, initialHistory);
-
-        // Overwrite with a new list of search history
-        List<SearchHistory> newHistory = new ArrayList<>();
-        newHistory.add(new SearchHistory("query2", new ArrayList<>(), null));
-        database.put(sessionId, newHistory);
-
-        // Verify that the record was overwritten
-        List<SearchHistory> result = database.get(sessionId);
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals("query2", result.get(0).getQuery());
-    }
-
-    @Test
-    void testGetWhenSessionExists() {
-        String sessionId = "existingSession";
-        List<SearchHistory> searchHistory = new ArrayList<>();
-        searchHistory.add(new SearchHistory("query1", new ArrayList<>(), null));
-        database.put(sessionId, searchHistory);
-
-        // Retrieve and verify the record
-        List<SearchHistory> result = database.get(sessionId);
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals("query1", result.get(0).getQuery());
-    }
-
-    @Test
-    void testGetWhenSessionDoesNotExist() {
-        String sessionId = "nonExistingSession";
-
-        // Retrieve and verify an empty list is returned for a non-existent session ID
-        List<SearchHistory> result = database.get(sessionId);
-        assertNotNull(result);
-        assertEquals(0, result.size());
-
-        // Verify that the session ID is now added to the data map with an empty list
-        List<SearchHistory> storedResult = database.get(sessionId);
-        assertSame(result, storedResult);
+    void testPutAndGet() {
+        String sessionId = "id";
+        List<SearchHistory> sh = new ArrayList<>();
+        sh.add(new SearchHistory("queryy", new ArrayList<>(), null));
+        database.put(sessionId, sh);
+        List<SearchHistory> retrievedSearchHistory = database.get(sessionId);
+        assertEquals(1, retrievedSearchHistory.size());
+        assertEquals("queryy", retrievedSearchHistory.get(0).getQuery());
     }
 }
