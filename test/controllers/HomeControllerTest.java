@@ -44,6 +44,9 @@ class HomeControllerTest {
     @InjectMocks
     private HomeController homeController;
 
+    @Mock
+    private Database database;
+
 
     @BeforeEach
     public void setup() throws GeneralSecurityException, IOException {
@@ -62,11 +65,11 @@ class HomeControllerTest {
     }
 
     /**
-     * Tests that hello method renders the home page with an empty search history
-     * @author Dorreen
+     * Tests hello() when there is no existing session
+     * @author Dorreen Rostami
      */
     @Test
-    public void testHello_withNewSession() {
+    public void testHello_newSession() {
         when(request.session()).thenReturn(new Http.Session(Collections.emptyMap()));
 
         CompletionStage<Result> resultStage = homeController.hello(request);
@@ -76,21 +79,49 @@ class HomeControllerTest {
     }
 
     /**
-     * Tests that a successful search returns OK status
+     * Tests hello() when a session with an existing ID is present
+     * @author Dorreen Rostami
+     */
+    @Test
+    public void testHello_existingSession() {
+        String sessionId = "id";
+        Http.Session mockSession = mock(Http.Session.class);
+        when(mockSession.get("sessionId")).thenReturn(Optional.of(sessionId));
+        when(request.session()).thenReturn(mockSession);
+
+        List<SearchHistory> searchHistory = new ArrayList<>();
+        searchHistory.add(new SearchHistory("query", Collections.emptyList(), null));
+        Database database = new Database();
+        database.put(sessionId, searchHistory);
+
+        CompletionStage<Result> resultStage = homeController.hello(request);
+        Result result = resultStage.toCompletableFuture().join();
+
+        assertEquals(OK, result.status());
+        String content = contentAsString(result);
+        assert content.contains("query");
+    }
+
+    /**
+     * Tests search() to ensure it returns an internal server error when an IOException occurs
      * @author Dorreen
      */
     @Test
-    void testSearch() throws IOException {
-//        String query = "query";
-//        Http.Request request = fakeRequest().build();
-//        List<SearchResult> res = new ArrayList<>();
-//        when(cache.get(query, false)).thenReturn(res);
-//        when(hello.render(anyList())).thenReturn(null);
-//
-//        CompletionStage<Result> result = homeController.search(request, query);
-//
-//        assertEquals(OK, result.toCompletableFuture().join().status());
-//        verify(cache, times(1)).get(query, false);
+    public void testSearch_withIOException() throws IOException {
+        String sessionId = "id";
+        Http.Session mockSession = mock(Http.Session.class);
+        when(mockSession.get("sessionId")).thenReturn(Optional.of(sessionId));
+        when(request.session()).thenReturn(mockSession);
+        String query = "query";
+
+        when(cache.get(query, false)).thenThrow(new IOException("IOException"));
+
+        CompletionStage<Result> resultStage = homeController.search(request, query);
+        Result result = resultStage.toCompletableFuture().join();
+
+        assertEquals(INTERNAL_SERVER_ERROR, result.status());
+        verify(cache).get(query, false);
+        verify(database, never()).put(anyString(), anyList());
     }
 
     @Test
