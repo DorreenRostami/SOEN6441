@@ -95,7 +95,7 @@ public class HomeController extends Controller {
                 }
                 return response;
             } catch (IOException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
                 return internalServerError("Error fetching data from YouTube API");
             }
         });

@@ -1,6 +1,7 @@
 package controllers;
 
-import org.mockito.MockedStatic;
+import org.junit.jupiter.api.*;
+import org.mockito.*;
 import util.TestHelper;
 
 import static org.mockito.Mockito.*;
@@ -9,27 +10,20 @@ import static play.mvc.Results.internalServerError;
 import static play.test.Helpers.*;
 import com.google.api.services.youtube.model.*;
 import models.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.MockitoAnnotations;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.*;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class HomeControllerTest {
     @Mock
     private YouTubeService youTubeService;
@@ -55,7 +49,13 @@ class HomeControllerTest {
     @BeforeEach
     public void setup() throws IOException, GeneralSecurityException {
         MockitoAnnotations.openMocks(this);
+        reset(cache, database, request, youTubeService, videoDetailSevice, channelService);
         homeController = new HomeController(youTubeService, cache, videoDetailSevice, database, channelService);
+    }
+
+    @AfterEach
+    void tearDown() {
+        Mockito.clearAllCaches();
     }
 
     /**
@@ -113,6 +113,7 @@ class HomeControllerTest {
      * @author Dorreen Rostami
      */
     @Test
+    @Order(3)
     public void testSearch() throws IOException {
         String query = "query";
         String sessionId = "id";
@@ -120,25 +121,35 @@ class HomeControllerTest {
         when(mockSession.get("sessionId")).thenReturn(Optional.of(sessionId));
         when(request.session()).thenReturn(mockSession);
 
-        SearchResult res = TestHelper.createMockSearchResult("V-id", "Title", "Channel",
-                "c1", "https://thumbnail/1", "desc");
-        List<SearchResult> cachedResults = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            cachedResults.add(res);
+
+        try (MockedStatic<SessionsService> mockedSessionsService = mockStatic(SessionsService.class)) {
+            mockedSessionsService.when(() -> SessionsService.getSessionId(request)).thenReturn(sessionId);
+            mockedSessionsService.when(() -> SessionsService.hasSessionId(request)).thenReturn(true);
+
+            SearchResult res = TestHelper.createMockSearchResult("V-id", "Title", "Channel",
+                    "c1", "https://thumbnail/1", "desc");
+            List<SearchResult> cachedResults = new ArrayList<>();
+            for (int i = 0; i < 10; i++) {
+                cachedResults.add(res);
+            }
+
+            when(cache.get(query, false)).thenReturn(cachedResults);
+            when(cache.getDescription("V-id")).thenReturn("desc");
+            when(database.get(sessionId)).thenReturn(new ArrayList<>());
+
+            CompletionStage<Result> resultStage = homeController.search(request, query);
+            Result result = resultStage.toCompletableFuture().join();
+
+            assertEquals(OK, result.status());
+
+            String content = contentAsString(result);
+            assert content.contains("Title");
+
+            verify(database).put(eq(sessionId), anyList());
         }
-        when(cache.get(query, false)).thenReturn(cachedResults);
-        when(cache.getDescription("V-id")).thenReturn("desc");
-        when(database.get(sessionId)).thenReturn(new ArrayList<>());
 
-        CompletionStage<Result> resultStage = homeController.search(request, query);
-        Result result = resultStage.toCompletableFuture().join();
-
-        assertEquals(OK, result.status());
-
-        String content = contentAsString(result);
-        assert content.contains("Title");
-
-        verify(database).put(eq(sessionId), anyList());
+        MockedStatic<SessionsService> mockedSessions = mockStatic(SessionsService.class);
+        mockedSessions.close();
     }
 
     /**
@@ -177,6 +188,9 @@ class HomeControllerTest {
             String content = contentAsString(result);
             assert content.contains("Title");
         }
+
+        MockedStatic<SessionsService> mockedSessions = mockStatic(SessionsService.class);
+        mockedSessions.close();
     }
 
     /**
@@ -234,6 +248,7 @@ class HomeControllerTest {
      * @author Hao
      */
     @Test
+    @Order(1)
     void testShowStatisticsWithIOException() throws IOException {
         String query = "statistics query";
 
@@ -302,6 +317,7 @@ class HomeControllerTest {
     }
 
     @Test
+    @Order(2)
     void testSearchChannelIOException() throws IOException {
         String channelId = "testChannelId";
 
