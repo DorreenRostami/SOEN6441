@@ -198,13 +198,24 @@ class HomeControllerTest {
         verify(database, never()).put(anyString(), anyList());
     }
 
-
-
+    /**
+     * Tests the showStatistics method when data is successfully retrieved from the cache
+     *
+     * @throws IOException if an error occurs while retrieving the data from the cache (but since
+     * cache is mocked for this test, it should not throw an exception).
+     * @author Hao & Dorreen
+     */
     @Test
     void testShowStatistics() throws IOException {
         String query = "statistics query";
 
-        when(cache.get(query, false)).thenReturn(Collections.emptyList());
+        SearchResult res = TestHelper.createMockSearchResult("V-id", "Title", "Channel",
+                "c1", "https://thumbnail/1", "desc");
+        List<SearchResult> cachedResults = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            cachedResults.add(res);
+        }
+        when(cache.get(query, false)).thenReturn(cachedResults);
 
         CompletionStage<Result> resultStage = homeController.showStatistics(query);
         Result result = resultStage.toCompletableFuture().join();
@@ -212,16 +223,13 @@ class HomeControllerTest {
         assertEquals(200, result.status());
     }
 
-    @Test
-    void testSearchByTag() {
-        String tag = "sampleTag";
-
-        CompletionStage<Result> resultStage = homeController.searchByTag(tag);
-        Result result = resultStage.toCompletableFuture().join();
-
-        assertEquals(200, result.status());
-    }
-
+    /**
+     * Tests the showStatistics method when an IOException is thrown while retrieving data from the cache
+     *
+     * @throws IOException if an error occurs while retrieving the data from the cache (but since
+     * cache is mocked for this test, it should not throw an exception).
+     * @author Hao
+     */
     @Test
     void testShowStatisticsWithIOException() throws IOException {
         String query = "statistics query";
@@ -232,6 +240,16 @@ class HomeControllerTest {
         Result result = resultStage.toCompletableFuture().join();
 
         assertEquals(500, result.status());
+    }
+
+    @Test
+    void testSearchByTag() {
+        String tag = "sampleTag";
+
+        CompletionStage<Result> resultStage = homeController.searchByTag(tag);
+        Result result = resultStage.toCompletableFuture().join();
+
+        assertEquals(200, result.status());
     }
 
     @Test
