@@ -24,7 +24,21 @@ public class ChannelInfoTest {
 
     @BeforeEach
     public void setUp() {
+        // Initialize ChannelInfo object with test data
         channelInfo = new ChannelInfo(title, channelId, channelUrl, thumbnailUrl, description, subscriberCount, videoCount, viewCount);
+    }
+
+    @Test
+    public void testConstructor() {
+        // Verify constructor initializes fields correctly
+        assertEquals(title, channelInfo.title);
+        assertEquals(channelId, channelInfo.channelId);
+        assertEquals(channelUrl, channelInfo.channelUrl);
+        assertEquals(thumbnailUrl, channelInfo.thumbnailUrl);
+        assertEquals(description, channelInfo.description);
+        assertEquals(subscriberCount, channelInfo.subscriberCount);
+        assertEquals(videoCount, channelInfo.videoCount);
+        assertEquals(viewCount, channelInfo.viewCount);
     }
 
     @Test
