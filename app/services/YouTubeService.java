@@ -23,12 +23,16 @@ public class YouTubeService {
      * Constructor for the YouTubeService class which initializes the YouTube service
      * @author Hao
      */
+    public YouTubeService(YouTube youtubeService) {
+        this.youtubeService = youtubeService;
+    }
+
     public YouTubeService() throws GeneralSecurityException, IOException {
-        youtubeService = new YouTube.Builder(
+        this(new YouTube.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(),
                 JSON_FACTORY,
                 request -> {}
-        ).setApplicationName(APPLICATION_NAME).build();
+        ).setApplicationName(APPLICATION_NAME).build());
     }
 
     public List<SearchResult> searchVideos(String query) throws IOException {

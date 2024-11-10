@@ -62,7 +62,10 @@ public class YouTubeServiceTest {
     public void setUp() throws GeneralSecurityException, IOException {
         MockitoAnnotations.openMocks(this);
 
-        youtubeService = spy(new YouTubeService());
+//        youtubeService = spy(new YouTubeService());
+        youtubeService = new YouTubeService(youtube);
+        when(youtube.search()).thenReturn(search);
+        when(search.list("snippet")).thenReturn(searchListRequest);
 
         doReturn(search).when(youtube).search();
         doReturn(searchListRequest).when(search).list(anyString());
@@ -148,13 +151,16 @@ public class YouTubeServiceTest {
         youtubeService.getDescription("videoId");
     }
 
+    /**
+     * Tests the searchVideos method to retrieve videos by mock search results.
+     */
     @Test
     public void testSearchVideos() throws IOException {
+
         List<SearchResult> searchResults = new ArrayList<>();
         SearchResult searchResult = mock(SearchResult.class);
         searchResults.add(searchResult);
 
-        when(searchListResponse.getItems()).thenReturn(searchResults);
         when(searchListRequest.setKey(anyString())).thenReturn(searchListRequest);
         when(searchListRequest.setQ(anyString())).thenReturn(searchListRequest);
         when(searchListRequest.setType(anyString())).thenReturn(searchListRequest);
@@ -162,8 +168,11 @@ public class YouTubeServiceTest {
         when(searchListRequest.setOrder(anyString())).thenReturn(searchListRequest);
         when(searchListRequest.setMaxResults(anyLong())).thenReturn(searchListRequest);
         when(searchListRequest.execute()).thenReturn(searchListResponse);
+        when(searchListResponse.getItems()).thenReturn(searchResults);
 
         List<SearchResult> results = youtubeService.searchVideos("testQuery");
-        assertEquals(0, results.size());
+
+        assertEquals(1, results.size());
+        assertEquals(searchResult, results.get(0));
     }
 }
