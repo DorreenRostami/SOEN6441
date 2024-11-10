@@ -1,17 +1,21 @@
 package models;
 
+import com.google.api.services.youtube.model.ResourceId;
+import com.google.api.services.youtube.model.SearchResult;
+import com.google.api.services.youtube.model.SearchResultSnippet;
+import com.google.api.services.youtube.model.Thumbnail;
+import com.google.api.services.youtube.model.ThumbnailDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import play.test.WithApplication;
 
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 /**
- * Unit tests for the {@link VideoInfo} class
- * @author Hao
+ * covers the VideoInfo class
  */
-public class VideoInfoTest {
+public class VideoInfoTest extends WithApplication {
 
     private VideoInfo videoInfo;
 
@@ -28,6 +32,98 @@ public class VideoInfoTest {
         videoInfo = new VideoInfo(videoTitle, videoUrl, channelTitle, channelUrl, thumbnailUrl, description, tagsUrl);
     }
 
+    @Test
+    public void testConstructorWithSearchResult() {
+
+        SearchResult mockResult = mock(SearchResult.class);
+        SearchResultSnippet snippet = mock(SearchResultSnippet.class);
+        ThumbnailDetails thumbnailDetails = mock(ThumbnailDetails.class);
+        Thumbnail thumbnail = mock(Thumbnail.class);
+        ResourceId resourceId = mock(ResourceId.class);
+
+        when(mockResult.getSnippet()).thenReturn(snippet);
+        when(mockResult.getId()).thenReturn(resourceId);
+        when(resourceId.getVideoId()).thenReturn("sample");
+        when(snippet.getTitle()).thenReturn(videoTitle);
+        when(snippet.getChannelTitle()).thenReturn(channelTitle);
+        when(snippet.getChannelId()).thenReturn("sample");
+        when(snippet.getThumbnails()).thenReturn(thumbnailDetails);
+        when(thumbnailDetails.getDefault()).thenReturn(thumbnail);
+        when(thumbnail.getUrl()).thenReturn(thumbnailUrl);
+        when(snippet.getDescription()).thenReturn(description);
+
+        VideoInfo videoInfoFromResult = new VideoInfo(mockResult);
+
+        assertEquals(videoTitle, videoInfoFromResult.getVideoTitle());
+        assertEquals("https://www.youtube.com/watch?v=sample", videoInfoFromResult.getVideoUrl());
+        assertEquals(channelTitle, videoInfoFromResult.getChannelTitle());
+        assertEquals("https://www.youtube.com/channel/sample", videoInfoFromResult.getChannelUrl());
+        assertEquals(thumbnailUrl, videoInfoFromResult.getThumbnailUrl());
+        assertEquals(description, videoInfoFromResult.getDescription());
+        assertEquals("/video?videoId=sample", videoInfoFromResult.getTagsUrl());
+    }
+
+    @Test
+    public void testConstructorWithSearchResultAndDescription() {
+
+        SearchResult mockResult = mock(SearchResult.class);
+        SearchResultSnippet snippet = mock(SearchResultSnippet.class);
+        ThumbnailDetails thumbnailDetails = mock(ThumbnailDetails.class);
+        Thumbnail thumbnail = mock(Thumbnail.class);
+        ResourceId resourceId = mock(ResourceId.class);
+
+        when(mockResult.getSnippet()).thenReturn(snippet);
+        when(mockResult.getId()).thenReturn(resourceId);
+        when(resourceId.getVideoId()).thenReturn("sample");
+        when(snippet.getTitle()).thenReturn(videoTitle);
+        when(snippet.getChannelTitle()).thenReturn(channelTitle);
+        when(snippet.getChannelId()).thenReturn("sample");
+        when(snippet.getThumbnails()).thenReturn(thumbnailDetails);
+        when(thumbnailDetails.getDefault()).thenReturn(thumbnail);
+        when(thumbnail.getUrl()).thenReturn(thumbnailUrl);
+        when(snippet.getDescription()).thenReturn("Original description");
+
+
+        VideoInfo videoInfoFromResultWithDesc = new VideoInfo(mockResult, description);
+
+        assertEquals(videoTitle, videoInfoFromResultWithDesc.getVideoTitle());
+        assertEquals("https://www.youtube.com/watch?v=sample", videoInfoFromResultWithDesc.getVideoUrl());
+        assertEquals(channelTitle, videoInfoFromResultWithDesc.getChannelTitle());
+        assertEquals("https://www.youtube.com/channel/sample", videoInfoFromResultWithDesc.getChannelUrl());
+        assertEquals(thumbnailUrl, videoInfoFromResultWithDesc.getThumbnailUrl());
+        assertEquals(description, videoInfoFromResultWithDesc.getDescription());
+        assertEquals("/video?videoId=sample", videoInfoFromResultWithDesc.getTagsUrl());
+    }
+
+    @Test
+    public void testConstructorWithNullValues() {
+
+        SearchResult mockResult = mock(SearchResult.class);
+        SearchResultSnippet snippet = mock(SearchResultSnippet.class);
+        ThumbnailDetails thumbnailDetails = mock(ThumbnailDetails.class);
+        ResourceId resourceId = mock(ResourceId.class);
+
+        when(mockResult.getSnippet()).thenReturn(snippet);
+        when(mockResult.getId()).thenReturn(resourceId);
+        when(resourceId.getVideoId()).thenReturn(null);
+        when(snippet.getTitle()).thenReturn(null);
+        when(snippet.getChannelTitle()).thenReturn(null);
+        when(snippet.getChannelId()).thenReturn(null);
+        when(snippet.getThumbnails()).thenReturn(thumbnailDetails);
+        when(thumbnailDetails.getDefault()).thenReturn(null);
+        when(snippet.getDescription()).thenReturn(null);
+
+        VideoInfo videoInfoFromNullResult = new VideoInfo(mockResult);
+
+
+        assertNull(videoInfoFromNullResult.getVideoTitle());
+        assertNull(videoInfoFromNullResult.getVideoUrl());
+        assertNull(videoInfoFromNullResult.getChannelTitle());
+        assertNull(videoInfoFromNullResult.getChannelUrl());
+        assertNull(videoInfoFromNullResult.getThumbnailUrl());
+        assertNull(videoInfoFromNullResult.getDescription());
+        assertEquals("/video?videoId=null", videoInfoFromNullResult.getTagsUrl());
+    }
     @Test
     public void testGetVideoTitle() {
         assertEquals(videoTitle, videoInfo.getVideoTitle());

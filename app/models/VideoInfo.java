@@ -34,14 +34,19 @@ public class VideoInfo {
 
     public VideoInfo(SearchResult searchResult) {
         SearchResultSnippet snippet = searchResult.getSnippet();
-        String videoId = searchResult.getId().getVideoId();
-        this.videoTitle = snippet.getTitle();
-        this.videoUrl = "https://www.youtube.com/watch?v=" + videoId;
-        this.channelTitle = snippet.getChannelTitle();
-        this.channelUrl = "https://www.youtube.com/channel/" + snippet.getChannelId();
-        this.thumbnailUrl = snippet.getThumbnails().getDefault().getUrl();
-        this.description = snippet.getDescription();
-        this.tagsUrl = "/video?videoId=" + videoId;
+        String videoId = searchResult.getId() != null ? searchResult.getId().getVideoId() : null;
+        this.videoTitle = snippet != null ? snippet.getTitle() : null;
+        this.videoUrl = videoId != null ? "https://www.youtube.com/watch?v=" + videoId : null;
+        this.channelTitle = snippet != null ? snippet.getChannelTitle() : null;
+        this.channelUrl = snippet != null && snippet.getChannelId() != null
+                ? "https://www.youtube.com/channel/" + snippet.getChannelId()
+                : null;
+        this.thumbnailUrl = snippet != null && snippet.getThumbnails() != null
+                && snippet.getThumbnails().getDefault() != null
+                ? snippet.getThumbnails().getDefault().getUrl()
+                : null;
+        this.description = snippet != null ? snippet.getDescription() : null;
+        this.tagsUrl = videoId != null ? "/video?videoId=" + videoId : "/video?videoId=null";
     }
 
     public VideoInfo(SearchResult searchResult, String description) {
