@@ -128,4 +128,20 @@ public class Cache {
         videoCache.put(videoId, video);
         return video;
     }
+
+    public Map<String,String> getDescriptionCache() {
+        return descriptionCache;
+    }
+
+    public Map<String, List<SearchResult>> getListCache() {
+        return listCache;
+    }
+
+    public Map<String, ChannelListResponse> getChannelCache() {
+        return channelCache;
+    }
+
+    public Map<String, Video> getVideoCache() {
+        return videoCache;
+    }
 }
