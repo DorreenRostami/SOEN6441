@@ -36,7 +36,7 @@ class HomeControllerTest {
     private Cache cache;
 
     @Mock
-    private VideoDetailSevice videoDetailSevice;
+    private SearchByTagSevice searchByTagSevice;
 
     @Mock
     private Http.Request request;
@@ -53,8 +53,8 @@ class HomeControllerTest {
     @BeforeEach
     public void setup() throws IOException, GeneralSecurityException {
         MockitoAnnotations.openMocks(this);
-        reset(cache, database, request, youTubeService, videoDetailSevice, channelService);
-        homeController = new HomeController(youTubeService, cache, videoDetailSevice, database, channelService);
+        reset(cache, database, request, youTubeService, searchByTagSevice, channelService);
+        homeController = new HomeController(youTubeService, cache, searchByTagSevice, database, channelService);
     }
 
     @AfterEach

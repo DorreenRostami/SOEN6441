@@ -10,7 +10,7 @@ import services.ChannelService;
 import services.SessionsService;
 import services.WordStatistics;
 import services.YouTubeService;
-import services.VideoDetailSevice;
+import services.SearchByTagSevice;
 import views.html.hello;
 
 import com.google.api.services.youtube.model.SearchResult;
@@ -32,17 +32,17 @@ public class HomeController extends Controller {
     private final Database database;
     private final Cache cache;
     private final YouTubeService youtubeService;
-    private final VideoDetailSevice videoDetailSevice;
+    private final SearchByTagSevice searchByTagSevice;
     private final ChannelService channelService;
 
     @Inject
-    public HomeController(YouTubeService youTubeService, Cache cache, VideoDetailSevice videoDetailSevice, Database database, ChannelService channelService) throws GeneralSecurityException, IOException {
+    public HomeController(YouTubeService youTubeService, Cache cache, SearchByTagSevice searchByTagSevice, Database database, ChannelService channelService) throws GeneralSecurityException, IOException {
 //        this.youtubeService = new YouTubeService();
 //        cache = new Cache(youtubeService);
 //        videoDetailSevice = new VideoDetailSevice(cache);
         this.youtubeService = youTubeService;
         this.cache = cache;
-        this.videoDetailSevice = videoDetailSevice;
+        this.searchByTagSevice = searchByTagSevice;
         this.database = database;
         this.channelService = channelService;
     }
@@ -169,8 +169,7 @@ public class HomeController extends Controller {
     public CompletionStage<Result> searchByTag(String tag) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                List<SearchResult> results = cache.get("##" + tag, false);
-                return ok(tagResults.render(tag, results));
+                return ok(tagResults.render(tag, searchByTagSevice.searchByTag(tag)));
 
             } catch (IOException e) {
                 e.printStackTrace();

@@ -22,6 +22,12 @@ public class SearchHistory {
         this.sentiment = sentiment;
     }
 
+    public SearchHistory(String query, List<VideoInfo> results) {
+        this.query = query;
+        this.results = results;
+        this.sentiment = SentimentAnalyzer.getSentiment(results.stream());
+    }
+
     public String getQuery() {
         return query;
     }
@@ -57,14 +63,6 @@ public class SearchHistory {
             } catch (IOException e){
                 System.out.println("Unable to fetch description for videoId: " + videoId);
             }
-
-//            List<String> tags = List.of();
-//            try {
-//                tags = cache.getTags(videoId);
-//            } catch (IOException e){
-//                System.out.println("Unable to fetch tags for videoId: " + videoId);
-//            }
-
             return new VideoInfo(result, description);
         }).collect(Collectors.toList());
         SentimentAnalyzer.Sentiment sentiment = SentimentAnalyzer.getSentiment(videoInfoList.stream());
