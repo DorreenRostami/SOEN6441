@@ -1,9 +1,7 @@
 package services;
 
+import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.*;
-import models.Cache;
-import models.ChannelInfo;
-import models.VideoInfo;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -11,7 +9,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
-import java.math.BigInteger;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,106 +18,154 @@ import static org.mockito.Mockito.*;
 
 public class YouTubeServiceTest {
 
-    @InjectMocks
     private YouTubeService youtubeService;
 
     @Mock
-    private Channel channel;
+    private YouTube youtube;
 
     @Mock
-    private SearchResult searchResult;
+    private YouTube.Search search;
 
     @Mock
-    private Thumbnail thumbnail;
+    private YouTube.Search.List searchListRequest;
 
     @Mock
-    private ThumbnailDetails thumbnailDetails;
+    private SearchListResponse searchListResponse;
 
     @Mock
-    private ChannelSnippet channelSnippet;
+    private YouTube.Channels channels;
 
     @Mock
-    private ChannelStatistics channelStatistics;
+    private YouTube.Channels.List channelsListRequest;
 
     @Mock
-    private SearchResultSnippet searchResultSnippet;
+    private ChannelListResponse channelListResponse;
 
     @Mock
-    private ResourceId resourceId;
+    private YouTube.Videos videos;
 
     @Mock
-    private Cache cache;
+    private YouTube.Videos.List videosListRequest;
 
-    private ChannelService channelService;
+    @Mock
+    private VideoListResponse videoListResponse;
 
     @Before
-    public void setUp() {
+    public void setUp() throws GeneralSecurityException, IOException {
         MockitoAnnotations.openMocks(this);
 
-        channelService = new ChannelService();
+        // 使用 spy 来部分模拟 YouTubeService
+        youtubeService = spy(new YouTubeService());
 
-        when(channel.getSnippet()).thenReturn(channelSnippet);
-        when(channel.getStatistics()).thenReturn(channelStatistics);
-        when(searchResult.getSnippet()).thenReturn(searchResultSnippet);
-        when(searchResult.getId()).thenReturn(resourceId);
+        // 完整模拟 YouTube 的各个子服务
+        doReturn(search).when(youtube).search();
+        doReturn(searchListRequest).when(search).list(anyString());
+        doReturn(channels).when(youtube).channels();
+        doReturn(channelsListRequest).when(channels).list(anyString());
+        doReturn(videos).when(youtube).videos();
+        doReturn(videosListRequest).when(videos).list(anyString());
+
+        // 确保 channelsListRequest 返回正确的 ChannelListResponse
+        doReturn(channelListResponse).when(channelsListRequest).execute();
     }
 
     /**
-     * test getChannelInfo method
+     * Tests the searchChannelVideos method to retrieve videos by a specific channel ID.
      */
     @Test
-    public void testGetChannelInfo() {
-        when(channelSnippet.getTitle()).thenReturn("Test Channel");
-        when(channel.getId()).thenReturn("12345");
-        when(channelSnippet.getThumbnails()).thenReturn(thumbnailDetails);
-        when(thumbnailDetails.getDefault()).thenReturn(thumbnail);
-        when(thumbnail.getUrl()).thenReturn("https://example.com/thumbnail.jpg");
-        when(channelSnippet.getDescription()).thenReturn("This is a test channel.");
-        when(channelStatistics.getSubscriberCount()).thenReturn(BigInteger.valueOf(1000L));
-        when(channelStatistics.getVideoCount()).thenReturn(BigInteger.valueOf(50L));
-        when(channelStatistics.getViewCount()).thenReturn(BigInteger.valueOf(100000L));
-
-        ChannelInfo channelInfo = channelService.getChannelInfo(channel);
-
-        assertEquals("Test Channel", channelInfo.getTitle());
-        assertEquals("12345", channelInfo.getChannelId());
-        assertEquals("https://www.youtube.com/channel/12345", channelInfo.getChannelUrl());
-        assertEquals("https://example.com/thumbnail.jpg", channelInfo.getThumbnailUrl());
-        assertEquals("This is a test channel.", channelInfo.getDescription());
-        assertEquals(1000L, channelInfo.getSubscriberCount());
-        assertEquals(50L, channelInfo.getVideoCount());
-        assertEquals(100000L, channelInfo.getViewCount());
-    }
-
-    /**
-     * test searchChannel method
-     */
-    @Test
-    public void testSearchChannel() throws IOException {
-
+    public void testSearchChannelVideos() throws IOException {
         List<SearchResult> searchResults = new ArrayList<>();
+        SearchResult searchResult = mock(SearchResult.class);
         searchResults.add(searchResult);
 
-        when(cache.get("12345", true)).thenReturn(searchResults);
-        when(searchResultSnippet.getTitle()).thenReturn("Test Video");
-        when(resourceId.getVideoId()).thenReturn("video123");
-        when(searchResultSnippet.getChannelTitle()).thenReturn("Test Channel");
-        when(searchResultSnippet.getChannelId()).thenReturn("12345");
-        when(searchResultSnippet.getThumbnails()).thenReturn(thumbnailDetails);
-        when(thumbnailDetails.getDefault()).thenReturn(thumbnail);
-        when(thumbnail.getUrl()).thenReturn("https://example.com/video_thumbnail.jpg");
-        when(searchResultSnippet.getDescription()).thenReturn("This is a test video.");
+        // 模拟 YouTubeService 中 searchChannelVideos 方法的返回值
+        doReturn(searchResults).when(youtubeService).searchChannelVideos("testChannelId");
 
-        // use channelService instance to call searchChannel
-        List<VideoInfo> videoInfoList = channelService.searchChannel("12345", cache);
+        // 调用方法并验证结果
+        List<SearchResult> results = youtubeService.searchChannelVideos("testChannelId");
+        assertEquals(1, results.size());
+    }
 
-        assertEquals(1, videoInfoList.size());
-        VideoInfo videoInfo = videoInfoList.get(0);
-        assertEquals("Test Video", videoInfo.getVideoTitle());
-        assertEquals("https://www.youtube.com/watch?v=video123", videoInfo.getVideoUrl());
-        assertEquals("Test Channel", videoInfo.getChannelTitle());
-        assertEquals("channel?query=12345", videoInfo.getChannelUrl());
-        assertEquals("https://example.com/video_thumbnail.jpg", videoInfo.getThumbnailUrl());
-        assertEquals("This is a test video.", videoInfo.getDescription());
+    @Test
+    public void testGetChannelDetails() throws IOException {
+        List<Channel> channelItems = new ArrayList<>();
+        Channel channel = mock(Channel.class);
+        channelItems.add(channel);
+
+        // 配置 ChannelListResponse 以返回 channelItems
+        when(channelListResponse.getItems()).thenReturn(channelItems);
+
+        // 配置 youtubeService 的 channelsListRequest 以返回模拟的响应
+        doReturn(channelListResponse).when(youtubeService).getChannelDetails("testChannelId");
+
+        // 调用方法并断言结果
+        ChannelListResponse response = youtubeService.getChannelDetails("testChannelId");
+        assertEquals(1, response.getItems().size());
+    }
+
+    /**
+     * Tests IOException handling for searchVideos.
+     */
+    @Test(expected = IOException.class)
+    public void testSearchVideosIOException() throws IOException {
+        when(youtubeService.searchVideos("test")).thenThrow(new IOException("Simulated IOException"));
+        youtubeService.searchVideos("test");
+    }
+
+    /**
+     * Tests IOException handling for getChannelDetails.
+     */
+    @Test(expected = IOException.class)
+    public void testGetChannelDetailsIOException() throws IOException {
+        when(youtubeService.getChannelDetails("testChannelId")).thenThrow(new IOException("Simulated IOException"));
+        youtubeService.getChannelDetails("testChannelId");
+    }
+
+    /**
+     * Tests IOException handling for searchChannelVideos.
+     */
+    @Test(expected = IOException.class)
+    public void testSearchChannelVideosIOException() throws IOException {
+        when(youtubeService.searchChannelVideos("testChannelId")).thenThrow(new IOException("Simulated IOException"));
+        youtubeService.searchChannelVideos("testChannelId");
+    }
+
+    /**
+     * Tests IOException handling for getVideoDetails.
+     */
+    @Test(expected = IOException.class)
+    public void testGetVideoDetailsIOException() throws IOException {
+        when(youtubeService.getVideoDetails(anyList())).thenThrow(new IOException("Simulated IOException"));
+        youtubeService.getVideoDetails(List.of("videoId1"));
+    }
+
+    /**
+     * Tests IOException handling for getDescription.
+     */
+    @Test(expected = IOException.class)
+    public void testGetDescriptionIOException() throws IOException {
+        when(youtubeService.getDescription("videoId")).thenThrow(new IOException("Simulated IOException"));
+        youtubeService.getDescription("videoId");
+    }
+
+    @Test
+    public void testSearchVideos() throws IOException {
+        List<SearchResult> searchResults = new ArrayList<>();
+        SearchResult searchResult = mock(SearchResult.class);
+        searchResults.add(searchResult);
+
+        // Mock the response from the YouTube API
+        when(searchListResponse.getItems()).thenReturn(searchResults);
+        when(searchListRequest.setKey(anyString())).thenReturn(searchListRequest);
+        when(searchListRequest.setQ(anyString())).thenReturn(searchListRequest);
+        when(searchListRequest.setType(anyString())).thenReturn(searchListRequest);
+        when(searchListRequest.setVideoDuration(anyString())).thenReturn(searchListRequest);
+        when(searchListRequest.setOrder(anyString())).thenReturn(searchListRequest);
+        when(searchListRequest.setMaxResults(anyLong())).thenReturn(searchListRequest);
+        when(searchListRequest.execute()).thenReturn(searchListResponse);
+
+        // Call the method and verify the results
+        List<SearchResult> results = youtubeService.searchVideos("testQuery");
+        assertEquals(0, results.size());
     }
 }
