@@ -47,13 +47,6 @@ public class Cache {
     }
 
     /**
-     * get youTubeService
-     */
-    public YouTubeService getYouTubeService() {
-        return youTubeService;
-    }
-
-    /**
      * Returns the response for the provided query. This method takes a query and a boolean to denote whether the query
      * pertains to videos from a channel or generic videos search. That query is then checked in the cache. If the query
      * results in a cache hit, the response is returned from the cache. In case of a cache miss, the cache is
