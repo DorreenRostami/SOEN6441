@@ -1,6 +1,10 @@
 package models;
 
+import java.io.IOException;
 import java.util.List;
+
+import com.google.api.services.youtube.model.SearchResult;
+import com.google.api.services.youtube.model.SearchResultSnippet;
 import com.google.api.services.youtube.model.Video;
 
 /**
@@ -26,6 +30,23 @@ public class VideoInfo {
         this.thumbnailUrl = thumbnailUrl;
         this.description = description;
         this.tagsUrl = tagsUrl;
+    }
+
+    public VideoInfo(SearchResult searchResult) {
+        SearchResultSnippet snippet = searchResult.getSnippet();
+        String videoId = searchResult.getId().getVideoId();
+        this.videoTitle = snippet.getTitle();
+        this.videoUrl = "https://www.youtube.com/watch?v=" + videoId;
+        this.channelTitle = snippet.getChannelTitle();
+        this.channelUrl = "https://www.youtube.com/channel/" + snippet.getChannelId();
+        this.thumbnailUrl = snippet.getThumbnails().getDefault().getUrl();
+        this.description = snippet.getDescription();
+        this.tagsUrl = "/video?videoId=" + videoId;
+    }
+
+    public VideoInfo(SearchResult searchResult, String description) {
+        this(searchResult);
+        this.description = description;
     }
 
     public String getVideoTitle() {

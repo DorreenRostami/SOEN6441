@@ -65,15 +65,7 @@ public class SearchHistory {
 //                System.out.println("Unable to fetch tags for videoId: " + videoId);
 //            }
 
-            return new VideoInfo(
-                    result.getSnippet().getTitle(),
-                    "https://www.youtube.com/watch?v=" + videoId,
-                    result.getSnippet().getChannelTitle(),
-                    "/channel?query=" + result.getSnippet().getChannelId(),
-                    result.getSnippet().getThumbnails().getDefault().getUrl(),
-                    description,
-                    "/video?videoId=" + videoId
-            );
+            return new VideoInfo(result, description);
         }).collect(Collectors.toList());
         SentimentAnalyzer.Sentiment sentiment = SentimentAnalyzer.getSentiment(videoInfoList.stream());
         searchHistoryList.add(0, new SearchHistory(query, videoInfoList, sentiment));
