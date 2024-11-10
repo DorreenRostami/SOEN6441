@@ -28,13 +28,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class HomeController extends Controller {
-    private static final Database database = new Database();
+    private final Database database;
     private final Cache cache;
     private final YouTubeService youtubeService;
     private final VideoDetailSevice videoDetailSevice;
 
     @Inject
-    public HomeController(YouTubeService youTubeService, Cache cache, VideoDetailSevice videoDetailSevice) throws GeneralSecurityException,
+    public HomeController(YouTubeService youTubeService, Cache cache, VideoDetailSevice videoDetailSevice, Database database) throws GeneralSecurityException,
             IOException {
 //        this.youtubeService = new YouTubeService();
 //        cache = new Cache(youtubeService);
@@ -42,6 +42,7 @@ public class HomeController extends Controller {
         this.youtubeService = youTubeService;
         this.cache = cache;
         this.videoDetailSevice = videoDetailSevice;
+        this.database = database;
     }
 
     /**

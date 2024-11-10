@@ -1,7 +1,9 @@
 package controllers;
+
+import util.TestHelper;
+
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static play.mvc.Results.ok;
 import static play.test.Helpers.*;
 import com.google.api.services.youtube.model.*;
 
@@ -15,7 +17,6 @@ import org.mockito.MockitoAnnotations;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.*;
-import views.html.*;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -51,17 +52,18 @@ class HomeControllerTest {
     @BeforeEach
     public void setup() throws GeneralSecurityException, IOException {
         MockitoAnnotations.openMocks(this);
-        homeController = new HomeController(youTubeService, cache, videoDetailSevice);
+        homeController = new HomeController(youTubeService, cache, videoDetailSevice, database);
     }
 
     /**
      * Tests redirection to the home page
-     * @author Hao
+     * @author Hao & Dorreen
      */
     @Test
     void testRedirectToYtLytics() {
         Result result = homeController.redirectToYtLytics();
         assertEquals(303, result.status());
+        assertEquals("/ytlytics", result.redirectLocation().orElse(""));
     }
 
     /**
@@ -103,16 +105,88 @@ class HomeControllerTest {
     }
 
     /**
-     * Tests search() to ensure it returns an internal server error when an IOException occurs
-     * @author Dorreen
+     * Tests search() with a valid query, ensuring the session ID is correctly handled,
+     * search results are fetched from the cache, and the search history is updated in the database.
+     * @author Dorreen Rostami
      */
     @Test
-    public void testSearch_withIOException() throws IOException {
+    public void testSearch() throws IOException {
+        String query = "query";
         String sessionId = "id";
         Http.Session mockSession = mock(Http.Session.class);
         when(mockSession.get("sessionId")).thenReturn(Optional.of(sessionId));
         when(request.session()).thenReturn(mockSession);
+
+        SearchResult res = TestHelper.createMockSearchResult("V-id", "Title", "Channel",
+                "c1", "https://thumbnail/1", "desc");
+        List<SearchResult> cachedResults = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            cachedResults.add(res);
+        }
+        when(cache.get(query, false)).thenReturn(cachedResults);
+        when(cache.getDescription("V-id")).thenReturn("desc");
+        when(database.get(sessionId)).thenReturn(new ArrayList<>());
+
+        CompletionStage<Result> resultStage = homeController.search(request, query);
+        Result result = resultStage.toCompletableFuture().join();
+
+        assertEquals(OK, result.status());
+
+        String content = contentAsString(result);
+        assert content.contains("Title");
+
+        verify(database).put(eq(sessionId), anyList());
+    }
+
+    /**
+     * Tests search() with a valid query, when request has no session ID (happens when user's
+     * first request is a query, e.g: http://localhost:9000/search?query=something)
+     * @author Dorreen Rostami
+     */
+    @Test
+    public void testSearch_noSessionID() throws IOException {
         String query = "query";
+        String sessionId = "id";
+        Http.Session mockSession = mock(Http.Session.class);
+        when(mockSession.get("sessionId")).thenReturn(Optional.empty());
+        when(request.session()).thenReturn(mockSession);
+
+        try (MockedStatic<SessionsService> mockedSessionsService = mockStatic(SessionsService.class)) {
+            mockedSessionsService.when(() -> SessionsService.getSessionId(request)).thenReturn(sessionId);
+            mockedSessionsService.when(() -> SessionsService.hasSessionId(request)).thenReturn(false);
+
+
+            SearchResult res = TestHelper.createMockSearchResult("V-id", "Title", "Channel",
+                    "c1", "https://thumbnail/1", "desc");
+            List<SearchResult> cachedResults = new ArrayList<>();
+            for (int i = 0; i < 10; i++) {
+                cachedResults.add(res);
+            }
+            when(cache.get(query, false)).thenReturn(cachedResults);
+            when(cache.getDescription("V-id")).thenReturn("desc");
+            when(database.get(sessionId)).thenReturn(new ArrayList<>());
+
+            CompletionStage<Result> resultStage = homeController.search(request, query);
+            Result result = resultStage.toCompletableFuture().join();
+
+            assertEquals(OK, result.status());
+
+            String content = contentAsString(result);
+            assert content.contains("Title");
+        }
+    }
+
+    /**
+     * Tests search() to ensure it returns an internal server error when an IOException occurs
+     * @author Dorreen Rostami
+     */
+    @Test
+    public void testSearch_withIOException() throws IOException {
+        String query = "query";
+        String sessionId = "id";
+        Http.Session mockSession = mock(Http.Session.class);
+        when(mockSession.get("sessionId")).thenReturn(Optional.of(sessionId));
+        when(request.session()).thenReturn(mockSession);
 
         when(cache.get(query, false)).thenThrow(new IOException("IOException"));
 
@@ -123,6 +197,8 @@ class HomeControllerTest {
         verify(cache).get(query, false);
         verify(database, never()).put(anyString(), anyList());
     }
+
+
 
     @Test
     void testShowStatistics() throws IOException {

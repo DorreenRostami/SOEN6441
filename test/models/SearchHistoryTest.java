@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import services.SentimentAnalyzer;
+import util.TestHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,41 +37,6 @@ public class SearchHistoryTest {
 
 
     /**
-     * Creates a mock instance of {@link SearchResult} for testing
-     *
-     * @param videoId id of youtube video
-     * @param title title of video
-     * @param channelTitle title of channel who has uploaded the video
-     * @param channelId id of channel
-     * @param thumbnailUrl url of channel thumbnail
-     * @return a mocked item of type SearchResult (youtube model)
-     * @author Hao - initial implementation
-     * @author Dorreen - added the mock of more complex classes (those related to thumbnails and resourceId)
-     */
-    private SearchResult createMockSearchResult(String videoId, String title, String channelTitle, String channelId, String thumbnailUrl, String description) {
-        // Mock the SearchResult object and its Snippet
-        SearchResult searchResult = mock(SearchResult.class);
-        SearchResultSnippet snippet = mock(SearchResultSnippet.class);
-        ResourceId resourceId = mock(ResourceId.class);
-        ThumbnailDetails thumbnailDetails = mock(ThumbnailDetails.class);
-        Thumbnail thumbnail = mock(Thumbnail.class);
-
-        when(searchResult.getId()).thenReturn(resourceId);
-        when(resourceId.getVideoId()).thenReturn(videoId);
-        when(snippet.getTitle()).thenReturn(title);
-        when(snippet.getChannelTitle()).thenReturn(channelTitle);
-        when(snippet.getChannelId()).thenReturn(channelId);
-        when(snippet.getDescription()).thenReturn(description);
-        when(snippet.getThumbnails()).thenReturn(thumbnailDetails);
-        when(thumbnailDetails.getDefault()).thenReturn(thumbnail);
-        when(thumbnail.getUrl()).thenReturn(thumbnailUrl);
-        when(searchResult.getSnippet()).thenReturn(snippet);
-
-        return searchResult;
-    }
-
-
-    /**
      * Test case for the {@link SearchHistory#addToSearchHistory} method.
      * Check that the search history is correctly updated when new search results (a list of 10 results) are added
      * @author Dorreen Rostami
@@ -83,7 +49,7 @@ public class SearchHistoryTest {
         String videoId = "v1";
         when(cache.getDescription(videoId)).thenReturn(cachedDescription);
 
-        SearchResult res = createMockSearchResult(videoId, "Title", "Channel", "c1", "https://thumbnail/1", cachedDescription);
+        SearchResult res = TestHelper.createMockSearchResult(videoId, "Title", "Channel", "c1", "https://thumbnail/1", cachedDescription);
         List<SearchResult> results = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             results.add(res);
@@ -116,7 +82,7 @@ public class SearchHistoryTest {
         String cachedDescription = "Cached description";
         String videoId = "v1";
         when(cache.getDescription(videoId)).thenReturn(cachedDescription);
-        SearchResult res = createMockSearchResult(videoId, "Title", "Channel", "c1", "https://thumbnail/1", cachedDescription);
+        SearchResult res = TestHelper.createMockSearchResult(videoId, "Title", "Channel", "c1", "https://thumbnail/1", cachedDescription);
         List<SearchResult> results = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             results.add(res);
@@ -139,7 +105,7 @@ public class SearchHistoryTest {
     void testAddToSearchHistory_throwException() throws IOException {
         String videoId = "v1";
         when(cache.getDescription(videoId)).thenThrow(new IOException("Mocked IOException"));
-        SearchResult res = createMockSearchResult(videoId, "Title", "Channel", "c1", "https://thumbnail/1", "desc");
+        SearchResult res = TestHelper.createMockSearchResult(videoId, "Title", "Channel", "c1", "https://thumbnail/1", "desc");
         List<SearchResult> results = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             results.add(res);
