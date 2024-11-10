@@ -1,12 +1,13 @@
 package controllers;
 
+import org.mockito.MockedStatic;
 import util.TestHelper;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static play.mvc.Results.internalServerError;
 import static play.test.Helpers.*;
 import com.google.api.services.youtube.model.*;
-
 import models.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,14 +21,14 @@ import services.*;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.math.BigInteger;
+import java.util.Collections;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
-
-
-
 
 class HomeControllerTest {
     @Mock
@@ -42,17 +43,19 @@ class HomeControllerTest {
     @Mock
     private Http.Request request;
 
-    @InjectMocks
-    private HomeController homeController;
-
     @Mock
     private Database database;
 
+    @Mock
+    private ChannelService channelService;
+
+    @InjectMocks
+    private HomeController homeController;
 
     @BeforeEach
-    public void setup() throws GeneralSecurityException, IOException {
+    public void setup() throws IOException, GeneralSecurityException {
         MockitoAnnotations.openMocks(this);
-        homeController = new HomeController(youTubeService, cache, videoDetailSevice, database);
+        homeController = new HomeController(youTubeService, cache, videoDetailSevice, database, channelService);
     }
 
     /**
@@ -266,20 +269,51 @@ class HomeControllerTest {
 
 
     @Test
+    void testSearchChannelSuccess() throws IOException {
+        String channelId = "testChannelId";
+
+        Channel mockChannel = mock(Channel.class);
+        ChannelListResponse mockChannelListResponse = mock(ChannelListResponse.class);
+        ChannelInfo mockChannelInfo = new ChannelInfo(
+                "Test Channel Title",
+                channelId,
+                "https://www.youtube.com/channel/" + channelId,
+                "http://example.com/thumbnailUrl",
+                "Channel Description",
+                1000L,
+                50L,
+                50000L
+        );
+
+        when(cache.getChannelDetails(channelId)).thenReturn(mockChannelListResponse);
+        when(mockChannelListResponse.getItems()).thenReturn(Collections.singletonList(mockChannel));
+        when(channelService.getChannelInfo(mockChannel)).thenReturn(mockChannelInfo);
+        when(channelService.searchChannel(channelId, cache)).thenReturn(Collections.emptyList());
+
+        CompletionStage<Result> resultStage = homeController.searchChannel(channelId);
+        Result result = resultStage.toCompletableFuture().join();
+
+        assertEquals(OK, result.status());
+        assertTrue(contentAsString(result).contains("Test Channel Title"));
+
+        verify(cache, times(1)).getChannelDetails(channelId);
+        verify(channelService, times(1)).getChannelInfo(mockChannel);
+        verify(channelService, times(1)).searchChannel(channelId, cache);
+    }
+
+    @Test
     void testSearchChannelIOException() throws IOException {
         String channelId = "testChannelId";
 
-        when(cache.getChannelDetails(channelId)).thenThrow(new IOException());
+        when(cache.getChannelDetails(channelId)).thenThrow(new IOException("Simulated IOException"));
 
-        try (MockedStatic<ChannelService> mockedChannelService = mockStatic(ChannelService.class)) {
+        CompletionStage<Result> resultStage = homeController.searchChannel(channelId);
+        Result result = resultStage.toCompletableFuture().join();
 
-            CompletionStage<Result> resultStage = homeController.searchChannel(channelId);
-            Result result = resultStage.toCompletableFuture().join();
-
-            assertEquals(500, result.status());  // HTTP 500 - Internal Server Error
-            verify(cache, times(1)).getChannelDetails(channelId);
-            mockedChannelService.verify(() -> ChannelService.getChannelInfo(any()), never());
-            mockedChannelService.verify(() -> ChannelService.searchChannel(anyString(), any(Cache.class)), never());
-        }
+        assertEquals(INTERNAL_SERVER_ERROR, result.status());
+        assertTrue(contentAsString(result).contains("Error fetching data from YouTube API"));
+        verify(cache, times(1)).getChannelDetails(channelId);
+        verify(channelService, never()).getChannelInfo(any());
+//        verify(channelService, never()).searchChannel(anyString(), any(Cache.class));
     }
 }

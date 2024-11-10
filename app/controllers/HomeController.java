@@ -32,10 +32,10 @@ public class HomeController extends Controller {
     private final Cache cache;
     private final YouTubeService youtubeService;
     private final VideoDetailSevice videoDetailSevice;
+    private final ChannelService channelService;
 
     @Inject
-    public HomeController(YouTubeService youTubeService, Cache cache, VideoDetailSevice videoDetailSevice, Database database) throws GeneralSecurityException,
-            IOException {
+    public HomeController(YouTubeService youTubeService, Cache cache, VideoDetailSevice videoDetailSevice, Database database, ChannelService channelService) throws GeneralSecurityException, IOException {
 //        this.youtubeService = new YouTubeService();
 //        cache = new Cache(youtubeService);
 //        videoDetailSevice = new VideoDetailSevice(cache);
@@ -43,6 +43,7 @@ public class HomeController extends Controller {
         this.cache = cache;
         this.videoDetailSevice = videoDetailSevice;
         this.database = database;
+        this.channelService = channelService;
     }
 
     /**
@@ -115,10 +116,11 @@ public class HomeController extends Controller {
                 // Fetch channel details
                 ChannelListResponse channelResponse = cache.getChannelDetails(channelId);
                 Channel channel = channelResponse.getItems().get(0);
-                ChannelInfo channelInfo = ChannelService.getChannelInfo(channel);
+                ChannelInfo channelInfo = channelService.getChannelInfo(channel);
 
                 return ok(views.html.channel.render(channelId, videoInfoList, channelInfo));
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 e.printStackTrace();
                 return internalServerError("Error fetching data from YouTube API");
             }

@@ -3,7 +3,6 @@ package services;
 import com.google.api.services.youtube.model.Channel;
 import com.google.api.services.youtube.model.SearchResult;
 import models.Cache;
-import com.google.api.services.youtube.model.Video;
 import models.ChannelInfo;
 import models.VideoInfo;
 
@@ -18,7 +17,7 @@ import java.util.stream.Collectors;
  */
 public class ChannelService {
 
-    public static ChannelInfo getChannelInfo(Channel channel) {
+    public ChannelInfo getChannelInfo(Channel channel) {
         return new ChannelInfo(
                 channel.getSnippet().getTitle(),
                 channel.getId(),
@@ -40,7 +39,6 @@ public class ChannelService {
         // Fetch videos for the channel
         List<SearchResult> results = cache.get(channelId, true);
 
-        // Convert each video result into a VideoData object
         List<VideoInfo> videoInfoList = results.stream().map(result -> new VideoInfo(
                 result.getSnippet().getTitle(),
                 "https://www.youtube.com/watch?v=" + result.getId().getVideoId(),
@@ -49,10 +47,8 @@ public class ChannelService {
                 result.getSnippet().getThumbnails().getDefault().getUrl(),
                 result.getSnippet().getDescription(),
                 null
-
         )).collect(Collectors.toList());
 
-        // Keep only the 10 most recent results
         if (videoInfoList.size() > 10) {
             videoInfoList = videoInfoList.subList(0, 10);
         }

@@ -50,18 +50,15 @@ public class YouTubeServiceTest {
     @Mock
     private Cache cache;
 
+    // 新增 ChannelService 实例
+    private ChannelService channelService;
+
     @Before
     public void setUp() {
-        youtubeService = mock(YouTubeService.class);
-        channel = mock(Channel.class);
-        searchResult = mock(SearchResult.class);
-        thumbnail = mock(Thumbnail.class);
-        thumbnailDetails = mock(ThumbnailDetails.class);
-        channelSnippet = mock(ChannelSnippet.class);
-        channelStatistics = mock(ChannelStatistics.class);
-        searchResultSnippet = mock(SearchResultSnippet.class);
-        resourceId = mock(ResourceId.class);
-        cache = mock(Cache.class);
+        MockitoAnnotations.openMocks(this);
+
+        // 初始化 ChannelService 实例
+        channelService = new ChannelService();
 
         when(channel.getSnippet()).thenReturn(channelSnippet);
         when(channel.getStatistics()).thenReturn(channelStatistics);
@@ -69,6 +66,9 @@ public class YouTubeServiceTest {
         when(searchResult.getId()).thenReturn(resourceId);
     }
 
+    /**
+     * 测试 getChannelInfo 方法
+     */
     @Test
     public void testGetChannelInfo() {
         when(channelSnippet.getTitle()).thenReturn("Test Channel");
@@ -81,7 +81,8 @@ public class YouTubeServiceTest {
         when(channelStatistics.getVideoCount()).thenReturn(BigInteger.valueOf(50L));
         when(channelStatistics.getViewCount()).thenReturn(BigInteger.valueOf(100000L));
 
-        ChannelInfo channelInfo = ChannelService.getChannelInfo(channel);
+        // 使用 channelService 实例调用 getChannelInfo
+        ChannelInfo channelInfo = channelService.getChannelInfo(channel);
 
         assertEquals("Test Channel", channelInfo.getTitle());
         assertEquals("12345", channelInfo.getChannelId());
@@ -93,6 +94,9 @@ public class YouTubeServiceTest {
         assertEquals(100000L, channelInfo.getViewCount());
     }
 
+    /**
+     * 测试 searchChannel 方法
+     */
     @Test
     public void testSearchChannel() throws IOException {
 
@@ -109,7 +113,8 @@ public class YouTubeServiceTest {
         when(thumbnail.getUrl()).thenReturn("https://example.com/video_thumbnail.jpg");
         when(searchResultSnippet.getDescription()).thenReturn("This is a test video.");
 
-        List<VideoInfo> videoInfoList = ChannelService.searchChannel("12345", cache);
+        // 使用 channelService 实例调用 searchChannel
+        List<VideoInfo> videoInfoList = channelService.searchChannel("12345", cache);
 
         assertEquals(1, videoInfoList.size());
         VideoInfo videoInfo = videoInfoList.get(0);
