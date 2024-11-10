@@ -50,14 +50,12 @@ public class YouTubeServiceTest {
     @Mock
     private Cache cache;
 
-    // 新增 ChannelService 实例
     private ChannelService channelService;
 
     @Before
     public void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        // 初始化 ChannelService 实例
         channelService = new ChannelService();
 
         when(channel.getSnippet()).thenReturn(channelSnippet);
@@ -67,7 +65,7 @@ public class YouTubeServiceTest {
     }
 
     /**
-     * 测试 getChannelInfo 方法
+     * test getChannelInfo method
      */
     @Test
     public void testGetChannelInfo() {
@@ -81,7 +79,6 @@ public class YouTubeServiceTest {
         when(channelStatistics.getVideoCount()).thenReturn(BigInteger.valueOf(50L));
         when(channelStatistics.getViewCount()).thenReturn(BigInteger.valueOf(100000L));
 
-        // 使用 channelService 实例调用 getChannelInfo
         ChannelInfo channelInfo = channelService.getChannelInfo(channel);
 
         assertEquals("Test Channel", channelInfo.getTitle());
@@ -95,7 +92,7 @@ public class YouTubeServiceTest {
     }
 
     /**
-     * 测试 searchChannel 方法
+     * test searchChannel method
      */
     @Test
     public void testSearchChannel() throws IOException {
@@ -113,7 +110,7 @@ public class YouTubeServiceTest {
         when(thumbnail.getUrl()).thenReturn("https://example.com/video_thumbnail.jpg");
         when(searchResultSnippet.getDescription()).thenReturn("This is a test video.");
 
-        // 使用 channelService 实例调用 searchChannel
+        // use channelService instance to call searchChannel
         List<VideoInfo> videoInfoList = channelService.searchChannel("12345", cache);
 
         assertEquals(1, videoInfoList.size());
