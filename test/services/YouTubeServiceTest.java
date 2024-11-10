@@ -2,18 +2,12 @@ package services;
 
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.*;
-import models.Cache;
-import models.ChannelInfo;
-import models.Database;
-import models.VideoInfo;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +16,6 @@ import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for the {@link YouTubeService} class
- * @author Hao
  */
 public class YouTubeServiceTest {
 
@@ -59,37 +52,87 @@ public class YouTubeServiceTest {
     private VideoListResponse videoListResponse;
 
     @Before
-    public void setUp() throws GeneralSecurityException, IOException {
+    public void setUp() throws IOException {
         MockitoAnnotations.openMocks(this);
 
-//        youtubeService = spy(new YouTubeService());
         youtubeService = new YouTubeService(youtube);
+
+        // Mock YouTube service calls
         when(youtube.search()).thenReturn(search);
         when(search.list("snippet")).thenReturn(searchListRequest);
+        when(youtube.channels()).thenReturn(channels);
+        when(channels.list("snippet,statistics")).thenReturn(channelsListRequest);
+        when(youtube.videos()).thenReturn(videos);
+        when(videos.list("snippet")).thenReturn(videosListRequest);
 
-        doReturn(search).when(youtube).search();
-        doReturn(searchListRequest).when(search).list(anyString());
-        doReturn(channels).when(youtube).channels();
-        doReturn(channelsListRequest).when(channels).list(anyString());
-        doReturn(videos).when(youtube).videos();
-        doReturn(videosListRequest).when(videos).list(anyString());
+        // Mock chainable methods for search request
+        when(searchListRequest.setKey(anyString())).thenReturn(searchListRequest);
+        when(searchListRequest.setQ(anyString())).thenReturn(searchListRequest);
+        when(searchListRequest.setType(anyString())).thenReturn(searchListRequest);
+        when(searchListRequest.setVideoDuration(anyString())).thenReturn(searchListRequest);
+        when(searchListRequest.setOrder(anyString())).thenReturn(searchListRequest);
+        when(searchListRequest.setMaxResults(anyLong())).thenReturn(searchListRequest);
 
-        doReturn(channelListResponse).when(channelsListRequest).execute();
+        // Mock chainable methods for channels request
+        when(channelsListRequest.setKey(anyString())).thenReturn(channelsListRequest);
+        when(channelsListRequest.setId(anyString())).thenReturn(channelsListRequest);
+
+        // Mock chainable methods for videos request
+        when(videosListRequest.setKey(anyString())).thenReturn(videosListRequest);
+        when(videosListRequest.setId(anyString())).thenReturn(videosListRequest);
     }
 
-    /**
-     * Tests the searchChannelVideos method to retrieve videos by a specific channel ID.
-     */
+    @Test(expected = IOException.class)
+    public void testSearchVideosIOException() throws IOException {
+        when(searchListRequest.execute()).thenThrow(new IOException("Simulated IOException"));
+        youtubeService.searchVideos("testQuery");
+    }
+
+    @Test(expected = IOException.class)
+    public void testGetChannelDetailsIOException() throws IOException {
+        when(channelsListRequest.execute()).thenThrow(new IOException("Simulated IOException"));
+        youtubeService.getChannelDetails("testChannelId");
+    }
+
+    @Test(expected = IOException.class)
+    public void testSearchChannelVideosIOException() throws IOException {
+        // 确保链式方法设置完整
+        when(searchListRequest.setKey(anyString())).thenReturn(searchListRequest);
+        when(searchListRequest.setChannelId(anyString())).thenReturn(searchListRequest);
+        when(searchListRequest.setType(anyString())).thenReturn(searchListRequest);
+        when(searchListRequest.setOrder(anyString())).thenReturn(searchListRequest);
+        when(searchListRequest.setMaxResults(anyLong())).thenReturn(searchListRequest);
+
+        // 模拟 execute() 方法抛出 IOException
+        when(searchListRequest.execute()).thenThrow(new IOException("Simulated IOException"));
+        youtubeService.searchChannelVideos("testChannelId");
+    }
+
+    @Test(expected = IOException.class)
+    public void testGetVideoDetailsIOException() throws IOException {
+        when(videosListRequest.execute()).thenThrow(new IOException("Simulated IOException"));
+        youtubeService.getVideoDetails(List.of("videoId1"));
+    }
+
+    @Test(expected = IOException.class)
+    public void testGetDescriptionIOException() throws IOException {
+        when(videosListRequest.execute()).thenThrow(new IOException("Simulated IOException"));
+        youtubeService.getDescription("videoId");
+    }
+
     @Test
-    public void testSearchChannelVideos() throws IOException {
+    public void testSearchVideos() throws IOException {
         List<SearchResult> searchResults = new ArrayList<>();
         SearchResult searchResult = mock(SearchResult.class);
         searchResults.add(searchResult);
 
-        doReturn(searchResults).when(youtubeService).searchChannelVideos("testChannelId");
+        when(searchListRequest.execute()).thenReturn(searchListResponse);
+        when(searchListResponse.getItems()).thenReturn(searchResults);
 
-        List<SearchResult> results = youtubeService.searchChannelVideos("testChannelId");
+        List<SearchResult> results = youtubeService.searchVideos("testQuery");
+
         assertEquals(1, results.size());
+        assertEquals(searchResult, results.get(0));
     }
 
     @Test
@@ -98,81 +141,65 @@ public class YouTubeServiceTest {
         Channel channel = mock(Channel.class);
         channelItems.add(channel);
 
+        when(channelsListRequest.execute()).thenReturn(channelListResponse);
         when(channelListResponse.getItems()).thenReturn(channelItems);
 
-        doReturn(channelListResponse).when(youtubeService).getChannelDetails("testChannelId");
-
         ChannelListResponse response = youtubeService.getChannelDetails("testChannelId");
+
         assertEquals(1, response.getItems().size());
+        assertEquals(channel, response.getItems().get(0));
     }
 
-    /**
-     * Tests IOException handling for searchVideos.
-     */
-    @Test(expected = IOException.class)
-    public void testSearchVideosIOException() throws IOException {
-        when(youtubeService.searchVideos("test")).thenThrow(new IOException("Simulated IOException"));
-        youtubeService.searchVideos("test");
-    }
-
-    /**
-     * Tests IOException handling for getChannelDetails.
-     */
-    @Test(expected = IOException.class)
-    public void testGetChannelDetailsIOException() throws IOException {
-        when(youtubeService.getChannelDetails("testChannelId")).thenThrow(new IOException("Simulated IOException"));
-        youtubeService.getChannelDetails("testChannelId");
-    }
-
-    /**
-     * Tests IOException handling for searchChannelVideos.
-     */
-    @Test(expected = IOException.class)
-    public void testSearchChannelVideosIOException() throws IOException {
-        when(youtubeService.searchChannelVideos("testChannelId")).thenThrow(new IOException("Simulated IOException"));
-        youtubeService.searchChannelVideos("testChannelId");
-    }
-
-    /**
-     * Tests IOException handling for getVideoDetails.
-     */
-    @Test(expected = IOException.class)
-    public void testGetVideoDetailsIOException() throws IOException {
-        when(youtubeService.getVideoDetails(anyList())).thenThrow(new IOException("Simulated IOException"));
-        youtubeService.getVideoDetails(List.of("videoId1"));
-    }
-
-    /**
-     * Tests IOException handling for getDescription.
-     */
-    @Test(expected = IOException.class)
-    public void testGetDescriptionIOException() throws IOException {
-        when(youtubeService.getDescription("videoId")).thenThrow(new IOException("Simulated IOException"));
-        youtubeService.getDescription("videoId");
-    }
-
-    /**
-     * Tests the searchVideos method to retrieve videos by mock search results.
-     */
     @Test
-    public void testSearchVideos() throws IOException {
-
+    public void testSearchChannelVideos() throws IOException {
         List<SearchResult> searchResults = new ArrayList<>();
         SearchResult searchResult = mock(SearchResult.class);
         searchResults.add(searchResult);
 
+        // 确保链式方法设置完整
         when(searchListRequest.setKey(anyString())).thenReturn(searchListRequest);
-        when(searchListRequest.setQ(anyString())).thenReturn(searchListRequest);
+        when(searchListRequest.setChannelId(anyString())).thenReturn(searchListRequest);
         when(searchListRequest.setType(anyString())).thenReturn(searchListRequest);
-        when(searchListRequest.setVideoDuration(anyString())).thenReturn(searchListRequest);
         when(searchListRequest.setOrder(anyString())).thenReturn(searchListRequest);
         when(searchListRequest.setMaxResults(anyLong())).thenReturn(searchListRequest);
         when(searchListRequest.execute()).thenReturn(searchListResponse);
         when(searchListResponse.getItems()).thenReturn(searchResults);
 
-        List<SearchResult> results = youtubeService.searchVideos("testQuery");
+        List<SearchResult> results = youtubeService.searchChannelVideos("testChannelId");
 
         assertEquals(1, results.size());
         assertEquals(searchResult, results.get(0));
+    }
+
+    @Test
+    public void testGetVideoDetails() throws IOException {
+        List<Video> videos = new ArrayList<>();
+        Video video = mock(Video.class);
+        videos.add(video);
+
+        when(videosListRequest.execute()).thenReturn(videoListResponse);
+        when(videoListResponse.getItems()).thenReturn(videos);
+
+        List<Video> results = youtubeService.getVideoDetails(List.of("videoId1"));
+
+        assertEquals(1, results.size());
+        assertEquals(video, results.get(0));
+    }
+
+    @Test
+    public void testGetDescription() throws IOException {
+        List<Video> videos = new ArrayList<>();
+        Video video = mock(Video.class);
+        VideoSnippet snippet = mock(VideoSnippet.class);
+
+        when(video.getSnippet()).thenReturn(snippet);
+        when(snippet.getDescription()).thenReturn("Test Description");
+        videos.add(video);
+
+        when(videosListRequest.execute()).thenReturn(videoListResponse);
+        when(videoListResponse.getItems()).thenReturn(videos);
+
+        String description = youtubeService.getDescription("videoId");
+        assertEquals("Test Description", description);
     }
 }
