@@ -1,5 +1,5 @@
 @import com.google.api.services.youtube.model.SearchResult
-@(tag: String, results: List[SearchResult])
+@(tag: String, results: List[SearchResult], searchHistory: SearchHistory)
 
 <!DOCTYPE html>
 <html lang="en">
@@ -17,11 +17,13 @@
                 <p>Description: @result.getSnippet.getDescription</p>
 @*                <p>Tags:*@
 @*                    @for(tag <- result.getSnippet.getTags.asScala) {*@
-@*                        <a href="@routes.HomeController.searchByTa    g(tag)">@tag</a>*@
+@*                        <a href="@routes.HomeController.searchByTag(tag)">@tag</a>*@
 @*                    }*@
 @*                </p>*@
             </div>
         }
         </div>
+
+        @videoList(searchHistory)
     </body>
 </html>
