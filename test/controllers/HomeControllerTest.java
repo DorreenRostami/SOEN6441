@@ -23,6 +23,10 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
+/**
+ * Unit tests for the {@link HomeController} class
+ * @author Dorreen & Hao
+ */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class HomeControllerTest {
     @Mock

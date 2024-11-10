@@ -3,6 +3,7 @@ package services;
 import com.google.api.services.youtube.model.*;
 import models.Cache;
 import models.ChannelInfo;
+import models.Database;
 import models.VideoInfo;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,6 +19,10 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for the {@link YouTubeService} class
+ * @author Hao
+ */
 public class YouTubeServiceTest {
 
     @InjectMocks

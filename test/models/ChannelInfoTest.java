@@ -5,6 +5,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * Unit tests for the {@link ChannelInfo} class
+ * @author Hao
+ */
 public class ChannelInfoTest {
 
     private ChannelInfo channelInfo;
