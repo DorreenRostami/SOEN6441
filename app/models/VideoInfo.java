@@ -3,6 +3,10 @@ package models;
 import java.util.List;
 import com.google.api.services.youtube.model.Video;
 
+/**
+ * Class for information about a YouTube video
+ * @author Hao & Dorreen
+ */
 public class VideoInfo {
     private String videoTitle;
     private String videoUrl;

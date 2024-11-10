@@ -50,7 +50,7 @@ public class HomeController extends Controller {
      * redicrects the / route to /ytlytis route (typing in localhost:9000 will redirect to localhost:9000/ytlytics
      * which is the main search page)
      *
-     * @author - Dorreen Rostami
+     * @author Dorreen Rostami
      */
     public Result redirectToYtLytics() {
         return redirect(routes.HomeController.hello());

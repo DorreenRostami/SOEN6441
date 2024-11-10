@@ -50,6 +50,7 @@ public class SearchHistory {
         List<VideoInfo> videoInfoList = results.stream().map(result -> {
             String videoId = result.getId().getVideoId();
 
+            //get full description instead of a snippet of it
             String description = "";
             try {
                 description = cache.getDescription(videoId);
