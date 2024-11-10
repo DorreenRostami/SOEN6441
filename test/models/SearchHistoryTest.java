@@ -65,7 +65,7 @@ public class SearchHistoryTest {
         assertEquals("Title", firstResult.getVideoTitle());
         assertEquals("https://www.youtube.com/watch?v=v1", firstResult.getVideoUrl());
         assertEquals("Channel", firstResult.getChannelTitle());
-        assertEquals("/channel?query=c1", firstResult.getChannelUrl());
+        assertEquals("https://www.youtube.com/channel/c1", firstResult.getChannelUrl());  // updated channelURL(it's false before)
         assertEquals("https://thumbnail/1", firstResult.getThumbnailUrl());
         assertEquals(cachedDescription, firstResult.getDescription());
         assertEquals("/video?videoId=v1", firstResult.getTagsUrl());
