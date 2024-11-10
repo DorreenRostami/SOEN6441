@@ -9,7 +9,6 @@ import scala.Tuple2;
 import services.ChannelService;
 import services.SessionsService;
 import services.WordStatistics;
-import services.YouTubeService;
 import services.SearchByTagSevice;
 import views.html.hello;
 
@@ -31,16 +30,11 @@ import java.util.stream.Stream;
 public class HomeController extends Controller {
     private final Database database;
     private final Cache cache;
-    private final YouTubeService youtubeService;
     private final SearchByTagSevice searchByTagSevice;
     private final ChannelService channelService;
 
     @Inject
-    public HomeController(YouTubeService youTubeService, Cache cache, SearchByTagSevice searchByTagSevice, Database database, ChannelService channelService) throws GeneralSecurityException, IOException {
-//        this.youtubeService = new YouTubeService();
-//        cache = new Cache(youtubeService);
-//        videoDetailSevice = new VideoDetailSevice(cache);
-        this.youtubeService = youTubeService;
+    public HomeController(Cache cache, SearchByTagSevice searchByTagSevice, Database database, ChannelService channelService) throws GeneralSecurityException, IOException {
         this.cache = cache;
         this.searchByTagSevice = searchByTagSevice;
         this.database = database;

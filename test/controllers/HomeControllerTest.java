@@ -13,7 +13,11 @@ import models.*;
 import org.mockito.MockedStatic;
 import play.mvc.Http;
 import play.mvc.Result;
-import services.*;
+//import services.*;
+import services.ChannelService;
+import services.SearchByTagSevice;
+import services.SessionsService;
+import services.YouTubeService;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -54,7 +58,7 @@ class HomeControllerTest {
     public void setup() throws IOException, GeneralSecurityException {
         MockitoAnnotations.openMocks(this);
         reset(cache, database, request, youTubeService, searchByTagSevice, channelService);
-        homeController = new HomeController(youTubeService, cache, searchByTagSevice, database, channelService);
+        homeController = new HomeController(cache, searchByTagSevice, database, channelService);
     }
 
     @AfterEach
