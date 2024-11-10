@@ -16,6 +16,7 @@ import views.html.hello;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Channel;
 import com.google.api.services.youtube.model.ChannelListResponse;
+import views.html.tagResults;
 import views.html.videoDetails;
 
 import java.util.*;
@@ -167,17 +168,14 @@ public class HomeController extends Controller {
      */
     public CompletionStage<Result> searchByTag(String tag) {
         return CompletableFuture.supplyAsync(() -> {
-            return ok();
-//            try {
-////                List<SearchResult> results = youtubeService.searchVideosByTag(tag).stream()
-////                        .limit(10)
-////                        .collect(Collectors.toList());
-////                return ok(tagResults.render(tag, results));
-//
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//                return internalServerError("Error fetching data from YouTube API");
-//            }
+            try {
+                List<SearchResult> results = cache.get("##" + tag, false);
+                return ok(tagResults.render(tag, results));
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                return internalServerError("Error fetching data from YouTube API");
+            }
         });
     }
 

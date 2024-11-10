@@ -104,4 +104,19 @@ public class YouTubeService {
             return "";
         }
     }
+
+//    /**
+//     * Returns list of SearchResults for the provided tag
+//     */
+//    public List<SearchResult> searchVideosByTag(String tag) throws IOException {
+//        YouTube.Search.List request = youtubeService.search().list("snippet");
+//        SearchListResponse response = request
+//                .setKey(API_KEY)
+//                .setQ(tag)
+//                .setType("video")
+//                .setOrder("date")
+//                .setMaxResults(10L)
+//                .execute();
+//        return response.getItems();
+//    }
 }

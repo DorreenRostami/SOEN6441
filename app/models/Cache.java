@@ -121,4 +121,12 @@ public class Cache {
         videoCache.put(videoId, video);
         return video;
     }
+
+    /**
+     * Retrieves 10 latest videos containing the provided tag. In the event of a cache hit (the according Video has been
+     * retrieved before), the according Video object is fetched from videoCache
+     */
+//    public List<SearchResult> getVideosByTag(String tag) throws IOException {
+//
+//    }
 }
