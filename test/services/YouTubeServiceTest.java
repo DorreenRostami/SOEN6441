@@ -16,6 +16,7 @@ import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for the {@link YouTubeService} class
+ * @author Yongqi Hao
  */
 public class YouTubeServiceTest {
 
@@ -82,18 +83,33 @@ public class YouTubeServiceTest {
         when(videosListRequest.setId(anyString())).thenReturn(videosListRequest);
     }
 
+    /**
+     * Test that an IOException is thrown when the searchVideos method encounters an IOException
+     * @throws IOException In case an IOException is thrown by the YouTube API.
+     * @author Yongqi Hao
+     */
     @Test(expected = IOException.class)
     public void testSearchVideosIOException() throws IOException {
         when(searchListRequest.execute()).thenThrow(new IOException("Simulated IOException"));
         youtubeService.searchVideos("testQuery");
     }
 
+    /**
+     * Test that an IOException is thrown when the getChannelDetails method encounters an IOException
+     * @throws IOException In case an IOException is thrown by the YouTube API.
+     * @author Yongqi Hao
+     */
     @Test(expected = IOException.class)
     public void testGetChannelDetailsIOException() throws IOException {
         when(channelsListRequest.execute()).thenThrow(new IOException("Simulated IOException"));
         youtubeService.getChannelDetails("testChannelId");
     }
 
+    /**
+     * Test that an IOException is thrown when the searchChannelVideos method encounters an IOException
+     * @throws IOException In case an IOException is thrown by the YouTube API.
+     * @author Yongqi Hao
+     */
     @Test(expected = IOException.class)
     public void testSearchChannelVideosIOException() throws IOException {
         // 确保链式方法设置完整
@@ -108,18 +124,33 @@ public class YouTubeServiceTest {
         youtubeService.searchChannelVideos("testChannelId");
     }
 
+    /**
+     * Test that an IOException is thrown when the getVideoDetails method encounters an IOException
+     * @throws IOException In case an IOException is thrown by the YouTube API.
+     * @author Yongqi Hao
+     */
     @Test(expected = IOException.class)
     public void testGetVideoDetailsIOException() throws IOException {
         when(videosListRequest.execute()).thenThrow(new IOException("Simulated IOException"));
         youtubeService.getVideoDetails(List.of("videoId1"));
     }
 
+    /**
+     * Test that an IOException is thrown when the getDescription method encounters an IOException
+     * @throws IOException In case an IOException is thrown by the YouTube API.
+     * @author Yongqi Hao
+     */
     @Test(expected = IOException.class)
     public void testGetDescriptionIOException() throws IOException {
         when(videosListRequest.execute()).thenThrow(new IOException("Simulated IOException"));
         youtubeService.getDescription("videoId");
     }
 
+    /**
+     * Test searchVideos method with a single search result
+     * @throws IOException In case an IOException is thrown by the YouTube API.
+     * @author Yongqi Hao
+     */
     @Test
     public void testSearchVideos() throws IOException {
         List<SearchResult> searchResults = new ArrayList<>();
@@ -135,6 +166,11 @@ public class YouTubeServiceTest {
         assertEquals(searchResult, results.get(0));
     }
 
+    /**
+     * Test getChannelDetails
+     * @throws IOException In case an IOException is thrown by the YouTube API.
+     * @author Yongqi Hao
+     */
     @Test
     public void testGetChannelDetails() throws IOException {
         List<Channel> channelItems = new ArrayList<>();
@@ -150,6 +186,11 @@ public class YouTubeServiceTest {
         assertEquals(channel, response.getItems().get(0));
     }
 
+    /**
+     * Test searchChannelVideos method with a single search result
+     * @throws IOException In case an IOException is thrown by the YouTube API.
+     * @author Yongqi Hao
+     */
     @Test
     public void testSearchChannelVideos() throws IOException {
         List<SearchResult> searchResults = new ArrayList<>();
@@ -171,6 +212,11 @@ public class YouTubeServiceTest {
         assertEquals(searchResult, results.get(0));
     }
 
+    /**
+     * Test getVideoDetails method with a single video
+     * @throws IOException In case an IOException is thrown by the YouTube API.
+     * @author Yongqi Hao
+     */
     @Test
     public void testGetVideoDetails() throws IOException {
         List<Video> videos = new ArrayList<>();
@@ -186,6 +232,11 @@ public class YouTubeServiceTest {
         assertEquals(video, results.get(0));
     }
 
+    /**
+     * Test getDescription method
+     * @throws IOException In case an IOException is thrown by the YouTube API.
+     * @author Yongqi Hao
+     */
     @Test
     public void testGetDescription() throws IOException {
         List<Video> videos = new ArrayList<>();

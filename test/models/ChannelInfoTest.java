@@ -28,6 +28,10 @@ public class ChannelInfoTest {
         channelInfo = new ChannelInfo(title, channelId, channelUrl, thumbnailUrl, description, subscriberCount, videoCount, viewCount);
     }
 
+    /**
+     * Test the constructor of the ChannelInfo class
+     * @author Yongqi Hao
+     */
     @Test
     public void testConstructor() {
         // Verify constructor initializes fields correctly
@@ -41,6 +45,11 @@ public class ChannelInfoTest {
         assertEquals(viewCount, channelInfo.viewCount);
     }
 
+
+    /**
+     * Test the getter methods of the ChannelInfo class
+     * @author Yongqi Hao
+     */
     @Test
     public void testGetTitle() {
         assertEquals(title, channelInfo.getTitle());

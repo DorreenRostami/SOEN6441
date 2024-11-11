@@ -72,6 +72,10 @@ public class ChannelServiceTest {
         when(channelStatistics.getViewCount()).thenReturn(BigInteger.valueOf(100000));
     }
 
+    /**
+     * Test the getters of the ChannelInfo class
+     * @author Yongqi Hao
+     */
     @Test
     public void testGetChannelInfo() {
         ChannelInfo channelInfo = channelService.getChannelInfo(channel);
@@ -86,6 +90,11 @@ public class ChannelServiceTest {
         assertEquals(100000L, channelInfo.getViewCount());
     }
 
+    /**
+     * Test the searchChannel method with search results
+     * @throws IOException In case an IOException is thrown by the YouTube API.
+     * @author Yongqi Hao
+     */
     @Test
     public void testSearchChannel() throws IOException {
 
@@ -116,6 +125,11 @@ public class ChannelServiceTest {
         assertEquals("This is a test video.", videoInfo.getDescription());
     }
 
+    /**
+     * Test the searchChannel method with more than 10 search results
+     * @throws IOException In case an IOException is thrown by the YouTube API.
+     * @author Yongqi Hao
+     */
     @Test
     public void testSearchChannelWithMoreThan10Results() throws IOException {
 
