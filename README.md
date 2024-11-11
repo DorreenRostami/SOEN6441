@@ -1,4 +1,5 @@
-The generated HTML Javadoc is located in the `api` folder, and you can directly open the `index.html` file within to 
+The generated HTML Javadoc is located in the `javadoc` folder, and you can directly open the `index.html` file 
+within to 
 view it.
 
 available google API key:  
