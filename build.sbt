@@ -16,3 +16,4 @@ libraryDependencies += "org.mockito" %% "mockito-scala-scalatest" % "1.17.37" % 
 libraryDependencies += "org.mockito" % "mockito-inline" % "5.2.0" % Test
 
 fork in Test := false
+scalacOptions in (Compile, doc) ++= Seq("-private")
