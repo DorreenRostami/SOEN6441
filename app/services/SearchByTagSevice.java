@@ -21,6 +21,7 @@ public class SearchByTagSevice {
     /**
      * Constructor for the SearchByTagService
      * @param cache The cache to use for storing search results
+     * @author Yi Tian
      */
     @Inject
     public SearchByTagSevice(Cache cache) {
@@ -32,6 +33,7 @@ public class SearchByTagSevice {
      * @param tag The tag to search for
      * @return SearchHistory object containing the search results
      * @throws IOException If an error occurs while fetching the search results
+     * @author Yi Tian
      */
     public SearchHistory searchByTag(String tag) throws IOException {
         List<SearchResult> results = cache.get("##" + tag, false);

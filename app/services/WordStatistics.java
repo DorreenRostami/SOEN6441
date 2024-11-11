@@ -7,6 +7,11 @@ import scala.Tuple2;
 import java.util.*;
 import java.util.stream.Collectors;
 
+
+/**
+ * This class provides services for analyzing word frequencies in text
+ * @author Dorreen Rostami
+ */
 public class WordStatistics {
 
     /**

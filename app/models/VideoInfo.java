@@ -21,6 +21,17 @@ public class VideoInfo {
     private List<String> tags;
     private String tagsUrl;
 
+    /**
+     * Constructor for VideoInfo
+     * @param videoTitle The title of the video
+     * @param videoUrl The URL of the video linking to YouTube
+     * @param channelTitle The title of the channel
+     * @param channelUrl The URL of the channel
+     * @param thumbnailUrl The URL of the thumbnail
+     * @param description The description of the video
+     * @param tagsUrl The URL of the tags
+     * @author Dorreen Rostami
+     */
     public VideoInfo(String videoTitle, String videoUrl, String channelTitle, String channelUrl, String thumbnailUrl,
                      String description, String tagsUrl) {
         this.videoTitle = videoTitle;
@@ -32,6 +43,11 @@ public class VideoInfo {
         this.tagsUrl = tagsUrl;
     }
 
+    /**
+     * Constructor for VideoInfo
+     * @param searchResult The search result from the YouTube API
+     * @author Yi Tian & Yongqi Hao
+     */
     public VideoInfo(SearchResult searchResult) {
         SearchResultSnippet snippet = searchResult.getSnippet();
         String videoId = searchResult.getId() != null ? searchResult.getId().getVideoId() : null;
@@ -49,11 +65,23 @@ public class VideoInfo {
         this.tagsUrl = videoId != null ? "/video?videoId=" + videoId : "/video?videoId=null";
     }
 
+    /**
+     * Constructor for VideoInfo
+     * @param searchResult The search result from the YouTube API
+     * @param description The description to replace the one from the search result
+     * @author Yi Tian
+     */
     public VideoInfo(SearchResult searchResult, String description) {
         this(searchResult);
         this.description = description;
     }
 
+
+    /**
+     * Getters for VideoInfo
+     * @return The corresponding field of the VideoInfo object
+     * @author Dorreen Rostami & Yongqi Hao & Yi Tian
+     */
     public String getVideoTitle() {
         return videoTitle;
     }
