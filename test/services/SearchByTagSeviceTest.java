@@ -9,7 +9,6 @@ import models.SearchHistory;
 import models.VideoInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import services.SearchByTagSevice;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +33,6 @@ class SearchByTagSeviceTest {
         List<SearchResult> searchResults = new ArrayList<>();
         for (int i = 0; i < resultsLength; i++) {
             SearchResult searchResult = new SearchResult();
-            // 设置必要的属性
             searchResult.setId(new ResourceId().setVideoId("videoId" + i));
             SearchResultSnippet snippet = new SearchResultSnippet();
             snippet.setTitle("title" + i);

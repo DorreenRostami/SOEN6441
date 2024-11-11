@@ -269,9 +269,10 @@ class HomeControllerTest {
     }
 
     @Test
-    void testSearchByTag() {
+    void testSearchByTag() throws IOException {
         String tag = "sampleTag";
 
+        when(searchByTagSevice.searchByTag(tag)).thenReturn(new SearchHistory(tag, new ArrayList<>()));
         CompletionStage<Result> resultStage = homeController.searchByTag(tag);
         Result result = resultStage.toCompletableFuture().join();
 
