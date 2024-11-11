@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for the {@link Database} class
+ * @author Dorreen Rostami
  */
 public class DatabaseTest {
 
@@ -26,6 +27,7 @@ public class DatabaseTest {
 
     /**
      * Tests that initializing a session ID creates an empty record, and reinitializing clears the record if it exists.
+     * @author Dorreen Rostami & Yongqi Hao
      */
     @Test
     void testInitRecord() {
@@ -49,6 +51,7 @@ public class DatabaseTest {
 
     /**
      * Tests that search history data is correctly added and retrieved for a session ID.
+     * @author Dorreen Rostami & Yongqi Hao
      */
     @Test
     void testPutAndGet() {
@@ -69,6 +72,7 @@ public class DatabaseTest {
 
     /**
      * Tests the scenario where an existing session ID is retrieved before it has any entries added.
+     * @author Yongqi Hao
      */
     @Test
     void testGetEmptySession() {

@@ -268,6 +268,13 @@ class HomeControllerTest {
         assertEquals(500, result.status());
     }
 
+    /**
+     * Tests the searchByTag method
+     *
+     * @throws IOException if an error occurs while retrieving the data from the cache (but since
+     * searchByTagSevice is mocked for this test, it should not throw an exception).
+     * @author Dorreen Rostami & Yi Tian
+     */
     @Test
     void testSearchByTag() throws IOException {
         String tag = "sampleTag";
@@ -279,6 +286,12 @@ class HomeControllerTest {
         assertEquals(200, result.status());
     }
 
+    /**
+     * Tests the showVideoDetails method when an IOException is thrown while retrieving data from the cache
+     *
+     * @throws IOException if an error occurs while retrieving the data from the cache
+     * @author Yongqi Hao
+     */
     @Test
     void testShowVideoDetailsWithIOException() throws IOException {
         String videoId = "video123";
@@ -291,7 +304,12 @@ class HomeControllerTest {
         assertEquals(500, result.status());
     }
 
-
+    /**
+     * Tests the searchChannel method when data is successfully retrieved from the cache
+     *
+     * @throws IOException if an error occurs while retrieving the data from the cache
+     * @author Yongqi Hao
+     */
     @Test
     void testSearchChannelSuccess() throws IOException {
         String channelId = "testChannelId";
@@ -325,6 +343,12 @@ class HomeControllerTest {
         verify(channelService, times(1)).searchChannel(channelId, cache);
     }
 
+    /**
+     * Tests the searchChannel method when an IOException is thrown while retrieving data from the cache
+     *
+     * @throws IOException if an error occurs while retrieving the data from the cache
+     * @author Yongqi Hao
+     */
     @Test
     @Order(2)
     void testSearchChannelIOException() throws IOException {
