@@ -11,6 +11,10 @@ import java.security.GeneralSecurityException;
 import java.util.List;
 
 
+/**
+ * This class contains methods for searching for videos and getting channel information through the Youtube API
+ * @author Dorreen Rostami
+ */
 public class YouTubeService {
     private static final String API_KEY = "AIzaSyACqubjXenoz7mp2idclHETDE3oyJO47Uo"; // API key
 //    private static final String API_KEY = "AIzaSyDkLPt2l_05n_Y8POacidCn3snYAOyI3D4";
@@ -27,6 +31,12 @@ public class YouTubeService {
         this.youtubeService = youtubeService;
     }
 
+    /**
+     * Constructor for the YouTubeService class which initializes the YouTube service
+     * @throws GeneralSecurityException If an error occurs while initializing the transport
+     * @throws IOException If an error occurs while initializing the transport
+     * @author Hao
+     */
     public YouTubeService() throws GeneralSecurityException, IOException {
         this(new YouTube.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(),
@@ -35,6 +45,13 @@ public class YouTubeService {
         ).setApplicationName(APPLICATION_NAME).build());
     }
 
+    /**
+     * Search for videos based on a query
+     * @param query the query to search for
+     * @return a list of SearchResult containing the videos that match the query
+     * @throws IOException If an error occurs while fetching the search results
+     * @author Hao
+     */
     public List<SearchResult> searchVideos(String query) throws IOException {
         YouTube.Search.List request = youtubeService.search().list("snippet");
         SearchListResponse response = request
@@ -82,6 +99,13 @@ public class YouTubeService {
         return response.getItems();
     }
 
+    /**
+     * Get the details of a video
+     * @param videoIds the ids of the videos
+     * @return a list of Video objects containing the details of the videos
+     * @throws IOException If an error occurs while fetching the video details
+     * @author Hao
+     */
     public List<Video> getVideoDetails(List<String> videoIds) throws IOException {
         YouTube.Videos.List request = youtubeService.videos().list("snippet");
         VideoListResponse response = request
@@ -108,19 +132,4 @@ public class YouTubeService {
             return "";
         }
     }
-
-//    /**
-//     * Returns list of SearchResults for the provided tag
-//     */
-//    public List<SearchResult> searchVideosByTag(String tag) throws IOException {
-//        YouTube.Search.List request = youtubeService.search().list("snippet");
-//        SearchListResponse response = request
-//                .setKey(API_KEY)
-//                .setQ(tag)
-//                .setType("video")
-//                .setOrder("date")
-//                .setMaxResults(10L)
-//                .execute();
-//        return response.getItems();
-//    }
 }
