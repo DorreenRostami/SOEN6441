@@ -27,12 +27,27 @@ import java.security.GeneralSecurityException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+
+/**
+ * Controller for the home page and search functionality
+ * @author Hamza Asghar Khan
+ */
 public class HomeController extends Controller {
     private final Database database;
     private final Cache cache;
     private final SearchByTagSevice searchByTagSevice;
     private final ChannelService channelService;
 
+    /**
+     * Constructor for HomeController
+     * @param cache Cache object
+     * @param searchByTagSevice SearchByTagService object
+     * @param database Database object
+     * @param channelService ChannelService object
+     * @throws GeneralSecurityException In case of a GeneralSecurityException
+     * @throws IOException In case of an IOException
+     * @author Yi Tian
+     */
     @Inject
     public HomeController(Cache cache, SearchByTagSevice searchByTagSevice, Database database, ChannelService channelService) throws GeneralSecurityException, IOException {
         this.cache = cache;
@@ -159,6 +174,7 @@ public class HomeController extends Controller {
      * Search for videos by tag and display the 10 latest videos containing this tag.
      * @param tag the tag to search for
      * @return a CompletableFuture containing the result which renders the tagResults page
+     * @author Yi Tian
      */
     public CompletionStage<Result> searchByTag(String tag) {
         return CompletableFuture.supplyAsync(() -> {
@@ -177,6 +193,7 @@ public class HomeController extends Controller {
      * cache service
      * @param videoId the ID of the video
      * @return a CompletableFuture containing the result which renders the videoDetails page
+     * @author Yi Tian
      */
     public CompletionStage<Result> showVideoDetails(String videoId) {
         return CompletableFuture.supplyAsync(() -> {

@@ -98,6 +98,7 @@ public class Cache {
      * @param videoId Target VideoId
      * @return Description of the request video
      * @throws IOException In case of API failures
+     * @author Hamza Asghar Khan
      */
     public String getDescription(String videoId) throws IOException{
         if (descriptionCache.containsKey(videoId)){
@@ -112,6 +113,9 @@ public class Cache {
      * Retrieve Video object for the provided videoId. In the event of a cache hit, the according Video object is
      * fetched from the cache. In the event of a cache miss, the cache is populated using the YouTube API
      * @param videoId Target VideoId
+     * @return Video object for the request video
+     * @throws IOException In case of API failures
+     * @author Yi Tian
      */
     public Video getVideo(String videoId) throws IOException {
         if (videoCache.containsKey(videoId)) {
@@ -121,12 +125,4 @@ public class Cache {
         videoCache.put(videoId, video);
         return video;
     }
-
-    /**
-     * Retrieves 10 latest videos containing the provided tag. In the event of a cache hit (the according Video has been
-     * retrieved before), the according Video object is fetched from videoCache
-     */
-//    public List<SearchResult> getVideosByTag(String tag) throws IOException {
-//
-//    }
 }
