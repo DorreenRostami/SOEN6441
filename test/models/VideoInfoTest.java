@@ -13,7 +13,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
- * covers the VideoInfo class
+ * Unit tests for the {@link VideoInfo} class
+ * @author Yongqi Hao
  */
 public class VideoInfoTest extends WithApplication {
 
@@ -32,6 +33,11 @@ public class VideoInfoTest extends WithApplication {
         videoInfo = new VideoInfo(videoTitle, videoUrl, channelTitle, channelUrl, thumbnailUrl, description, tagsUrl);
     }
 
+
+    /**
+     * Test the constructor with all parameters
+     * @author Yongqi Hao
+     */
     @Test
     public void testConstructorWithSearchResult() {
 
@@ -124,6 +130,12 @@ public class VideoInfoTest extends WithApplication {
         assertNull(videoInfoFromNullResult.getDescription());
         assertEquals("/video?videoId=null", videoInfoFromNullResult.getTagsUrl());
     }
+
+
+    /**
+     * Test the getters of the VideoInfo class
+     * @author Yongqi Hao
+     */
     @Test
     public void testGetVideoTitle() {
         assertEquals(videoTitle, videoInfo.getVideoTitle());

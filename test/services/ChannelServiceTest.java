@@ -17,6 +17,11 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
+
+/**
+ * Unit tests for the {@link ChannelService} class
+ * @author Yongqi Hao
+ */
 public class ChannelServiceTest {
 
     private ChannelService channelService;

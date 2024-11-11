@@ -15,17 +15,31 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
+/**
+ * Unit tests for the {@link SearchByTagSevice} class
+ * @author Yi Tian
+ */
 class SearchByTagSeviceTest {
 
     private Cache cache;
     private SearchByTagSevice searchByTagSevice;
 
+    /**
+     * Set up the test environment
+     * @author Yi Tian
+     */
     @BeforeEach
     void setUp() {
         cache = mock(Cache.class);
         searchByTagSevice = new SearchByTagSevice(cache);
     }
 
+    /**
+     * Test searchByTag method with search results
+     * @throws IOException  In case an IOException is thrown by the YouTube API.
+     * @author Yi Tian
+     */
     @Test
     void searchByTagReturnsSearchHistoryWithResults() throws IOException {
         String tag = "testTag";
@@ -51,6 +65,11 @@ class SearchByTagSeviceTest {
         assertEquals(resultsLength, searchHistory.getResults().size());
     }
 
+    /**
+     * Test searchByTag method with no search results
+     * @throws IOException  In case an IOException is thrown by the YouTube API.
+     * @author Yi Tian
+     */
     @Test
     void searchByTagReturnsEmptySearchHistoryWhenNoResults() throws IOException {
         String tag = "testTag";
@@ -62,6 +81,11 @@ class SearchByTagSeviceTest {
         assertTrue(searchHistory.getResults().isEmpty());
     }
 
+    /**
+     * Test searchByTag method throws IOException when cache fails
+     * @throws IOException  In case an IOException is thrown by the YouTube API
+     * @author Yi Tian
+     */
     @Test
     void searchByTagThrowsIOExceptionWhenCacheFails() throws IOException {
         String tag = "testTag";

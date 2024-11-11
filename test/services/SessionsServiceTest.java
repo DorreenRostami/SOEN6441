@@ -27,6 +27,10 @@ class SessionsServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    /**
+     * Test getSessionId method when session id exists
+     * @author Yongqi Hao
+     */
     @Test
     void testGetSessionIdWhenSessionIdExists() {
         String existingSessionId = UUID.randomUUID().toString();
@@ -39,6 +43,10 @@ class SessionsServiceTest {
         assertEquals(existingSessionId, sessionId);
     }
 
+    /**
+     * Test getSessionId method when session id does not exist
+     * @author Yongqi Hao
+     */
     @Test
     void testGetSessionIdWhenSessionIdDoesNotExist() {
         Http.Session session = mock(Http.Session.class);
@@ -50,6 +58,10 @@ class SessionsServiceTest {
         assertNotNull(sessionId);
     }
 
+    /**
+     * Test hasSessionId method when session id exists
+     * @author Yongqi Hao
+     */
     @Test
     void testHasSessionIdWhenSessionIdExists() {
         Http.Session session = mock(Http.Session.class);
@@ -60,6 +72,10 @@ class SessionsServiceTest {
         assertTrue(hasSessionId);
     }
 
+    /**
+     * Test hasSessionId method when session id does not exist
+     * @author Yongqi Hao
+     */
     @Test
     void testHasSessionIdWhenSessionIdDoesNotExist() {
         Http.Session session = mock(Http.Session.class);
