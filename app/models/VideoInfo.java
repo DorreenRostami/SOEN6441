@@ -39,7 +39,7 @@ public class VideoInfo {
         this.videoUrl = videoId != null ? "https://www.youtube.com/watch?v=" + videoId : null;
         this.channelTitle = snippet != null ? snippet.getChannelTitle() : null;
         this.channelUrl = snippet != null && snippet.getChannelId() != null
-                ? "https://www.youtube.com/channel/" + snippet.getChannelId()
+                ? "channel?query=" + snippet.getChannelId()
                 : null;
         this.thumbnailUrl = snippet != null && snippet.getThumbnails() != null
                 && snippet.getThumbnails().getDefault() != null

@@ -12,7 +12,7 @@ import java.util.List;
 
 
 public class YouTubeService {
-    private static final String API_KEY = "AIzaSyACVI8Yoz4mFuWy_ZRfXIIrohZgNtHLRyQ"; // API key
+    private static final String API_KEY = "AIzaSyACqubjXenoz7mp2idclHETDE3oyJO47Uo"; // API key
 //    private static final String API_KEY = "AIzaSyDkLPt2l_05n_Y8POacidCn3snYAOyI3D4";
     private static final String APPLICATION_NAME = "Play YouTube Search";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
