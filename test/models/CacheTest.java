@@ -58,15 +58,14 @@ class CacheTest {
     void testGetSearchResultsFromCache() throws IOException {
         String query = "testQuery";
         List<SearchResult> mockResults = Collections.singletonList(new SearchResult());
-        // Mock YouTube API search results
         when(youTubeService.searchVideos(query)).thenReturn(mockResults);
-        // Retrieve the value from the cache for the first time (cache miss)
-        List<SearchResult> result = cache.get(query, false);
+
+        List<SearchResult> result = cache.get(query, false); //cache miss
         Assertions.assertEquals(mockResults, result);
-        // Retrieve the same query again to ensure that is it being fetched from the cache.
-        result = cache.get(query, false);
+
+        result = cache.get(query, false); //should be in cache now
         Assertions.assertEquals(mockResults, result);
-        // Verify that the YouTube API is only being called once.
+
         verify(youTubeService, times(1)).searchVideos(query);
     }
 
@@ -80,15 +79,14 @@ class CacheTest {
     void testGetSearchChannelResultsFromCache() throws IOException {
         String query = "channelQuery";
         List<SearchResult> mockResults = Collections.singletonList(new SearchResult());
-        // Mock YouTube API search results
         when(youTubeService.searchChannelVideos(query)).thenReturn(mockResults);
-        // Retrieve the value from the cache for the first time (cache miss)
-        List<SearchResult> result = cache.get(query, true);
+
+        List<SearchResult> result = cache.get(query, true); //cache miss
         Assertions.assertEquals(mockResults, result);
-        // Retrieve the same query again to ensure that is it being fetched from the cache.
-        result = cache.get(query, true);
+
+        result = cache.get(query, true); //should be in cache now
         Assertions.assertEquals(mockResults, result);
-        // Verify that the YouTube API is only being called once.
+
         verify(youTubeService, times(1)).searchChannelVideos(query);
     }
 
@@ -102,15 +100,14 @@ class CacheTest {
     void testGetChannelDetailsFromCache() throws IOException {
         String channelId = "testChannelId";
         ChannelListResponse mockResponse = new ChannelListResponse();
-        // Mock YouTube API search results
         when(youTubeService.getChannelDetails(channelId)).thenReturn(mockResponse);
-        // Retrieve the value from the cache for the first time (cache miss)
-        ChannelListResponse result = cache.getChannelDetails(channelId);
+
+        ChannelListResponse result = cache.getChannelDetails(channelId); //cache miss
         Assertions.assertEquals(mockResponse, result);
-        // Retrieve the same query again to ensure that is it being fetched from the cache.
-        result = cache.getChannelDetails(channelId);
+
+        result = cache.getChannelDetails(channelId); //should be in cache now
         Assertions.assertEquals(mockResponse, result);
-        // Verify that the YouTube API is only being called once.
+
         verify(youTubeService, times(1)).getChannelDetails(channelId);
     }
 
@@ -124,15 +121,15 @@ class CacheTest {
     void testGetDescriptionFromCache() throws IOException {
         String videoId = "testVideoId";
         String mockDescription = "This is a test description";
-        // Mock YouTube API search results
+
         when(youTubeService.getDescription(videoId)).thenReturn(mockDescription);
-        // Retrieve the value from the cache for the first time (cache miss)
-        String result = cache.getDescription(videoId);
+
+        String result = cache.getDescription(videoId); //cache miss
         Assertions.assertEquals(mockDescription, result);
-        // Retrieve the same query again to ensure that is it being fetched from the cache.
-        result = cache.getDescription(videoId);
+
+        result = cache.getDescription(videoId); //should be in cache now
         Assertions.assertEquals(mockDescription, result);
-        // Verify that the YouTube API is only being called once.
+
         verify(youTubeService, times(1)).getDescription(videoId);
     }
 
@@ -146,16 +143,15 @@ class CacheTest {
     void testGetVideoFromCache() throws IOException {
         String videoId = "testVideoId";
         Video mockVideo = new Video();
-        // Mock YouTube API search results
         when(youTubeService.getVideoDetails(Collections.singletonList(videoId)))
                 .thenReturn(Collections.singletonList(mockVideo));
-        // Retrieve the value from the cache for the first time (cache miss)
-        Video result = cache.getVideo(videoId);
+
+        Video result = cache.getVideo(videoId); //cache miss
         Assertions.assertEquals(mockVideo, result);
-        // Retrieve the same query again to ensure that is it being fetched from the cache.
-        result = cache.getVideo(videoId);
+
+        result = cache.getVideo(videoId); //should be in cache now
         Assertions.assertEquals(mockVideo, result);
-        // Verify that the YouTube API is only being called once.
+
         verify(youTubeService, times(1)).getVideoDetails(Collections.singletonList(videoId));
     }
 }
