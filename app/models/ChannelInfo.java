@@ -14,6 +14,18 @@ public class ChannelInfo {
     public long videoCount;
     public long viewCount;
 
+    /**
+     * Constructor for ChannelInfo
+     * @param title Title of the channel
+     * @param channelId ChannelId of the channel
+     * @param channelUrl URL of the channel
+     * @param thumbnailUrl URL of the channel's thumbnail
+     * @param description Description of the channel
+     * @param subscriberCount Number of subscribers of the channel
+     * @param videoCount Number of videos uploaded by the channel
+     * @param viewCount Number of views on the channel
+     * @author Hao
+     */
     public ChannelInfo(String title, String channelId, String channelUrl, String thumbnailUrl,
                        String description, long subscriberCount, long videoCount, long viewCount) {
         this.title = title;
@@ -25,6 +37,12 @@ public class ChannelInfo {
         this.videoCount = videoCount;
         this.viewCount = viewCount;
     }
+
+    /**
+     * Getters for ChannelInfo
+     * @return The corresponding field of the ChannelInfo object
+     * @author Hao
+     */
     public String getTitle() { return title; }
     public String getChannelId() { return channelId; }
     public String getChannelUrl() { return channelUrl; }

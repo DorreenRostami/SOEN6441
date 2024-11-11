@@ -16,26 +16,49 @@ public class SearchHistory {
     private final List<VideoInfo> results;
     private final SentimentAnalyzer.Sentiment sentiment;
 
+    /**
+     * Constructor for SearchHistory
+     * @param query The search query
+     * @param results A list of VideoInfo objects containing video details
+     * @param sentiment The sentiment of the search results
+     * @author Dorreen Rostami
+     */
     public SearchHistory(String query, List<VideoInfo> results, SentimentAnalyzer.Sentiment sentiment) {
         this.query = query;
         this.results = results;
         this.sentiment = sentiment;
     }
 
+    /**
+     * Constructor for SearchHistory
+     * @param query The search query
+     * @param results A list of VideoInfo objects containing video details
+     * @author Yi Tian
+     */
     public SearchHistory(String query, List<VideoInfo> results) {
         this.query = query;
         this.results = results;
         this.sentiment = SentimentAnalyzer.getSentiment(results.stream());
     }
 
+
+    /**
+     * Getters for SearchHistory
+     * @return The corresponding field of the SearchHistory object
+     * @author Dorreen Rostami
+     */
     public String getQuery() {
         return query;
     }
-    public String getSentimentEmoji(){return sentiment.emoji;}
+
+    public String getSentimentEmoji() {
+        return sentiment.emoji;
+    }
 
     public List<VideoInfo> getResults() {
         return results;
     }
+
 
     /**
      * Append the results found from the YouTube API to the search history (which includes the 10 most
