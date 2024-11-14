@@ -58,7 +58,6 @@ public class ChannelServiceTest {
         MockitoAnnotations.openMocks(this);
         channelService = new ChannelService();
 
-        // 设置 Channel 的模拟数据
         when(channel.getSnippet()).thenReturn(channelSnippet);
         when(channel.getStatistics()).thenReturn(channelStatistics);
         when(channelSnippet.getTitle()).thenReturn("Test Channel");
