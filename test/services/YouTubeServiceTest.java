@@ -197,7 +197,6 @@ public class YouTubeServiceTest {
         SearchResult searchResult = mock(SearchResult.class);
         searchResults.add(searchResult);
 
-        // 确保链式方法设置完整
         when(searchListRequest.setKey(anyString())).thenReturn(searchListRequest);
         when(searchListRequest.setChannelId(anyString())).thenReturn(searchListRequest);
         when(searchListRequest.setType(anyString())).thenReturn(searchListRequest);
