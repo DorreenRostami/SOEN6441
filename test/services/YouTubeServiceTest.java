@@ -8,9 +8,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -55,7 +57,6 @@ public class YouTubeServiceTest {
     @Before
     public void setUp() throws IOException {
         MockitoAnnotations.openMocks(this);
-
         youtubeService = new YouTubeService(youtube);
 
         // Mock YouTube service calls
@@ -112,14 +113,13 @@ public class YouTubeServiceTest {
      */
     @Test(expected = IOException.class)
     public void testSearchChannelVideosIOException() throws IOException {
-        // 确保链式方法设置完整
+
         when(searchListRequest.setKey(anyString())).thenReturn(searchListRequest);
         when(searchListRequest.setChannelId(anyString())).thenReturn(searchListRequest);
         when(searchListRequest.setType(anyString())).thenReturn(searchListRequest);
         when(searchListRequest.setOrder(anyString())).thenReturn(searchListRequest);
         when(searchListRequest.setMaxResults(anyLong())).thenReturn(searchListRequest);
 
-        // 模拟 execute() 方法抛出 IOException
         when(searchListRequest.execute()).thenThrow(new IOException("Simulated IOException"));
         youtubeService.searchChannelVideos("testChannelId");
     }
@@ -251,5 +251,11 @@ public class YouTubeServiceTest {
 
         String description = youtubeService.getDescription("videoId");
         assertEquals("Test Description", description);
+    }
+
+    @Test
+    public void testYouTubeServiceInitialization() throws GeneralSecurityException, IOException {
+        YouTubeService youTubeService = new YouTubeService();
+        assertNotNull(youTubeService, "YouTubeService 应该被成功初始化");
     }
 }
