@@ -2,7 +2,6 @@ package controllers;
 
 import com.google.api.services.youtube.model.Video;
 import models.*;
-import play.libs.streams.ActorFlow;
 import play.mvc.*;
 import scala.Tuple2;
 import services.*;
@@ -23,9 +22,9 @@ import java.security.GeneralSecurityException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import play.libs.streams.ActorFlow;
 import akka.actor.ActorSystem;
 import akka.stream.Materializer;
-
 
 /**
  * Controller for the home page and search functionality
@@ -35,12 +34,10 @@ public class HomeController extends Controller {
     private final Cache cache;
     private final SearchByTagSevice searchByTagSevice;
     private final ChannelService channelService;
-    private final ActorSystem actorSystem;
-    private final Materializer materializer;
+//    private final ActorSystem actorSystem;
+//    private final Materializer materializer;
 
     private final YouTubeService youTubeService;
-
-    private boolean wsStarted = false;
 
     /**
      * Constructor for HomeController
@@ -54,21 +51,21 @@ public class HomeController extends Controller {
      */
     @Inject
     public HomeController(Cache cache, SearchByTagSevice searchByTagSevice, Database database,
-                          ChannelService channelService, ActorSystem actorSystem, Materializer materializer,
+                          ChannelService channelService,
                           YouTubeService youTubeService) throws GeneralSecurityException, IOException {
         this.cache = cache;
         this.searchByTagSevice = searchByTagSevice;
         this.database = database;
         this.channelService = channelService;
-        this.actorSystem = actorSystem;
-        this.materializer = materializer;
+//        this.actorSystem = actorSystem;
+//        this.materializer = materializer;
         this.youTubeService = youTubeService;
     }
 
-    public WebSocket searchWebSocket(String sessionID) {
-        return WebSocket.Json.accept(request ->
-            ActorFlow.actorRef(out -> WebSocketActor.props(out, sessionID, cache, youTubeService, database), this.actorSystem, this.materializer));
-    }
+//    public WebSocket searchWebSocket(String sessionID) {
+//        return WebSocket.Json.accept(request ->
+//            ActorFlow.actorRef(out -> WebSocketActor.props(out, sessionID, cache, youTubeService, database), this.actorSystem, this.materializer));
+//    }
 
     /**
      * redicrects the / route to /ytlytis route (typing in localhost:9000 will redirect to localhost:9000/ytlytics
@@ -116,10 +113,6 @@ public class HomeController extends Controller {
                 Result response = ok(hello.render(searchHistory));
                 if (!SessionsService.hasSessionId(request)){
                     response = response.addingToSession(request, "sessionId", sessionId);
-                }
-                if (!wsStarted) {
-                    searchWebSocket(sessionId);
-                    wsStarted = true;
                 }
                 return response;
             } catch (IOException e) {
