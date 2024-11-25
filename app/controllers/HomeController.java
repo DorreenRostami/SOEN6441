@@ -2,14 +2,10 @@ package controllers;
 
 import com.google.api.services.youtube.model.Video;
 import models.*;
-import play.mvc.Controller;
-import play.mvc.Http;
-import play.mvc.Result;
+import play.libs.streams.ActorFlow;
+import play.mvc.*;
 import scala.Tuple2;
-import services.ChannelService;
-import services.SessionsService;
-import services.WordStatistics;
-import services.SearchByTagSevice;
+import services.*;
 import views.html.hello;
 
 import com.google.api.services.youtube.model.SearchResult;
@@ -27,16 +23,24 @@ import java.security.GeneralSecurityException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import akka.actor.ActorSystem;
+import akka.stream.Materializer;
+
 
 /**
  * Controller for the home page and search functionality
- * @author Hamza Asghar Khan
  */
 public class HomeController extends Controller {
     private final Database database;
     private final Cache cache;
     private final SearchByTagSevice searchByTagSevice;
     private final ChannelService channelService;
+    private final ActorSystem actorSystem;
+    private final Materializer materializer;
+
+    private final YouTubeService youTubeService;
+
+    private boolean wsStarted = false;
 
     /**
      * Constructor for HomeController
@@ -49,11 +53,21 @@ public class HomeController extends Controller {
      * @author Yi Tian
      */
     @Inject
-    public HomeController(Cache cache, SearchByTagSevice searchByTagSevice, Database database, ChannelService channelService) throws GeneralSecurityException, IOException {
+    public HomeController(Cache cache, SearchByTagSevice searchByTagSevice, Database database,
+                          ChannelService channelService, ActorSystem actorSystem, Materializer materializer,
+                          YouTubeService youTubeService) throws GeneralSecurityException, IOException {
         this.cache = cache;
         this.searchByTagSevice = searchByTagSevice;
         this.database = database;
         this.channelService = channelService;
+        this.actorSystem = actorSystem;
+        this.materializer = materializer;
+        this.youTubeService = youTubeService;
+    }
+
+    public WebSocket searchWebSocket(String sessionID) {
+        return WebSocket.Json.accept(request ->
+            ActorFlow.actorRef(out -> WebSocketActor.props(out, sessionID, cache, youTubeService, database), this.actorSystem, this.materializer));
     }
 
     /**
@@ -103,9 +117,12 @@ public class HomeController extends Controller {
                 if (!SessionsService.hasSessionId(request)){
                     response = response.addingToSession(request, "sessionId", sessionId);
                 }
+                if (!wsStarted) {
+                    searchWebSocket(sessionId);
+                    wsStarted = true;
+                }
                 return response;
             } catch (IOException e) {
-//                e.printStackTrace();
                 return internalServerError("Error fetching data from YouTube API");
             }
         });

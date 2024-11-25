@@ -98,4 +98,36 @@ public class SearchHistory {
 
         return searchHistoryList;
     }
+
+    /**
+     * Replace the results of one of the queries in the search history with new results
+     *
+     * @param searchHistoryList The current list of search history to which the new entry will be added
+     * @param query The search query
+     * @param results A list of YouTube SearchResult which will replace the old ones
+     * @return The updated searchHistoryList containing the new entries
+     * @author Dorreen Rostami
+     */
+    public static List<SearchHistory> editSearchHistory(List<SearchHistory> searchHistoryList, String query, List<SearchResult> results, Cache cache){
+
+        List<VideoInfo> videoInfoList = results.stream().map(result -> {
+            String videoId = result.getId().getVideoId();
+            String description = "";
+            try {
+                description = cache.getDescription(videoId);
+            } catch (IOException e){
+                System.out.println("Unable to fetch description for videoId: " + videoId);
+            }
+            return new VideoInfo(result, description);
+        }).collect(Collectors.toList());
+        SentimentAnalyzer.Sentiment sentiment = SentimentAnalyzer.getSentiment(videoInfoList.stream());
+
+        for (int i = 0; i < searchHistoryList.size(); i++) {
+            if (searchHistoryList.get(i).getQuery().equalsIgnoreCase(query)) {
+                searchHistoryList.set(i, new SearchHistory(query, videoInfoList, sentiment));
+                break;
+            }
+        }
+        return searchHistoryList;
+    }
 }

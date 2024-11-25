@@ -72,6 +72,11 @@ public class Cache {
         return response;
     }
 
+    public void put(String query, List<SearchResult> response, boolean isChannelQuery){
+        String key = isChannelQuery ? "channel:" + query : "video:" + query;
+        listCache.put(key, response);
+    }
+
     /**
      * Retrieves the details for the provided YouTube channel. This method takes a query that identifies a YouTube
      * channel. That query is then checked in the cache. If the query results in a cache hit, the response is returned
