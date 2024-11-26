@@ -11,8 +11,8 @@ import com.google.api.services.youtube.model.SearchResult;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class YouTubeServiceActor extends AbstractActor {
 
@@ -20,6 +20,9 @@ public class YouTubeServiceActor extends AbstractActor {
     private static final String APPLICATION_NAME = "Play YouTube Search";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private final YouTube youtubeService;
+
+    // Cache to track already returned video IDs for each query
+    private final Map<String, Set<String>> queryCache = new HashMap<>();
 
     public YouTubeServiceActor() {
         try {
@@ -48,13 +51,12 @@ public class YouTubeServiceActor extends AbstractActor {
         try {
             System.out.println("Received search request: " + message.query);
 
-            List<SearchResult> results = searchVideos(message.query);
-            List<String> videoTitles = new ArrayList<>();
-            for (SearchResult result : results) {
-                videoTitles.add(result.getSnippet().getTitle());
-            }
+            List<SearchResult> uniqueResults = searchUniqueVideos(message.query);
+            List<String> videoTitles = uniqueResults.stream()
+                    .map(result -> result.getSnippet().getTitle())
+                    .collect(Collectors.toList());
 
-            System.out.println("Search successful: " + videoTitles.size() + " titles found.");
+            System.out.println("Search successful: " + videoTitles.size() + " unique titles found.");
             sender().tell(new YoutubeProtocol.VideoSearchResults(videoTitles), self());
         } catch (IOException e) {
             System.err.println("YouTube API error: " + e.getMessage());
@@ -62,18 +64,46 @@ public class YouTubeServiceActor extends AbstractActor {
         }
     }
 
-    private List<SearchResult> searchVideos(String query) throws IOException {
-        YouTube.Search.List request = youtubeService.search().list("snippet");
-        SearchListResponse response = request
-                .setKey(API_KEY)
-                .setQ(query)
-                .setType("video")
-                .setVideoDuration("medium") // Filter out short videos
-                .setOrder("date")
-                .setMaxResults(10L)
-                .execute();
+    private List<SearchResult> searchUniqueVideos(String query) throws IOException {
+        // Get already returned video IDs for this query
+        Set<String> returnedVideoIds = queryCache.getOrDefault(query, new HashSet<>());
 
-        System.out.println("YouTube API returned " + response.getItems().size() + " results.");
-        return response.getItems();
+        List<SearchResult> uniqueResults = new ArrayList<>();
+        String nextPageToken = null;
+
+        do {
+            // Perform API call with pageToken
+            YouTube.Search.List request = youtubeService.search().list("snippet");
+            SearchListResponse response = request
+                    .setKey(API_KEY)
+                    .setQ(query)
+                    .setType("video")
+                    .setVideoDuration("medium")
+                    .setOrder("date")
+                    .setMaxResults(10L)
+                    .setPageToken(nextPageToken)
+                    .execute();
+
+            // Filter results to exclude already returned videos
+            List<SearchResult> filteredResults = response.getItems().stream()
+                    .filter(result -> !returnedVideoIds.contains(result.getId().getVideoId()))
+                    .collect(Collectors.toList());
+
+            uniqueResults.addAll(filteredResults);
+
+            // Add new video IDs to the cache
+            returnedVideoIds.addAll(filteredResults.stream()
+                    .map(result -> result.getId().getVideoId())
+                    .collect(Collectors.toSet()));
+
+            // Update nextPageToken for pagination
+            nextPageToken = response.getNextPageToken();
+
+        } while (uniqueResults.size() < 10 && nextPageToken != null);
+
+        // Save the updated cache for this query
+        queryCache.put(query, returnedVideoIds);
+
+        return uniqueResults;
     }
 }
