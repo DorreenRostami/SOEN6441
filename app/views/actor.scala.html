@@ -1,0 +1,87 @@
+@()
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>WebSocket YouTube Service</title>
+        <script>
+                let socket;
+
+                function connectWebSocket() {
+                    // Connect to WebSocket endpoint
+                    socket = new WebSocket(`ws://${window.location.host}/websocket`);
+
+                    // Handle incoming messages
+                    socket.onmessage = function (event) {
+                        const data = JSON.parse(event.data);
+                        console.log("Message from server:", data);
+
+                        if (data.error) {
+                            document.getElementById("messages").innerHTML += `<p class="error">Error: ${data.error}</p>`;
+                        } else {
+                            // Display video titles in the messages area
+                            const videoTitles = data.map(title => `<li>${title}</li>`).join("");
+                            document.getElementById("messages").innerHTML += `<ul>${videoTitles}</ul>`;
+                        }
+                    };
+
+                    socket.onopen = function () {
+                        console.log("WebSocket connection established.");
+                        document.getElementById("status").innerText = "Connected";
+                    };
+
+                    socket.onclose = function () {
+                        console.log("WebSocket connection closed.");
+                        document.getElementById("status").innerText = "Disconnected";
+                    };
+
+                    socket.onerror = function (error) {
+                        console.error("WebSocket error:", error);
+                        document.getElementById("status").innerText = "Error";
+                    };
+                }
+
+                function sendQuery() {
+                    const query = document.getElementById("query").value;
+                    if (socket && socket.readyState === WebSocket.OPEN) {
+                        const message = { query: query };
+                        socket.send(JSON.stringify(message));
+                        console.log("Sent:", message);
+                    } else {
+                        alert("WebSocket is not connected.");
+                    }
+                }
+
+                window.onload = function () {
+                    connectWebSocket();
+                };
+        </script>
+        <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 20px;
+                }
+                .error {
+                    color: red;
+                }
+                #status {
+                    font-weight: bold;
+                }
+        </style>
+    </head>
+    <body>
+        <h1>WebSocket YouTube Service</h1>
+        <div>
+            <label for="query">Search YouTube:</label>
+            <input type="text" id="query" placeholder="Enter search query">
+            <button onclick="sendQuery()">Send</button>
+        </div>
+        <div>
+            <p>Status: <span id="status">Disconnected</span></p>
+            <h2>Messages:</h2>
+            <div id="messages"></div>
+        </div>
+    </body>
+</html>

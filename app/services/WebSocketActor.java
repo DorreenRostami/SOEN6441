@@ -1,140 +1,60 @@
 package services;
 
-import akka.actor.AbstractActorWithTimers;
+import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
-import com.google.api.services.youtube.model.SearchResult;
-import models.Cache;
-import models.Database;
-import models.SearchHistory;
-import models.VideoInfo;
-import scala.concurrent.duration.Duration;
+import com.fasterxml.jackson.databind.JsonNode;
+import play.libs.Json;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+public class WebSocketActor extends AbstractActor {
 
-public class WebSocketActor extends AbstractActorWithTimers {
-    private final ActorRef out;
-    private final String sessionId;
-    private final Cache cache;
-    private final YouTubeService youTubeService;
-    private final Database database;
+    private final ActorRef youtubeServiceActor;
+    private ActorRef out; // WebSocket output actor
 
-    private static final int POLL_TIME = 20;
-
-    /**
-     * Constructor for WebSocketActor
-     *
-     * @param out               WebSocket connection
-     * @param sessionId         Unique session ID for the user
-     * @param cache             Cache instance
-     * @param youTubeService    YouTubeService instance
-     * @param database          Database instance
-     * @author Dorreen
-     */
-    private WebSocketActor(ActorRef out, String sessionId, Cache cache, YouTubeService youTubeService, Database database) {
+    public WebSocketActor(ActorRef youtubeServiceActor, ActorRef out) {
+        this.youtubeServiceActor = youtubeServiceActor;
         this.out = out;
-        this.sessionId = sessionId;
-        this.cache = cache;
-        this.youTubeService = youTubeService;
-        this.database = database;
     }
 
-    /**
-     * Create Props for WebSocketActor
-     *
-     * @param out WebSocket connection
-     * @param sessionId User's session ID
-     * @param cache Cache instance
-     * @param youTubeService  YouTubeService instance
-     * @param database  Database instance
-     * @return Props instance
-     * @author Dorreen
-     */
-    public static Props props(ActorRef out, String sessionId, Cache cache, YouTubeService youTubeService, Database database) {
-        return Props.create(WebSocketActor.class, () -> new WebSocketActor(out, sessionId, cache, youTubeService, database));
-    }
-
-    // Message class for updates
-    public static class CheckForUpdates {}
-
-    @Override
-    public void preStart() {
-        // Immediately send the latest results
-//        try {
-//            List<SearchResult> initialResults = cache.get(query, false);
-//            for (SearchResult result : initialResults) {
-//                out.tell(result.getSnippet().getTitle(), self());
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
-        // Start polling for new results
-        getTimers().startPeriodicTimer(
-                "pollingTimer",    //ID
-                new CheckForUpdates(), //Message
-                Duration.create(POLL_TIME, TimeUnit.SECONDS)
-        );
+    public static Props props(ActorRef youtubeServiceActor, ActorRef out) {
+        return Props.create(WebSocketActor.class, youtubeServiceActor, out);
     }
 
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .match(CheckForUpdates.class, msg -> checkForUpdates())
+                .match(JsonNode.class, this::onWebSocketMessage)
+                .match(YoutubeProtocol.VideoSearchResults.class, this::onSearchResults)
+                .match(YoutubeProtocol.ErrorMessage.class, this::onErrorMessage)
+                .match(ActorRef.class, this::onSourceActorInitialized) // Handle Source actor initialization
                 .build();
     }
 
-    private void checkForUpdates() {
-        boolean changed = false;
-        List<SearchHistory> updatedHistory = new ArrayList<>();
-        try {
-            List<SearchHistory> searchHistory = database.get(sessionId);
-
-            // Check each query in the user's search history
-            for (int i = 0; i < searchHistory.size(); i++) {
-                SearchHistory sh = searchHistory.get(i);
-                String query = sh.getQuery();
-                List<VideoInfo> oldResults = sh.getResults();
-
-                // Fetch the latest results from the YT API
-                List<SearchResult> newResults = youTubeService.searchVideos(query);
-                updatedHistory = SearchHistory.editSearchHistory(database.get(sessionId), query, newResults, cache);
-
-                if (!areResultsEqual(oldResults, updatedHistory.get(i).getResults())) {
-                    cache.put(query, newResults, false);
-                    changed = true;
-                }
-            }
-        } catch (IOException e) {
-            //nothing
-        }
-
-        if (changed) {
-            out.tell(updatedHistory, self());
-        }
-        System.out.println(updatedHistory.get(0).getQuery());
+    private void onWebSocketMessage(JsonNode json) {
+        String query = json.get("query").asText();
+        youtubeServiceActor.tell(new YoutubeProtocol.SearchVideos(query), self());
     }
 
-//    private String formatResults(List<SearchHistory> results) {
-//        // Format the results as HTML or JSON
-//        return views.html.hello.render(results).toString();
-//    }
+    private void onSearchResults(YoutubeProtocol.VideoSearchResults results) {
+        if (out == null) {
+            System.err.println("Output ActorRef (out) is null. Cannot send message to WebSocket.");
+            return;
+        }
+        JsonNode jsonResponse = Json.toJson(results.videoTitles);
+        out.tell(jsonResponse, self());
+    }
 
-    /**
-     * Compares two lists of search results by comparing the video URLs
-     *
-     * @param oldResults The previous list of search results
-     * @param newResults The latest list of search results
-     * @return true if both lists are equal, false otherwise
-     * @author Dorreen
-     */
-    private boolean areResultsEqual(List<VideoInfo> oldResults, List<VideoInfo> newResults) {
-        List<String> oldIds = oldResults.stream().map(VideoInfo::getVideoUrl).collect(Collectors.toList());
-        List<String> newIds = newResults.stream().map(VideoInfo::getVideoUrl).collect(Collectors.toList());
-        return oldIds.equals(newIds);
+    private void onErrorMessage(YoutubeProtocol.ErrorMessage error) {
+        if (out == null) {
+            System.err.println("Output ActorRef (out) is null. Cannot send error message to WebSocket.");
+            return;
+        }
+        JsonNode jsonResponse = Json.newObject().put("error", error.error);
+        out.tell(jsonResponse, self());
+    }
+
+    private void onSourceActorInitialized(ActorRef sourceActor) {
+        System.out.println("WebSocket Source ActorRef initialized.");
+        this.out = sourceActor;
     }
 }
