@@ -1,4 +1,4 @@
-package services;
+package actors;
 
 import akka.actor.AbstractActorWithTimers;
 import akka.actor.ActorRef;
@@ -9,8 +9,10 @@ import models.Database;
 import models.SearchHistory;
 import models.VideoInfo;
 import scala.concurrent.duration.Duration;
+import services.YouTubeService;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -18,7 +20,7 @@ import java.util.stream.Collectors;
 
 public class WebSocketActor extends AbstractActorWithTimers {
     private final ActorRef out;
-    private final String sessionId;
+    private final ActorRef apiActor;
     private final Cache cache;
     private final YouTubeService youTubeService;
     private final Database database;
@@ -29,33 +31,24 @@ public class WebSocketActor extends AbstractActorWithTimers {
      * Constructor for WebSocketActor
      *
      * @param out               WebSocket connection
-     * @param sessionId         Unique session ID for the user
-     * @param cache             Cache instance
-     * @param youTubeService    YouTubeService instance
-     * @param database          Database instance
      * @author Dorreen
      */
-    private WebSocketActor(ActorRef out, String sessionId, Cache cache, YouTubeService youTubeService, Database database) {
+    private WebSocketActor(ActorRef out) throws GeneralSecurityException, IOException {
         this.out = out;
-        this.sessionId = sessionId;
-        this.cache = cache;
-        this.youTubeService = youTubeService;
-        this.database = database;
+        this.youTubeService = new YouTubeService();
+        this.cache = new Cache(this.youTubeService);
+        this.database = new Database();
     }
 
     /**
      * Create Props for WebSocketActor
      *
      * @param out WebSocket connection
-     * @param sessionId User's session ID
-     * @param cache Cache instance
-     * @param youTubeService  YouTubeService instance
-     * @param database  Database instance
      * @return Props instance
      * @author Dorreen
      */
-    public static Props props(ActorRef out, String sessionId, Cache cache, YouTubeService youTubeService, Database database) {
-        return Props.create(WebSocketActor.class, () -> new WebSocketActor(out, sessionId, cache, youTubeService, database));
+    public static Props props(ActorRef out) {
+        return Props.create(WebSocketActor.class, () -> new WebSocketActor(out));
     }
 
     // Message class for updates
@@ -84,7 +77,7 @@ public class WebSocketActor extends AbstractActorWithTimers {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .match(CheckForUpdates.class, msg -> checkForUpdates())
+                .match(String.class, msg -> apiActor.tell(APIActor.QuerySearch(msg), getSelf()))
                 .build();
     }
 

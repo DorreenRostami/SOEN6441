@@ -1,31 +1,36 @@
 package controllers;
 
+import akka.actor.ActorSystem;
+import akka.stream.Materializer;
+import com.google.api.services.youtube.model.Channel;
+import com.google.api.services.youtube.model.ChannelListResponse;
+import com.google.api.services.youtube.model.SearchResult;
+import models.Cache;
+import models.ChannelInfo;
+import models.Database;
+import models.SearchHistory;
 import org.junit.jupiter.api.*;
 import org.mockito.*;
-import util.TestHelper;
-
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static play.mvc.Results.internalServerError;
-import static play.test.Helpers.*;
-import com.google.api.services.youtube.model.*;
-import models.*;
-import org.mockito.MockedStatic;
 import play.mvc.Http;
 import play.mvc.Result;
-//import services.*;
 import services.ChannelService;
 import services.SearchByTagSevice;
 import services.SessionsService;
 import services.YouTubeService;
+import util.TestHelper;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
+import static play.test.Helpers.*;
 
 /**
  * Unit tests for the {@link HomeController} class
@@ -53,12 +58,16 @@ class HomeControllerTest {
 
     @InjectMocks
     private HomeController homeController;
+    @InjectMocks
+    ActorSystem actorSystem;
+    @InjectMocks
+    Materializer materializer;
 
     @BeforeEach
     public void setup() throws IOException, GeneralSecurityException {
         MockitoAnnotations.openMocks(this);
         reset(cache, database, request, youTubeService, searchByTagSevice, channelService);
-        homeController = new HomeController(cache, searchByTagSevice, database, channelService);
+        homeController = new HomeController(actorSystem, materializer);
     }
 
     @AfterEach
