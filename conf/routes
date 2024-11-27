@@ -12,3 +12,7 @@ GET     /statistics/:query      controllers.HomeController.showStatistics(query:
 
 GET     /tags/:tag              controllers.HomeController.searchByTag(tag: String)
 GET     /video                  controllers.HomeController.showVideoDetails(videoId: String)
+
+GET     /websocket           controllers.WebSocketController.webSocket()
+GET     /wsp               controllers.WebSocketController.wsp()
+GET     /channelactor           controllers.WebSocketController.channelPage(channelId: String)
