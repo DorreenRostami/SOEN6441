@@ -1,5 +1,8 @@
 package services;
 
+import models.ChannelInfo;
+import models.VideoInfo;
+
 import java.util.List;
 import java.util.Map;
 
@@ -36,4 +39,23 @@ public class YoutubeProtocol {
             this.error = error;
         }
     }
+
+    public static class GetChannelDetails implements YoutubeMessage {
+        public final String channelId;
+
+        public GetChannelDetails(String channelId) {
+            this.channelId = channelId;
+        }
+    }
+
+    public static class ChannelDetailsResponse implements YoutubeMessage {
+        public final ChannelInfo channelData;
+        public final List<VideoInfo> videoDetails;
+
+        public ChannelDetailsResponse(ChannelInfo channelData, List<VideoInfo> videoDetails) {
+            this.channelData = channelData;
+            this.videoDetails = videoDetails;
+        }
+    }
+
 }

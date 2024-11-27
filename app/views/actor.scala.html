@@ -12,10 +12,8 @@
                 let allVideos = []; // Array to store all videos for this session
 
                 function connectWebSocket() {
-                    // Connect to WebSocket endpoint
                     socket = new WebSocket(`ws://${window.location.host}/websocket`);
 
-                    // Handle incoming messages
                     socket.onmessage = function (event) {
                         const data = JSON.parse(event.data);
                         console.log("Message from server:", data);
@@ -44,11 +42,14 @@
                     };
                 }
 
-                function addVideos(newVideos) {
-                    // Add new videos to the beginning of the array
-                    allVideos = [...newVideos, ...allVideos];
+                function extractChannelId(channelUrl) {
+                    // Extract channelId from the channelUrl
+                    const parts = channelUrl.split("/");
+                    return parts[parts.length - 1]; // Return the last segment
+                }
 
-                    // Limit the array to the latest 100 results
+                function addVideos(newVideos) {
+                    allVideos = [...newVideos, ...allVideos];
                     if (allVideos.length > MAX_RESULTS) {
                         allVideos = allVideos.slice(0, MAX_RESULTS);
                     }
@@ -56,16 +57,19 @@
 
                 function displayVideos() {
                     const messages = document.getElementById("messages");
-                    messages.innerHTML = ""; // Clear previous results
+                    messages.innerHTML = "";
 
                     allVideos.forEach(video => {
+                        const channelId = extractChannelId(video.channelUrl); // Extract channelId from channelUrl
                         const videoHtml = `
                         <div class="video-wrapper">
                             <img src="${video.thumbnailUrl}" class="thumbnail" alt="Thumbnail">
                             <div class="video-info">
                                 <a href="${video.videoUrl}" target="_blank" class="video-title">${video.title}</a>
                                 <div class="channel-title">
-                                    Channel: <a href="${video.channelUrl}" target="_blank">${video.channelTitle}</a>
+                                    Channel: <a href="/channelactor?channelId=${encodeURIComponent(channelId)} " target="_blank" class="channel-link">
+                                        ${video.channelTitle}
+                                    </a>
                                 </div>
                                 <div class="description">Description: ${video.description || "No description available"}</div>
                             </div>
@@ -78,17 +82,14 @@
                 function sendQuery() {
                     const query = document.getElementById("query").value.trim();
                     if (socket && socket.readyState === WebSocket.OPEN) {
-                        const message = { query: query };
-                        socket.send(JSON.stringify(message));
-                        console.log("Sent:", message);
+                        socket.send(JSON.stringify({ query: query }));
+                        console.log("Sent:", query);
                     } else {
                         alert("WebSocket is not connected.");
                     }
                 }
 
-                window.onload = function () {
-                    connectWebSocket();
-                };
+                window.onload = connectWebSocket;
         </script>
         <style>
                 body {
@@ -132,6 +133,13 @@
                     font-size: 14px;
                     color: #555;
                     margin-top: 5px;
+                }
+                .channel-link {
+                    color: #007bff;
+                    text-decoration: none;
+                }
+                .channel-link:hover {
+                    text-decoration: underline;
                 }
                 .description {
                     font-size: 14px;

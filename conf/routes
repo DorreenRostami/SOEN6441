@@ -15,3 +15,4 @@ GET     /video                  controllers.HomeController.showVideoDetails(vide
 
 GET     /websocket           controllers.WebSocketController.webSocket()
 GET     /wsp               controllers.WebSocketController.wsp()
+GET     /channelactor           controllers.WebSocketController.channelPage(channelId: String)
