@@ -40,7 +40,8 @@ public class WebSocketActor extends AbstractActor {
             System.err.println("Output ActorRef (out) is null. Cannot send message to WebSocket.");
             return;
         }
-        JsonNode jsonResponse = Json.toJson(results.videoTitles);
+        // Convert the detailed video information to JSON
+        JsonNode jsonResponse = Json.toJson(results.videos);
         out.tell(jsonResponse, self());
     }
 

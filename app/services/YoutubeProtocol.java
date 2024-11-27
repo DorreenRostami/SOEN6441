@@ -1,6 +1,7 @@
 package services;
 
 import java.util.List;
+import java.util.Map;
 
 public class YoutubeProtocol {
 
@@ -18,12 +19,14 @@ public class YoutubeProtocol {
 
     // Response with video results
     public static class VideoSearchResults implements YoutubeMessage {
-        public final List<String> videoTitles;
+        public final List<Map<String, String>> videos;
 
-        public VideoSearchResults(List<String> videoTitles) {
-            this.videoTitles = videoTitles;
+        public VideoSearchResults(List<Map<String, String>> videos) {
+            this.videos = videos;
         }
     }
+
+    public static class ClearCache implements YoutubeMessage {}
 
     // Error message
     public static class ErrorMessage implements YoutubeMessage {

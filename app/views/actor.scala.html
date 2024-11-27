@@ -8,6 +8,8 @@
         <title>WebSocket YouTube Service</title>
         <script>
                 let socket;
+                const MAX_RESULTS = 100; // Maximum results to display
+                let allVideos = []; // Array to store all videos for this session
 
                 function connectWebSocket() {
                     // Connect to WebSocket endpoint
@@ -21,9 +23,8 @@
                         if (data.error) {
                             document.getElementById("messages").innerHTML += `<p class="error">Error: ${data.error}</p>`;
                         } else {
-                            // Display video titles in the messages area
-                            const videoTitles = data.map(title => `<li>${title}</li>`).join("");
-                            document.getElementById("messages").innerHTML += `<ul>${videoTitles}</ul>`;
+                            addVideos(data);
+                            displayVideos();
                         }
                     };
 
@@ -43,8 +44,39 @@
                     };
                 }
 
+                function addVideos(newVideos) {
+                    // Add new videos to the beginning of the array
+                    allVideos = [...newVideos, ...allVideos];
+
+                    // Limit the array to the latest 100 results
+                    if (allVideos.length > MAX_RESULTS) {
+                        allVideos = allVideos.slice(0, MAX_RESULTS);
+                    }
+                }
+
+                function displayVideos() {
+                    const messages = document.getElementById("messages");
+                    messages.innerHTML = ""; // Clear previous results
+
+                    allVideos.forEach(video => {
+                        const videoHtml = `
+                        <div class="video-wrapper">
+                            <img src="${video.thumbnailUrl}" class="thumbnail" alt="Thumbnail">
+                            <div class="video-info">
+                                <a href="${video.videoUrl}" target="_blank" class="video-title">${video.title}</a>
+                                <div class="channel-title">
+                                    Channel: <a href="${video.channelUrl}" target="_blank">${video.channelTitle}</a>
+                                </div>
+                                <div class="description">Description: ${video.description || "No description available"}</div>
+                            </div>
+                        </div>
+                    `;
+                        messages.innerHTML += videoHtml;
+                    });
+                }
+
                 function sendQuery() {
-                    const query = document.getElementById("query").value;
+                    const query = document.getElementById("query").value.trim();
                     if (socket && socket.readyState === WebSocket.OPEN) {
                         const message = { query: query };
                         socket.send(JSON.stringify(message));
@@ -68,6 +100,43 @@
                 }
                 #status {
                     font-weight: bold;
+                    margin-bottom: 10px;
+                }
+                .video-wrapper {
+                    display: flex;
+                    align-items: flex-start;
+                    margin-bottom: 20px;
+                    padding: 10px;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                }
+                .thumbnail {
+                    width: 120px;
+                    height: auto;
+                    margin-right: 15px;
+                    border-radius: 5px;
+                }
+                .video-info {
+                    flex: 1;
+                }
+                .video-title {
+                    font-size: 16px;
+                    font-weight: bold;
+                    color: #000;
+                    text-decoration: none;
+                }
+                .video-title:hover {
+                    text-decoration: underline;
+                }
+                .channel-title {
+                    font-size: 14px;
+                    color: #555;
+                    margin-top: 5px;
+                }
+                .description {
+                    font-size: 14px;
+                    color: #777;
+                    margin-top: 5px;
                 }
         </style>
     </head>
@@ -80,7 +149,7 @@
         </div>
         <div>
             <p>Status: <span id="status">Disconnected</span></p>
-            <h2>Messages:</h2>
+            <h2>Search Results:</h2>
             <div id="messages"></div>
         </div>
     </body>
