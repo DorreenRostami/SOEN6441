@@ -115,8 +115,12 @@ public class SearchHistory {
         return searchHistoryList;
     }
 
-    String getHTML(){
-        String html = "<p>Query: " + query + "</p>";
-        return html;
+    public String getHTML(){
+        StringBuilder html = new StringBuilder("<p class=\"query-title\">Query: " + query + "<span class=\"sentiment\">" + (sentiment != null? sentiment.emoji : "") + "</span></p>");
+        for (VideoInfo videoInfo: results){
+            html.append(videoInfo.getHTML());
+        }
+        return html.toString();
     }
+
 }

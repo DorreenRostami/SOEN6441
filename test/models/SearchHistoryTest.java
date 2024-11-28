@@ -129,10 +129,9 @@ public class SearchHistoryTest {
         );
         SentimentAnalyzer.Sentiment sentiment = SentimentAnalyzer.Sentiment.POSITIVE;
 
-        SearchHistory searchHistory = new SearchHistory("query", videoInfoList, sentiment);
+        SearchHistory searchHistory = new SearchHistory("query", videoInfoList);
 
         assertEquals("query", searchHistory.getQuery());
         assertEquals(videoInfoList, searchHistory.getResults());
-        assertEquals(sentiment.emoji, searchHistory.getSentimentEmoji());
     }
 }

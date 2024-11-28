@@ -115,7 +115,16 @@ public class VideoInfo {
     }
 
     public String getHTML(){
-        String html = "";
-        return html;
+        return "<div class=\"video-result\">" +
+                    "<div class=\"video-result-left\">" +
+                        "<p class=\"video-result-left-title\">Video: <a href=\""+ videoUrl +"\">" + videoTitle +"</a></p>" +
+                        "<p class=\"video-result-left-channel\">Channel: <a href=\""+ channelUrl +"\">" + channelTitle +"</a></p>" +
+                        "<p class=\"video-result-left-tags\"><a href=\""+ tagsUrl +"\"> Tags </a></p>" +
+                        "<p class=\"video-result-left-description\">" + description + "</p>" +
+                    "</div>" +
+                    "<div class=\"video-result-right\">" +
+                        "<a href=\""+ videoUrl +"\"><img src=\""+ thumbnailUrl+"\"/></a>" +
+                    "</div>" +
+                "</div>";
     }
 }
