@@ -20,7 +20,7 @@ public class Cache {
     /**
      * A map containing all the queries that return a List of SearchResult objects as a response
      */
-    private final Map<String, List<SearchResult>> listCache = new HashMap<>();
+    private final Map<String, SearchHistory> listCache = new HashMap<>();
     /**
      * A map containing all the queries that return a ChannelListResponse object as a response
      */
@@ -57,12 +57,12 @@ public class Cache {
      * @throws IOException In case of an IOException caused by the YouTube API.
      * @author Hamza Asghar Khan
      */
-    public List<SearchResult> get(String query, boolean isChannelQuery) throws IOException {
+    public SearchHistory get(String query, boolean isChannelQuery) throws IOException {
         String key = isChannelQuery ? "channel:" + query : "video:" + query;
         if (listCache.containsKey(key)){
             return listCache.get(key);
         }
-        List<SearchResult> response;
+        SearchHistory response;
         if (isChannelQuery){
             response = youTubeService.searchChannelVideos(query);
         } else {
@@ -72,7 +72,7 @@ public class Cache {
         return response;
     }
 
-    public void put(String query, List<SearchResult> response, boolean isChannelQuery){
+    public void put(String query, SearchHistory response, boolean isChannelQuery){
         String key = isChannelQuery ? "channel:" + query : "video:" + query;
         listCache.put(key, response);
     }

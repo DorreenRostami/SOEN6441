@@ -46,11 +46,9 @@ public class HomeController extends Controller {
      * @author Dorreen - made it asynchronous
      */
     public WebSocket ws(){
-        return WebSocket.Text.acceptOrResult(request -> {
-            return CompletableFuture.completedFuture(F.Either.Right(
-                    ActorFlow.actorRef(out -> WebSocketActor.props(out), actorSystem, materializer)
-            ));
-        });
+        return WebSocket.Text.acceptOrResult(request -> CompletableFuture.completedFuture(F.Either.Right(
+                ActorFlow.actorRef(WebSocketActor::props, actorSystem, materializer)
+        )));
     }
 
 }

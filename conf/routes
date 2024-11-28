@@ -2,13 +2,7 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# An example controller showing a sample home page
-GET     /                       controllers.HomeController.redirectToYtLytics()
-GET     /ytlytics               controllers.HomeController.hello(request: play.mvc.Http.Request)
-GET     /search                 controllers.HomeController.search(request: play.mvc.Http.Request, query: String)
 
-GET     /channel                controllers.HomeController.searchChannel(query: String)
-GET     /statistics/:query      controllers.HomeController.showStatistics(query: String)
 
-GET     /tags/:tag              controllers.HomeController.searchByTag(tag: String)
-GET     /video                  controllers.HomeController.showVideoDetails(videoId: String)
+GET     /                       controllers.HomeController.index()
+GET     /ws                     controllers.HomeController.ws()

@@ -5,9 +5,12 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.*;
+import models.SearchHistory;
+import models.VideoInfo;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -52,7 +55,7 @@ public class YouTubeService {
      * @throws IOException If an error occurs while fetching the search results
      * @author Hao
      */
-    public List<SearchResult> searchVideos(String query) throws IOException {
+    public SearchHistory searchVideos(String query) throws IOException {
         YouTube.Search.List request = youtubeService.search().list("snippet");
         SearchListResponse response = request
                 .setKey(API_KEY)
@@ -62,7 +65,11 @@ public class YouTubeService {
                 .setOrder("date")
                 .setMaxResults(10L)
                 .execute();
-        return response.getItems();
+        List<VideoInfo> videoInfoList = new ArrayList<>();
+        for (SearchResult result: response.getItems()){
+            videoInfoList.add(new VideoInfo(result));
+        }
+        return new SearchHistory(query, videoInfoList);
     }
 
     /**
@@ -86,7 +93,7 @@ public class YouTubeService {
      * @return a list of search results containing the videos in the channel
      * @author Hao
      */
-    public List<SearchResult> searchChannelVideos(String channelId) throws IOException {
+    public SearchHistory searchChannelVideos(String channelId) throws IOException {
         YouTube.Search.List request = youtubeService.search().list("snippet");
         SearchListResponse response = request
                 .setKey(API_KEY)
@@ -95,8 +102,11 @@ public class YouTubeService {
                 .setOrder("date")
                 .setMaxResults(10L)
                 .execute();
-
-        return response.getItems();
+        List<VideoInfo> videoInfoList = new ArrayList<>();
+        for (SearchResult result: response.getItems()){
+            videoInfoList.add(new VideoInfo(result));
+        }
+        return new SearchHistory(channelId, videoInfoList);
     }
 
     /**

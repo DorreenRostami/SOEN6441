@@ -2,9 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Youtube Search</title>
+    <script>
+        let socket = new WebSocket("ws://localhost:9000/ws");
+        let allResults = [];
+        let allKeyword = [];
+
+        socket.onopen = function(event) {
+            console.log("Connection established.");
+        };
+
+        socket.onmessage = function(event) {
+            console.log("Received new results: " + event.data);
+        };
+
+        socket.onclose = function(event) {
+            console.log("Connection closed. Code: " + event.code + " Reason: " + event.reason);
+        };
+
+        socket.onerror = function(error) {
+            console.log("Error occurred: " + error.message);
+        };
+
+        function sendKeyword() {
+            let keyword = document.getElementById("keyword").value;
+            allKeyword.unshift(keyword);
+            console.log("Sending keyword: " + keyword);
+            if (socket.readyState === WebSocket.OPEN) {
+                socket.send(keyword);
+            } else {
+                console.log("WebSocket is not open. State: " + socket.readyState);
+            }
+        }
+    </script>
 </head>
 <body>
-
+<h1>Welcome to the YT lytics</h1>
+<input type="text" id="keyword" placeholder="Enter keyword">
+<button onclick="sendKeyword()">Search</button>
+<div id="results"></div>
 </body>
 </html>

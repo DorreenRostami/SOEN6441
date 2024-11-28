@@ -14,33 +14,25 @@ import java.util.List;
 public class SearchHistory {
     private final String query;
     private final List<VideoInfo> results;
-    private final SentimentAnalyzer.Sentiment sentiment;
-
+    private SentimentAnalyzer.Sentiment sentiment;
     /**
      * Constructor for SearchHistory
      * @param query The search query
      * @param results A list of VideoInfo objects containing video details
-     * @param sentiment The sentiment of the search results
      * @author Dorreen Rostami
-     */
-    public SearchHistory(String query, List<VideoInfo> results, SentimentAnalyzer.Sentiment sentiment) {
-        this.query = query;
-        this.results = results;
-        this.sentiment = sentiment;
-    }
-
-    /**
-     * Constructor for SearchHistory
-     * @param query The search query
-     * @param results A list of VideoInfo objects containing video details
-     * @author Yi Tian
      */
     public SearchHistory(String query, List<VideoInfo> results) {
         this.query = query;
         this.results = results;
-        this.sentiment = SentimentAnalyzer.getSentiment(results.stream());
     }
 
+    public SentimentAnalyzer.Sentiment getSentiment(){
+        return sentiment;
+    }
+
+    public void setSentiment(SentimentAnalyzer.Sentiment sentiment) {
+        this.sentiment = sentiment;
+    }
 
     /**
      * Getters for SearchHistory
@@ -49,10 +41,6 @@ public class SearchHistory {
      */
     public String getQuery() {
         return query;
-    }
-
-    public String getSentimentEmoji() {
-        return sentiment.emoji;
     }
 
     public List<VideoInfo> getResults() {
@@ -88,8 +76,6 @@ public class SearchHistory {
             }
             return new VideoInfo(result, description);
         }).collect(Collectors.toList());
-        SentimentAnalyzer.Sentiment sentiment = SentimentAnalyzer.getSentiment(videoInfoList.stream());
-        searchHistoryList.add(0, new SearchHistory(query, videoInfoList, sentiment));
 
         // limit to 10 most recent search histories
         if (searchHistoryList.size() > 10) {
@@ -109,7 +95,6 @@ public class SearchHistory {
      * @author Dorreen Rostami
      */
     public static List<SearchHistory> editSearchHistory(List<SearchHistory> searchHistoryList, String query, List<SearchResult> results, Cache cache){
-
         List<VideoInfo> videoInfoList = results.stream().map(result -> {
             String videoId = result.getId().getVideoId();
             String description = "";
@@ -120,14 +105,18 @@ public class SearchHistory {
             }
             return new VideoInfo(result, description);
         }).collect(Collectors.toList());
-        SentimentAnalyzer.Sentiment sentiment = SentimentAnalyzer.getSentiment(videoInfoList.stream());
 
         for (int i = 0; i < searchHistoryList.size(); i++) {
             if (searchHistoryList.get(i).getQuery().equalsIgnoreCase(query)) {
-                searchHistoryList.set(i, new SearchHistory(query, videoInfoList, sentiment));
+                searchHistoryList.set(i, new SearchHistory(query, videoInfoList));
                 break;
             }
         }
         return searchHistoryList;
+    }
+
+    String getHTML(){
+        String html = "<p>Query: " + query + "</p>";
+        return html;
     }
 }

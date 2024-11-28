@@ -113,4 +113,9 @@ public class VideoInfo {
     public String getTagsUrl() {
         return tagsUrl;
     }
+
+    public String getHTML(){
+        String html = "";
+        return html;
+    }
 }
