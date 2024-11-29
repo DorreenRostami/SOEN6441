@@ -20,31 +20,19 @@ public class Cache {
     /**
      * A map containing all the queries that return a List of SearchResult objects as a response
      */
-    private final Map<String, SearchHistory> listCache = new HashMap<>();
+    private final static Map<String, SearchHistory> listCache = new HashMap<>();
     /**
      * A map containing all the queries that return a ChannelListResponse object as a response
      */
-    private final Map<String, ChannelListResponse> channelCache = new HashMap<>();
+    private final static Map<String, ChannelInfo> channelCache = new HashMap<>();
     /**
      * A map containing all the videoIds mapped to their descriptions.
      */
-    private final Map<String, String> descriptionCache = new HashMap<>();
+    private final static Map<String, String> descriptionCache = new HashMap<>();
     /**
      * A map containing all the videoIds mapped to their according constructed Video object.
      */
-    private final Map<String, Video> videoCache = new HashMap<>();
-
-    private final YouTubeService youTubeService;
-
-    /**
-     * Public constructor for Cache
-     * @param youTubeService YouTubeService Object
-     * @author Hamza Asghar Khan
-     */
-    @Inject
-    public Cache(YouTubeService youTubeService){
-        this.youTubeService = youTubeService;
-    }
+    private final static Map<String, Video> videoCache = new HashMap<>();
 
     /**
      * Returns the response for the provided query. This method takes a query and a boolean to denote whether the query
@@ -57,22 +45,22 @@ public class Cache {
      * @throws IOException In case of an IOException caused by the YouTube API.
      * @author Hamza Asghar Khan
      */
-    public SearchHistory get(String query, boolean isChannelQuery) throws IOException {
+    public static SearchHistory get(String query, boolean isChannelQuery) throws IOException {
         String key = isChannelQuery ? "channel:" + query : "video:" + query;
         if (listCache.containsKey(key)){
             return listCache.get(key);
         }
         SearchHistory response;
         if (isChannelQuery){
-            response = youTubeService.searchChannelVideos(query);
+            response = YouTubeService.searchChannelVideos(query);
         } else {
-            response = youTubeService.searchVideos(query);
+            response = YouTubeService.searchVideos(query);
         }
         listCache.put(key, response);
         return response;
     }
 
-    public void put(String query, SearchHistory response, boolean isChannelQuery){
+    public static void put(String query, SearchHistory response, boolean isChannelQuery){
         String key = isChannelQuery ? "channel:" + query : "video:" + query;
         listCache.put(key, response);
     }
@@ -87,11 +75,11 @@ public class Cache {
      * @throws IOException In case of an IOException caused by the YouTube API.
      * @author Hamza Asghar Khan
      */
-    public ChannelListResponse getChannelDetails(String channelId) throws IOException {
+    public static ChannelInfo getChannelDetails(String channelId) throws IOException {
         if (channelCache.containsKey(channelId)){
             return channelCache.get(channelId);
         }
-        ChannelListResponse response = youTubeService.getChannelDetails(channelId);
+        ChannelInfo response = YouTubeService.getChannelDetails(channelId);
         channelCache.put(channelId, response);
         return response;
     }
@@ -105,11 +93,11 @@ public class Cache {
      * @throws IOException In case of API failures
      * @author Hamza Asghar Khan
      */
-    public String getDescription(String videoId) throws IOException{
+    public static String getDescription(String videoId) throws IOException{
         if (descriptionCache.containsKey(videoId)){
             return descriptionCache.get(videoId);
         }
-        String description = youTubeService.getDescription(videoId);
+        String description = YouTubeService.getDescription(videoId);
         descriptionCache.put(videoId, description);
         return description;
     }
@@ -122,11 +110,11 @@ public class Cache {
      * @throws IOException In case of API failures
      * @author Yi Tian
      */
-    public Video getVideo(String videoId) throws IOException {
+    public static Video getVideo(String videoId) throws IOException {
         if (videoCache.containsKey(videoId)) {
             return videoCache.get(videoId);
         }
-        Video video = youTubeService.getVideoDetails(Collections.singletonList(videoId)).get(0);
+        Video video = YouTubeService.getVideoDetails(Collections.singletonList(videoId)).get(0);
         videoCache.put(videoId, video);
         return video;
     }

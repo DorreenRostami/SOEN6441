@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class ChannelService {
 
-    public ChannelInfo getChannelInfo(Channel channel) {
+    public static ChannelInfo getChannelInfo(Channel channel, SearchHistory videos) {
         return new ChannelInfo(
                 channel.getSnippet().getTitle(),
                 channel.getId(),
@@ -25,7 +25,8 @@ public class ChannelService {
                 channel.getSnippet().getDescription(),
                 channel.getStatistics().getSubscriberCount().longValue(),
                 channel.getStatistics().getVideoCount().longValue(),
-                channel.getStatistics().getViewCount().longValue()
+                channel.getStatistics().getViewCount().longValue(),
+                videos
         );
     }
 

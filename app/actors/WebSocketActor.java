@@ -7,7 +7,6 @@ import services.SentimentAnalyzer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 
@@ -21,6 +20,7 @@ public class WebSocketActor extends AbstractActor {
     private final ActorRef out;
     private final ActorRef apiActor;
     private final ActorRef sentimentAnalyzerActor;
+    private final ActorRef channelActor;
     private final List<SearchHistory> searchResults;
 
     @Override
@@ -50,6 +50,7 @@ public class WebSocketActor extends AbstractActor {
         this.out = out;
         this.apiActor = getContext().actorOf(APIActor.getProps());
         this.sentimentAnalyzerActor = getContext().actorOf(SentimentAnalyzerActor.getProps());
+        this.channelActor = getContext().actorOf(ChannelActor.getProps(getSelf(), apiActor));
         this.searchResults = new ArrayList<>();
     }
 
@@ -72,59 +73,50 @@ public class WebSocketActor extends AbstractActor {
                     if (msgSplit.length == 2){
                         String msgType = msgSplit[0];
                         String msgValue = msgSplit[1];
+                        System.out.println("MESSAGE RECEIVED: " + msgValue);
                         switch (msgType){
                             case "QUERY":
-                                if (Objects.equals(msgValue, "")){
-                                    getSelf().tell(searchResults, getSelf());
-                                }
                                 apiActor.tell(new APIActor.SearchMessage(msgValue, APIActor.SearchType.QUERY), getSelf());
                                 break;
                             case "CHANNEL":
-                                apiActor.tell(new APIActor.SearchMessage(msgValue, APIActor.SearchType.CHANNEL), getSelf());
+                                channelActor.tell(msgValue, getSelf());
                                 break;
                             case "STATISTICS":
                                 break;
                             case "TAG":
-                                apiActor.tell(new APIActor.SearchMessage(msgValue, APIActor.SearchType.TAG), getSelf());
+                                /*TODO
+                                * Create a TagActor Class (essentially copy the ChannelActor class already created).
+                                * Implement a getHTML method somewhere appropriate to create the required HTML for the page
+                                * Add the back button to the HTML as well (as can be seen in the ChannelInfo method's getHTML) -- JUST COPY THAT LINE
+                                * */
                                 break;
                             default:
                                 System.out.println("Invalid Socket Call");
                         }
-                    }
-                    }
-                )
-                .match(APIActor.QueryResponse.class, queryResponse -> {
-                    CompletableFuture<SearchHistory> future = queryResponse.future;
-                    APIActor.SearchType type = queryResponse.type;
-                    switch (type){
-                        case QUERY:
-                            if (searchResults.size() == 10){
-                                searchResults.remove(9);
-                            }
-                            SearchHistory result = future.get();
-                            sentimentAnalyzerActor.tell(result, getSelf());
-                            searchResults.add(0, result);
-                            break;
-                        case CHANNEL:
-                            break;
-                        case TAG:
-                            break;
-                        default:
-                            break;
+                    } else if (msgSplit.length == 1){
+                        // EMPTY QUERY. SENT WHEN BACK BUTTON IS PRESSED.
+                        getSelf().tell(searchResults, getSelf());
                     }
                 })
+                .match(APIActor.QueryResponse.class, queryResponse -> {
+                    CompletableFuture<Object> future = queryResponse.future;
+                    if (searchResults.size() == 10){
+                        searchResults.remove(9);
+                    }
+                    SearchHistory result = (SearchHistory) future.get();
+                    sentimentAnalyzerActor.tell(result, getSelf());
+                    searchResults.add(0, result);
+                })
                 .match(SentimentAnalyzer.Sentiment.class, response -> {
-                    System.out.println("HERE: SENTIMENT");
                     getSelf().tell(searchResults, getSelf());
                 })
                 .match(ResponseMessage.class, response -> {
                     out.tell(response.msg, getSelf());
                 })
                 .match(List.class, response -> {
-                    System.out.println("HERE: LIST");
                     StringBuilder responseString = new StringBuilder();
                     for (SearchHistory searchHistory: searchResults){
-                        responseString.append(searchHistory.getHTML());
+                        responseString.append(searchHistory.getHTML(true));
                     }
                     getSelf().tell(new ResponseMessage(responseString.toString()), getSelf());
                 })

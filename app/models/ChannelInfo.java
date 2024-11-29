@@ -5,14 +5,15 @@ package models;
  * @author Hao
  */
 public class ChannelInfo {
-    public String title;
-    public String channelId;
-    public String channelUrl;
-    public String thumbnailUrl;
-    public String description;
-    public long subscriberCount;
-    public long videoCount;
-    public long viewCount;
+    private String title;
+    private String channelId;
+    private String channelUrl;
+    private String thumbnailUrl;
+    private String description;
+    private long subscriberCount;
+    private long videoCount;
+    private long viewCount;
+    private SearchHistory videos;
 
     /**
      * Constructor for ChannelInfo
@@ -27,7 +28,7 @@ public class ChannelInfo {
      * @author Hao
      */
     public ChannelInfo(String title, String channelId, String channelUrl, String thumbnailUrl,
-                       String description, long subscriberCount, long videoCount, long viewCount) {
+                       String description, long subscriberCount, long videoCount, long viewCount, SearchHistory videos) {
         this.title = title;
         this.channelId = channelId;
         this.channelUrl = channelUrl;
@@ -36,6 +37,7 @@ public class ChannelInfo {
         this.subscriberCount = subscriberCount;
         this.videoCount = videoCount;
         this.viewCount = viewCount;
+        this.videos = videos;
     }
 
     /**
@@ -51,4 +53,16 @@ public class ChannelInfo {
     public long getSubscriberCount() { return subscriberCount; }
     public long getVideoCount() { return videoCount; }
     public long getViewCount() { return viewCount; }
+    public SearchHistory getVideos(){return videos;}
+
+    public String getHTML(){
+        StringBuilder html = new StringBuilder();
+        html.append("<button class=\"back-button\" onclick=\"return onBackClick()\">Back</button>");
+        /*
+        * ADD HTML TO DISPLAY THE OTHER FIELDS OF THE CHANNEL. LOOK AT SearchHistory class and VideoInfo class to see
+        * an example.
+        * */
+        html.append(videos.getHTML(false));
+        return html.toString();
+    }
 }

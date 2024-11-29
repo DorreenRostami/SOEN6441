@@ -5,6 +5,7 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.*;
+import models.ChannelInfo;
 import models.SearchHistory;
 import models.VideoInfo;
 
@@ -24,28 +25,18 @@ public class YouTubeService {
     private static final String APPLICATION_NAME = "Play YouTube Search";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
-    private final YouTube youtubeService;
+    private static final YouTube youtubeService;
 
-    /**
-     * Constructor for the YouTubeService class which initializes the YouTube service
-     * @author Hao
-     */
-    public YouTubeService(YouTube youtubeService) {
-        this.youtubeService = youtubeService;
-    }
-
-    /**
-     * Constructor for the YouTubeService class which initializes the YouTube service
-     * @throws GeneralSecurityException If an error occurs while initializing the transport
-     * @throws IOException If an error occurs while initializing the transport
-     * @author Hao
-     */
-    public YouTubeService() throws GeneralSecurityException, IOException {
-        this(new YouTube.Builder(
-                GoogleNetHttpTransport.newTrustedTransport(),
-                JSON_FACTORY,
-                request -> {}
-        ).setApplicationName(APPLICATION_NAME).build());
+    static {
+        try {
+            youtubeService = new YouTube.Builder(
+                    GoogleNetHttpTransport.newTrustedTransport(),
+                    JSON_FACTORY,
+                    request -> {})
+                    .setApplicationName(APPLICATION_NAME).build();
+        } catch (GeneralSecurityException | IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -55,7 +46,7 @@ public class YouTubeService {
      * @throws IOException If an error occurs while fetching the search results
      * @author Hao
      */
-    public SearchHistory searchVideos(String query) throws IOException {
+    public static SearchHistory searchVideos(String query) throws IOException {
         YouTube.Search.List request = youtubeService.search().list("snippet");
         SearchListResponse response = request
                 .setKey(API_KEY)
@@ -78,13 +69,15 @@ public class YouTubeService {
      * @return a ChannelListResponse object containing the details of the channel
      * @author Hao
      */
-    public ChannelListResponse getChannelDetails(String channelId) throws IOException {
+    public static ChannelInfo getChannelDetails(String channelId) throws IOException {
         YouTube.Channels.List request = youtubeService.channels().list("snippet,statistics");
         ChannelListResponse response = request
                 .setKey(API_KEY)
                 .setId(channelId)
                 .execute();
-        return response;
+        SearchHistory videos = searchChannelVideos(channelId);
+        Channel channel = response.getItems().get(0);
+        return ChannelService.getChannelInfo(channel, videos);
     }
 
     /**
@@ -93,7 +86,7 @@ public class YouTubeService {
      * @return a list of search results containing the videos in the channel
      * @author Hao
      */
-    public SearchHistory searchChannelVideos(String channelId) throws IOException {
+    public static SearchHistory searchChannelVideos(String channelId) throws IOException {
         YouTube.Search.List request = youtubeService.search().list("snippet");
         SearchListResponse response = request
                 .setKey(API_KEY)
@@ -116,7 +109,7 @@ public class YouTubeService {
      * @throws IOException If an error occurs while fetching the video details
      * @author Hao
      */
-    public List<Video> getVideoDetails(List<String> videoIds) throws IOException {
+    public static List<Video> getVideoDetails(List<String> videoIds) throws IOException {
         YouTube.Videos.List request = youtubeService.videos().list("snippet");
         VideoListResponse response = request
                 .setKey(API_KEY)
@@ -132,7 +125,7 @@ public class YouTubeService {
      * @throws IOException In the event that the API fails.
      * @author Hamza Asghar Khan
      */
-    public String getDescription(String videoId) throws IOException {
+    public static String getDescription(String videoId) throws IOException {
         YouTube.Videos.List request = youtubeService.videos().list("snippet");
         VideoListResponse response = request.setId(videoId).setKey(API_KEY).execute();
         List<Video> items = response.getItems();

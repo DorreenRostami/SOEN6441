@@ -87,6 +87,7 @@
         }
 
         function onBackClick(){
+            console.log("BACK CLICKED");
             if (socket.readyState === WebSocket.OPEN) {
                 socket.send("QUERY:::" + "");
             } else {

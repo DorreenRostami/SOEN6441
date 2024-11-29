@@ -115,8 +115,11 @@ public class SearchHistory {
         return searchHistoryList;
     }
 
-    public String getHTML(){
-        StringBuilder html = new StringBuilder("<p class=\"query-title\">Query: " + query + "<span class=\"sentiment\">" + (sentiment != null? sentiment.emoji : "") + "</span></p>");
+    public String getHTML(boolean showQuery){
+        StringBuilder html = new StringBuilder();
+        if (showQuery){
+            html.append("<p class=\"query-title\">Query: " + query + "<span class=\"sentiment\">" + (sentiment != null? sentiment.emoji : "") + "</span></p>");
+        }
         for (VideoInfo videoInfo: results){
             html.append(videoInfo.getHTML());
         }

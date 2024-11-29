@@ -5,6 +5,7 @@ import akka.actor.Props;
 import akka.pattern.StatusReply;
 import models.Cache;
 import models.SearchHistory;
+import services.SearchByTagSevice;
 import services.YouTubeService;
 
 import java.io.IOException;
@@ -18,17 +19,27 @@ public class APIActor extends AbstractActor {
         TAG
     }
 
-    YouTubeService youTubeService;
-    Cache cache;
-
     static class QueryResponse{
-        CompletableFuture<SearchHistory> future;
-        SearchType type;
-        public QueryResponse(CompletableFuture<SearchHistory> future, SearchType type){
+        CompletableFuture<Object> future;
+        public QueryResponse(CompletableFuture<Object> future){
             this.future = future;
-            this.type = type;
         }
     }
+
+    static class ChannelResponse{
+        CompletableFuture<Object> future;
+        public ChannelResponse(CompletableFuture<Object> future){
+            this.future = future;
+        }
+    }
+
+    static class TagResponse{
+        CompletableFuture<Object> future;
+        public TagResponse(CompletableFuture<Object> future){
+            this.future = future;
+        }
+    }
+
     static class SearchMessage{
         String query;
         SearchType type;
@@ -37,11 +48,6 @@ public class APIActor extends AbstractActor {
             this.query = query;
             this.type = type;
         }
-    }
-
-    public APIActor() throws GeneralSecurityException, IOException {
-        this.youTubeService = new YouTubeService();
-        this.cache = new Cache(youTubeService);
     }
 
     public static Props getProps() {
@@ -55,14 +61,15 @@ public class APIActor extends AbstractActor {
                     String query = message.query;
                     SearchType type = message.type;
                     try {
-                        CompletableFuture<SearchHistory> result = CompletableFuture.supplyAsync(() -> {
+                        CompletableFuture<Object> result = CompletableFuture.supplyAsync(() -> {
                             try {
                                 switch (type){
                                     case QUERY:
-                                        return cache.get(query, false);
+                                        return Cache.get(query, false);
                                     case CHANNEL:
-                                        return cache.get(query, true);
+                                        return Cache.getChannelDetails(query);
                                     case TAG:
+                                        return SearchByTagSevice.searchByTag(query);
                                     default:
                                         /*TODO FIX*/
                                         return null;
@@ -71,11 +78,20 @@ public class APIActor extends AbstractActor {
                                 throw new RuntimeException(e);
                             }
                         });
-                        // Send a message back to requester
-                        sender().tell(new QueryResponse(result, type), self());
+                        switch (type){
+                            case QUERY:
+                                getSender().tell(new QueryResponse(result), getSelf());
+                                break;
+                            case CHANNEL:
+                                getSender().tell(new ChannelResponse(result), getSelf());
+                                break;
+                            case TAG:
+                                getSender().tell(new TagResponse(result), getSelf());
+                                break;
+                        }
                     } catch (Exception e) {
                         // Error occurred, return an error message.
-                        sender().tell(new StatusReply.ErrorMessage("An error occurred"), self());
+                        getSender().tell(new StatusReply.ErrorMessage("An error occurred"), self());
                 }})
                 .build();
     }
