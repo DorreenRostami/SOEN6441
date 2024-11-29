@@ -1,14 +1,13 @@
 package services;
 
 import com.google.api.services.youtube.model.Channel;
-import com.google.api.services.youtube.model.SearchResult;
 import models.Cache;
 import models.ChannelInfo;
+import models.SearchHistory;
 import models.VideoInfo;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * a class which contains methods for getting channel information and searching for videos of a channel
@@ -37,17 +36,8 @@ public class ChannelService {
      */
     public static List<VideoInfo> searchChannel(String channelId, Cache cache) throws IOException {
         // Fetch videos for the channel
-        List<SearchResult> results = cache.get(channelId, true);
-
-        List<VideoInfo> videoInfoList = results.stream().map(result -> new VideoInfo(
-                result.getSnippet().getTitle(),
-                "https://www.youtube.com/watch?v=" + result.getId().getVideoId(),
-                result.getSnippet().getChannelTitle(),
-                "channel?query=" + result.getSnippet().getChannelId(),
-                result.getSnippet().getThumbnails().getDefault().getUrl(),
-                result.getSnippet().getDescription(),
-                null
-        )).collect(Collectors.toList());
+        SearchHistory results = cache.get(channelId, true);
+        List<VideoInfo> videoInfoList = results.getResults();
 
         if (videoInfoList.size() > 10) {
             videoInfoList = videoInfoList.subList(0, 10);

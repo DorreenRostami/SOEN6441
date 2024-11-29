@@ -42,7 +42,7 @@ public class HomeController extends Controller {
     /**
      * method for showing the homepage with an empty search history
      * @return a CompletableFuture containing a result which renders the hello page
-     * @author Hamza - initial implementation
+     * @author Hamza - initia   l implementation
      * @author Dorreen - made it asynchronous
      */
     public WebSocket ws(){

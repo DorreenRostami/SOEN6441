@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Youtube Search</title>
     <style>
         .query-title{
             font-size: 20px;
             font-weight: bold;
             text-transform: uppercase;
-<!--            text-align: center;-->
         }
 
         a {
@@ -41,19 +38,15 @@
             width: 100%;
             object-fit: contain;
         }
-
     </style>
     <script>
         let socket = new WebSocket("ws://localhost:9000/ws");
-        let allResults = [];
-        let allKeyword = [];
 
         socket.onopen = function(event) {
             console.log("Connection established.");
         };
 
         socket.onmessage = function(event) {
-            console.log("Received new results: " + event.data);
             document.getElementById("results").innerHTML = event.data;
         };
 
@@ -68,13 +61,41 @@
         function onSubmit(e) {
             e.preventDefault();
             if (socket.readyState === WebSocket.OPEN) {
-                socket.send(e.target.query.value);
+                if (e.target.query.value != ""){
+                    socket.send("QUERY:::" + e.target.query.value);
+                }
             } else {
                 console.log("WebSocket is not open. State: " + socket.readyState);
             }
             e.target.query.value = "";
         }
+
+        function onChannelClick(channelURL){
+            if (socket.readyState === WebSocket.OPEN) {
+                socket.send("CHANNEL:::" + channelURL);
+            } else {
+                console.log("WebSocket is not open. State: " + socket.readyState);
+            }
+        }
+
+        function onTagsClick(tagsURL){
+            if (socket.readyState === WebSocket.OPEN) {
+                socket.send("TAG:::" + tagsURL);
+            } else {
+                console.log("WebSocket is not open. State: " + socket.readyState);
+            }
+        }
+
+        function onBackClick(){
+            if (socket.readyState === WebSocket.OPEN) {
+                socket.send("QUERY:::" + "");
+            } else {
+                console.log("WebSocket is not open. State: " + socket.readyState);
+            }
+        }
     </script>
+    <meta charset="UTF-8">
+    <title>Youtube Search</title>
 </head>
 <body>
 <h1>YTLytics</h1>

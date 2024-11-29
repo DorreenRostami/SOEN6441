@@ -114,17 +114,17 @@ public class VideoInfo {
         return tagsUrl;
     }
 
-    public String getHTML(){
+    public String getHTML() {
         return "<div class=\"video-result\">" +
-                    "<div class=\"video-result-left\">" +
-                        "<p class=\"video-result-left-title\">Video: <a href=\""+ videoUrl +"\">" + videoTitle +"</a></p>" +
-                        "<p class=\"video-result-left-channel\">Channel: <a href=\""+ channelUrl +"\">" + channelTitle +"</a></p>" +
-                        "<p class=\"video-result-left-tags\"><a href=\""+ tagsUrl +"\"> Tags </a></p>" +
-                        "<p class=\"video-result-left-description\">" + description + "</p>" +
-                    "</div>" +
-                    "<div class=\"video-result-right\">" +
-                        "<a href=\""+ videoUrl +"\"><img src=\""+ thumbnailUrl+"\"/></a>" +
-                    "</div>" +
+                "<div class=\"video-result-left\">" +
+                "<p class=\"video-result-left-title\">Video: <a href=\"" + videoUrl + "\">" + videoTitle + "</a></p>" +
+                "<p class=\"video-result-left-channel\">Channel: <a href=\"#\" onclick=\"return onChannelClick('" + channelUrl + "')\">" + channelTitle + "</a></p>" +
+                "<p class=\"video-result-left-tags\"><a href=\"#\" onclick=\"return onTagsClick('" + tagsUrl + "')\"> Tags </a></p>" +
+                "<p class=\"video-result-left-description\">" + description + "</p>" +
+                "</div>" +
+                "<div class=\"video-result-right\">" +
+                "<a href=\"" + videoUrl + "\"><img src=\"" + thumbnailUrl + "\"/></a>" +
+                "</div>" +
                 "</div>";
     }
 }
