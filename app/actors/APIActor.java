@@ -4,12 +4,10 @@ import akka.actor.AbstractActor;
 import akka.actor.Props;
 import akka.pattern.StatusReply;
 import models.Cache;
-import models.SearchHistory;
 import services.SearchByTagSevice;
 import services.YouTubeService;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.concurrent.CompletableFuture;
 
 public class APIActor extends AbstractActor {
@@ -43,10 +41,12 @@ public class APIActor extends AbstractActor {
     static class SearchMessage{
         String query;
         SearchType type;
+        long len;
 
-        public SearchMessage(String query, SearchType type) {
+        public SearchMessage(String query, SearchType type, long len) {
             this.query = query;
             this.type = type;
+            this.len = len;
         }
     }
 
@@ -60,12 +60,16 @@ public class APIActor extends AbstractActor {
                 .match(SearchMessage.class, message -> {
                     String query = message.query;
                     SearchType type = message.type;
+
                     try {
                         CompletableFuture<Object> result = CompletableFuture.supplyAsync(() -> {
                             try {
                                 switch (type){
                                     case QUERY:
-                                        return Cache.get(query, false);
+                                        if (message.len == 10)
+                                            return Cache.get(query, false);
+                                        else
+                                            return YouTubeService.searchVideos(query, message.len); //word stats of 50 videos
                                     case CHANNEL:
                                         return Cache.getChannelDetails(query);
                                     case TAG:

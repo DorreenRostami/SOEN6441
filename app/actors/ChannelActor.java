@@ -21,6 +21,7 @@ public class ChannelActor extends AbstractActor {
      * @param webSocketActor Reference to the WebSocketActor.
      * @param apiActor       Reference to the APIActor.
      * @return Props for ChannelActor.
+     * @author Hao
      */
     public static Props getProps(ActorRef webSocketActor, ActorRef apiActor) {
         return Props.create(ChannelActor.class, () -> new ChannelActor(webSocketActor, apiActor));
@@ -31,6 +32,7 @@ public class ChannelActor extends AbstractActor {
      *
      * @param webSocketActor Reference to the WebSocketActor.
      * @param apiActor       Reference to the APIActor.
+     * @author Hao
      */
     public ChannelActor(ActorRef webSocketActor, ActorRef apiActor) {
         this.webSocketActor = webSocketActor;
@@ -42,7 +44,7 @@ public class ChannelActor extends AbstractActor {
         return receiveBuilder()
                 // Handle search message
                 .match(String.class, msg -> {
-                    apiActor.tell(new APIActor.SearchMessage(msg, APIActor.SearchType.CHANNEL), getSelf());
+                    apiActor.tell(new APIActor.SearchMessage(msg, APIActor.SearchType.CHANNEL, 10), getSelf());
                 })
                 // Handle APIActor responses
                 .match(APIActor.ChannelResponse.class, response -> {
@@ -51,7 +53,6 @@ public class ChannelActor extends AbstractActor {
                         ChannelInfo channelInfo = (ChannelInfo) future.get(); // Get result from the future
                         webSocketActor.tell(new WebSocketActor.ResponseMessage(channelInfo.getHTML()), getSelf());
                     } catch (Exception e) {
-                        // Handle any exception and send an error message
                         String errorMessage = "<p>Error: Unable to fetch channel details</p>";
                         webSocketActor.tell(new WebSocketActor.ResponseMessage(errorMessage), getSelf());
                     }

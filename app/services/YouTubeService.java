@@ -46,7 +46,7 @@ public class YouTubeService {
      * @throws IOException If an error occurs while fetching the search results
      * @author Hao
      */
-    public static SearchHistory searchVideos(String query) throws IOException {
+    public static SearchHistory searchVideos(String query, long len) throws IOException {
         YouTube.Search.List request = youtubeService.search().list("snippet");
         SearchListResponse response = request
                 .setKey(API_KEY)
@@ -54,13 +54,27 @@ public class YouTubeService {
                 .setType("video")
                 .setVideoDuration("medium") //filter out short videos
                 .setOrder("date")
-                .setMaxResults(10L)
+                .setMaxResults(len)
                 .execute();
         List<VideoInfo> videoInfoList = new ArrayList<>();
         for (SearchResult result: response.getItems()){
             videoInfoList.add(new VideoInfo(result));
         }
         return new SearchHistory(query, videoInfoList);
+    }
+
+    /**
+     * Searches for videos on YouTube based on the given query and retrieves up to 10 results by default.
+     * This method acts as a convenience wrapper for the overloaded {@link #searchVideos(String, long)}
+     * method, providing a default value of 10 for the maximum number of results.
+     *
+     * @param query the query to search for
+     * @return a list of SearchResult containing the videos that match the query
+     * @throws IOException If an error occurs while fetching the search results
+     * @author Dorreen
+     */
+    public static SearchHistory searchVideos(String query) throws IOException {
+        return searchVideos(query, 10L);
     }
 
     /**
