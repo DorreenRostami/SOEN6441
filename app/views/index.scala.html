@@ -1,23 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <style>
-        .query-title{
+    <head>
+        <meta charset="UTF-8">
+        <title>Youtube Search</title>
+        <style>
+        /* Styles from Code A */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            text-align: center;
+            width: 60%;
+        }
+        .search-box {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 8px;
+            width: 300px;
+        }
+        button, input[type="submit"] {
+            padding: 8px 15px;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 14px;
+            line-height: 1.4;
+            color: #333;
+            text-align: left;
+        }
+        .video-group {
+            margin-top: 20px;
+        }
+        .video-wrapper {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+        .video {
+            max-width: 75%;
+        }
+        .video-title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .channel-title {
+            font-size: 14px;
+            color: #555;
+        }
+        .tags {
+            font-size: 14px;
+            color: #555;
+        }
+        .thumbnail {
+            max-width: 120px;
+            margin-left: 20px;
+        }
+        .separator {
+            border-top: 1px solid #ccc;
+            margin: 20px 0;
+        }
+
+        /* Additional styles from Code B */
+        .query-title {
             font-size: 20px;
             font-weight: bold;
             text-transform: uppercase;
         }
-
         a {
             cursor: pointer;
         }
-
         .sentiment {
             margin: 20px;
             font-weight: bolder;
         }
-
-        .video-result{
+        .video-result {
             display: flex;
             justify-content: space-between;
             border-radius: 20px;
@@ -25,21 +89,18 @@
             margin-bottom: 20px;
             margin-top: 20px;
         }
-
-        .video-result-left{
+        .video-result-left {
             flex: 1;
         }
-
-        .video-result-right{
+        .video-result-right {
             flex: 0 0 15%;
         }
-
-        .video-result-right > a >  img {
+        .video-result-right > a > img {
             width: 100%;
             object-fit: contain;
         }
     </style>
-    <script>
+        <script>
         let socket = new WebSocket("ws://localhost:9000/ws");
 
         socket.onopen = function(event) {
@@ -95,15 +156,17 @@
             }
         }
     </script>
-    <meta charset="UTF-8">
-    <title>Youtube Search</title>
-</head>
-<body>
-<h1>YTLytics</h1>
-<form action="" onsubmit="return onSubmit(event)">
-    <input type="text" name="query" placeholder="Search">
-    <input type="submit" value="Search">
-</form>
-<div id="results"></div>
-</body>
+    </head>
+    <body>
+        <div class="container">
+            <h1>YTLytics</h1>
+            <div class="search-box">
+                <form action="" onsubmit="return onSubmit(event)">
+                    <input type="text" name="query" placeholder="Search">
+                    <input type="submit" value="Search">
+                </form>
+            </div>
+            <div id="results" class="result"></div>
+        </div>
+    </body>
 </html>
