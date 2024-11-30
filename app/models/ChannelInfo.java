@@ -55,14 +55,24 @@ public class ChannelInfo {
     public long getViewCount() { return viewCount; }
     public SearchHistory getVideos(){return videos;}
 
-    public String getHTML(){
+    public String getHTML() {
         StringBuilder html = new StringBuilder();
         html.append("<button class=\"back-button\" onclick=\"return onBackClick()\">Back</button>");
-        /*
-        * ADD HTML TO DISPLAY THE OTHER FIELDS OF THE CHANNEL. LOOK AT SearchHistory class and VideoInfo class to see
-        * an example.
-        * */
+
+        // Add HTML to display the channel details
+        html.append("<div class=\"channel-info\">");
+        html.append("<h1>").append(title).append("</h1>");
+        html.append("<img src=\"").append(thumbnailUrl).append("\" alt=\"Channel Thumbnail\">");
+        html.append("<p>").append(description).append("</p>");
+        html.append("<p>Subscribers: ").append(subscriberCount).append("</p>");
+        html.append("<p>Videos: ").append(videoCount).append("</p>");
+        html.append("<p>Views: ").append(viewCount).append("</p>");
+        html.append("<a href=\"").append(channelUrl).append("\">Visit Channel</a>");
+        html.append("</div>");
+
+        // Add HTML to display the videos
         html.append(videos.getHTML(false));
+
         return html.toString();
     }
 }
