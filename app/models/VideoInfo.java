@@ -1,11 +1,9 @@
 package models;
 
-import java.io.IOException;
-import java.util.List;
-
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.SearchResultSnippet;
-import com.google.api.services.youtube.model.Video;
+
+import java.util.List;
 
 /**
  * Class for information about a YouTube video
@@ -55,7 +53,7 @@ public class VideoInfo {
         this.videoUrl = videoId != null ? "https://www.youtube.com/watch?v=" + videoId : null;
         this.channelTitle = snippet != null ? snippet.getChannelTitle() : null;
         this.channelUrl = snippet != null && snippet.getChannelId() != null
-                ? "channel?query=" + snippet.getChannelId()
+                ? snippet.getChannelId()
                 : null;
         this.thumbnailUrl = snippet != null && snippet.getThumbnails() != null
                 && snippet.getThumbnails().getDefault() != null
@@ -112,5 +110,19 @@ public class VideoInfo {
 
     public String getTagsUrl() {
         return tagsUrl;
+    }
+
+    public String getHTML() {
+        return "<div class=\"video-result\">" +
+                "<div class=\"video-result-left\">" +
+                "<p class=\"video-result-left-title\">Video: <a href=\"" + videoUrl + "\">" + videoTitle + "</a></p>" +
+                "<p class=\"video-result-left-channel\">Channel: <a href=\"#\" onclick=\"return onChannelClick('" + channelUrl + "')\">" + channelTitle + "</a></p>" +
+                "<p class=\"video-result-left-tags\"><a href=\"#\" onclick=\"return onTagsClick('" + tagsUrl + "')\"> Tags </a></p>" +
+                "<p class=\"video-result-left-description\">" + description + "</p>" +
+                "</div>" +
+                "<div class=\"video-result-right\">" +
+                "<a href=\"" + videoUrl + "\"><img src=\"" + thumbnailUrl + "\"/></a>" +
+                "</div>" +
+                "</div>";
     }
 }

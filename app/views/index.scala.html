@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Youtube Search</title>
+        <style>
+        /* Styles from Code A */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            text-align: center;
+            width: 60%;
+        }
+        .search-box {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 8px;
+            width: 300px;
+        }
+        button, input[type="submit"] {
+            padding: 8px 15px;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 14px;
+            line-height: 1.4;
+            color: #333;
+            text-align: left;
+        }
+        .video-group {
+            margin-top: 20px;
+        }
+        .video-wrapper {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+        .video {
+            max-width: 75%;
+        }
+        .video-title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .channel-title {
+            font-size: 14px;
+            color: #555;
+        }
+        .tags {
+            font-size: 14px;
+            color: #555;
+        }
+        .thumbnail {
+            max-width: 120px;
+            margin-left: 20px;
+        }
+        .separator {
+            border-top: 1px solid #ccc;
+            margin: 20px 0;
+        }
+
+        /* Additional styles from Code B */
+        .query-title {
+            font-size: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        a {
+            cursor: pointer;
+        }
+        .sentiment {
+            margin: 20px;
+            font-weight: bolder;
+        }
+        .video-result {
+            display: flex;
+            justify-content: space-between;
+            border-radius: 20px;
+            width: 100%;
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
+        .video-result-left {
+            flex: 1;
+        }
+        .video-result-right {
+            flex: 0 0 15%;
+        }
+        .video-result-right > a > img {
+            width: 100%;
+            object-fit: contain;
+        }
+    </style>
+        <script>
+        let socket = new WebSocket("ws://localhost:9000/ws");
+
+        socket.onopen = function(event) {
+            console.log("Connection established.");
+        };
+
+        socket.onmessage = function(event) {
+            document.getElementById("results").innerHTML = event.data;
+        };
+
+        socket.onclose = function(event) {
+            console.log("Connection closed. Code: " + event.code + " Reason: " + event.reason);
+        };
+
+        socket.onerror = function(error) {
+            console.log("Error occurred: " + error.message);
+        };
+
+        function onSubmit(e) {
+            e.preventDefault();
+            if (socket.readyState === WebSocket.OPEN) {
+                if (e.target.query.value != ""){
+                    socket.send("QUERY:::" + e.target.query.value);
+                }
+            } else {
+                console.log("WebSocket is not open. State: " + socket.readyState);
+            }
+            e.target.query.value = "";
+        }
+
+        function onChannelClick(channelURL){
+            if (socket.readyState === WebSocket.OPEN) {
+                socket.send("CHANNEL:::" + channelURL);
+            } else {
+                console.log("WebSocket is not open. State: " + socket.readyState);
+            }
+        }
+
+        function onTagsClick(tagsURL){
+            if (socket.readyState === WebSocket.OPEN) {
+                socket.send("TAG:::" + tagsURL);
+            } else {
+                console.log("WebSocket is not open. State: " + socket.readyState);
+            }
+        }
+
+        function onBackClick(){
+            console.log("BACK CLICKED");
+            if (socket.readyState === WebSocket.OPEN) {
+                socket.send("QUERY:::" + "");
+            } else {
+                console.log("WebSocket is not open. State: " + socket.readyState);
+            }
+        }
+    </script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>YTLytics</h1>
+            <div class="search-box">
+                <form action="" onsubmit="return onSubmit(event)">
+                    <input type="text" name="query" placeholder="Search">
+                    <input type="submit" value="Search">
+                </form>
+            </div>
+            <div id="results" class="result"></div>
+        </div>
+    </body>
+</html>
