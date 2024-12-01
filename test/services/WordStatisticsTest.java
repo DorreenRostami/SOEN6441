@@ -21,9 +21,9 @@ public class WordStatisticsTest {
      */
     @Test
     public void testGetWordStats() {
-        List<String> text = Arrays.asList("Hello .music.", "Hello - Adele", "Hello music adele! !", "hello MusIC", "سلام");
+        List<String> text = Arrays.asList("Hello .music.", "Hello - Adele", "music adele! !", "hello MusIC", "سلام");
         List<Tuple2<String, Long>> expected = Arrays.asList(
-                new Tuple2<>("hello", 4L),
+                new Tuple2<>("hello", 3L),
                 new Tuple2<>("music", 3L),
                 new Tuple2<>("adele", 2L),
                 new Tuple2<>("سلام", 1L)

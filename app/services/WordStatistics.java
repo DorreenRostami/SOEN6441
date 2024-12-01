@@ -31,7 +31,10 @@ public class WordStatistics {
 
         // Sort in descending order
         return wordCount.entrySet().stream()
-                .sorted((e1, e2) -> Long.compare(e2.getValue(), e1.getValue()))
+                .sorted(
+                        Comparator.comparing(Map.Entry<String, Long>::getValue, Comparator.reverseOrder()) //freq
+                                .thenComparing(Map.Entry<String, Long>::getKey) //alphabetically if frequencies are the same
+                )
                 .map(entry -> new Tuple2<>(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
     }
