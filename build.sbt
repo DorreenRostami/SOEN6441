@@ -35,6 +35,8 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-testkit" % akkaVersion % Test
 )
 
+libraryDependencies += "com.typesafe.play" %% "play-json" % "2.10.5"
+
 // Test and documentation settings
 Test / fork := false
 Compile / doc / scalacOptions ++= Seq("-private")

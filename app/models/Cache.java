@@ -1,15 +1,12 @@
 package models;
 
-import com.google.api.services.youtube.model.ChannelListResponse;
-import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Video;
 import services.YouTubeService;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -46,18 +43,22 @@ public class Cache {
      * @author Hamza Asghar Khan
      */
     public static SearchHistory get(String query, boolean isChannelQuery) throws IOException {
-        String key = isChannelQuery ? "channel:" + query : "video:" + query;
-        if (listCache.containsKey(key)){
-            return listCache.get(key);
-        }
-        SearchHistory response;
-        if (isChannelQuery){
-            response = YouTubeService.searchChannelVideos(query);
-        } else {
-            response = YouTubeService.searchVideos(query);
-        }
-        listCache.put(key, response);
-        return response;
+        LinkedList<VideoInfo> sampleResult = new LinkedList<>();
+        sampleResult.add(new VideoInfo("testTitle", "vidoeURL/dsads", "Channel Title", "channelURL/sdas", "https://picsum.photos/536/354", "This is the test description", "tagsUrl/dsa"));
+        sampleResult.add(new VideoInfo("test 2", "vidoeURL/dsads", "Channel Title", "channelURL/sdas", "https://picsum.photos/536/354", "This is the test description", "tagsUrl/dsa"));
+        return new SearchHistory("testQuery", sampleResult);
+//        String key = isChannelQuery ? "channel:" + query : "video:" + query;
+//        if (listCache.containsKey(key)){
+//            return listCache.get(key);
+//        }
+//        SearchHistory response;
+//        if (isChannelQuery){
+//            response = YouTubeService.searchChannelVideos(query);
+//        } else {
+//            response = YouTubeService.searchVideos(query);
+//        }
+//        listCache.put(key, response);
+//        return response;
     }
 
     public static void put(String query, SearchHistory response, boolean isChannelQuery){
