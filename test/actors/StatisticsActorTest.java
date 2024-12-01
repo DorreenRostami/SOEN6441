@@ -3,7 +3,6 @@ package actors;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.testkit.javadsl.TestKit;
-import models.ChannelInfo;
 import models.SearchHistory;
 import models.VideoInfo;
 import org.junit.AfterClass;
@@ -18,21 +17,39 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
+/**
+ * Unit tests for the {@link StatisticsActor} class
+ *
+ * @author Dorreen Rostami
+ */
 public class StatisticsActorTest {
     private static ActorSystem system;
 
+    /**
+     * Sets up the test environment by creating an actor system
+     * @author Dorreen Rostami
+     */
     @BeforeClass
     public static void setup() {
         system = ActorSystem.create();
     }
 
+    /**
+     * Cleans up the test environment by shutting down the actor system
+     * @author Dorreen Rostami
+     */
     @AfterClass
     public static void teardown() {
         TestKit.shutdownActorSystem(system);
     }
 
+    /**
+     * When the actor receives a search query, it should send {@link APIActor.SearchMessage} to the API actor.
+     * @author Dorreen Rostami
+     */
     @Test
     public void testSearchQuery() {
         TestKit wsProbe = new TestKit(system);
@@ -47,12 +64,17 @@ public class StatisticsActorTest {
         assertEquals(APIActor.SearchType.STATS, searchMessage.type);
     }
 
+    /**
+     * When the actor receives a {@link APIActor.StatsResponse}, it processes the response to compute
+     * word-level statistics and sends the correct JSON response to the WebSocket actor
+     * @author Dorreen Rostami
+     */
     @Test
     public void testStatsResponse() {
-        TestKit testProbe = new TestKit(system);
+        TestKit wsProbe = new TestKit(system);
         TestKit apiProbe = new TestKit(system);
 
-        ActorRef statisticsActor = system.actorOf(StatisticsActor.getProps(testProbe.getRef(), apiProbe.getRef()));
+        ActorRef statisticsActor = system.actorOf(StatisticsActor.getProps(wsProbe.getRef(), apiProbe.getRef()));
 
         List<VideoInfo> videoInfoList = List.of(
                 new VideoInfo("Video 1", "https://www.youtube.com/watch?v=1", "Channel1", "https://channel1", "https://thumbnail1", "Description 1", "https://tags1"),
@@ -72,10 +94,10 @@ public class StatisticsActorTest {
 
         statisticsActor.tell(mockStatsResponse, apiProbe.getRef());
 
-        WebSocketActor.ResponseMessage responseMessage = testProbe.expectMsgClass(WebSocketActor.ResponseMessage.class);
+        WebSocketActor.ResponseMessage responseMessage = wsProbe.expectMsgClass(WebSocketActor.ResponseMessage.class);
 
-        String expectedHTML = views.html.statistics.render("TestQuery", mockWordStats).toString();
-        assertEquals(expectedHTML, responseMessage.msg);
+        String expectedJson = "{ \"query\":\"TestQuery\",\"words\": [{\"word\":\"description\",\"count\":2},{\"word\":\"video\",\"count\":2}]}";
+        assertEquals(expectedJson, responseMessage.msg);
     }
 
 }
