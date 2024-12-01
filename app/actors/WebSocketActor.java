@@ -5,6 +5,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.pf.DeciderBuilder;
 import models.SearchHistory;
+import play.api.libs.json.Json;
 import scala.concurrent.duration.Duration;
 import services.SentimentAnalyzer;
 
@@ -135,11 +136,11 @@ public class WebSocketActor extends AbstractActorWithTimers {
                     getSelf().tell(searchResults, getSelf());
                 })
                 .match(List.class, response -> {
-                    StringBuilder responseString = new StringBuilder();
                     for (SearchHistory searchHistory: searchResults){
-                        responseString.append(searchHistory.getHTML(true));
+                        System.out.println("Here");
+                        System.out.println(searchHistory.getJson());
+                        getSelf().tell(new ResponseMessage(searchHistory.getJson()), getSelf());
                     }
-                    getSelf().tell(new ResponseMessage(responseString.toString()), getSelf());
                 })
                 .match(ResponseMessage.class, response -> {
                     out.tell(response.msg, getSelf());
@@ -156,19 +157,20 @@ public class WebSocketActor extends AbstractActorWithTimers {
                     }
                 })
                 .match(APIActor.QueryUpdateResponse.class, queryResponse -> {
-                    CompletableFuture<Object> future = queryResponse.future;
-                    SearchHistory updatedResult = (SearchHistory) future.get();
-                    for (int i = 0; i < searchResults.size(); i++) {
-                        if (searchResults.get(i).getQuery().equals(updatedResult.getQuery())) {
-                            searchResults.set(i, updatedResult);
-                            searchResultsUpdatedCount++;
-                            break;
-                        }
-                    }
-
-                    if(searchResultsUpdatedCount == searchResults.size()){
-                        getSelf().tell(searchResults, getSelf());
-                    }
+//                    CompletableFuture<Object> future = queryResponse.future;
+//                    SearchHistory updatedResult = (SearchHistory) future.get();
+//                    sentimentAnalyzerActor.tell(updatedResult, getSelf());
+//                    for (int i = 0; i < searchResults.size(); i++) {
+//                        if (searchResults.get(i).getQuery().equals(updatedResult.getQuery())) {
+//                            searchResults.set(i, updatedResult);
+//                            searchResultsUpdatedCount++;
+//                            break;
+//                        }
+//                    }
+//
+//                    if(searchResultsUpdatedCount == searchResults.size()){
+//                        getSelf().tell(searchResults, getSelf());
+//                    }
                 })
                 .build();
     }

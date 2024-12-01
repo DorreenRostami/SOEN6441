@@ -4,6 +4,7 @@ import com.google.api.services.youtube.model.SearchResult;
 import services.SentimentAnalyzer;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.stream.Collectors;
 import java.util.List;
 
@@ -103,6 +104,26 @@ public class SearchHistory {
         }
         html.append("<div class=\"separator\"></div>");
         return html.toString();
+    }
+
+
+    public String getJson() {
+        StringBuilder json = new StringBuilder();
+        json.append("{")
+            .append("\"query\":\"" + query + "\",")
+            .append("\"sentiment\":\"" + sentiment.emoji + "\",")
+            .append("\"results\": [");
+        Iterator<VideoInfo> resultIterator = results.iterator();
+        VideoInfo videoResult;
+        while (resultIterator.hasNext()){
+            videoResult = resultIterator.next();
+            json.append(videoResult.getJson());
+            if (resultIterator.hasNext())
+                json.append(",");
+        }
+        json.append("]")
+            .append("}");
+        return json.toString();
     }
 
 }

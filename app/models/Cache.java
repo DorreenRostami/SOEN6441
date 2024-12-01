@@ -1,15 +1,11 @@
 package models;
 
-import com.google.api.services.youtube.model.ChannelListResponse;
-import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Video;
 import services.YouTubeService;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
