@@ -53,7 +53,7 @@ public class ChannelInfo {
     public long getSubscriberCount() { return subscriberCount; }
     public long getVideoCount() { return videoCount; }
     public long getViewCount() { return viewCount; }
-    public SearchHistory getVideos(){return videos;}
+    public SearchHistory getVideos(){ return videos; }
 
     public String getHTML() {
         StringBuilder html = new StringBuilder();

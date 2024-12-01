@@ -14,6 +14,7 @@ public class APIActor extends AbstractActor {
     enum SearchType{
         QUERY,
         CHANNEL,
+        STATS,
         TAG
     }
 
@@ -38,15 +39,20 @@ public class APIActor extends AbstractActor {
         }
     }
 
+    static class StatsResponse{
+        CompletableFuture<Object> future;
+        public StatsResponse(CompletableFuture<Object> future){
+            this.future = future;
+        }
+    }
+
     static class SearchMessage{
         String query;
         SearchType type;
-        long len;
 
-        public SearchMessage(String query, SearchType type, long len) {
+        public SearchMessage(String query, SearchType type) {
             this.query = query;
             this.type = type;
-            this.len = len;
         }
     }
 
@@ -66,12 +72,11 @@ public class APIActor extends AbstractActor {
                             try {
                                 switch (type){
                                     case QUERY:
-                                        if (message.len == 10)
-                                            return Cache.get(query, false);
-                                        else
-                                            return YouTubeService.searchVideos(query, message.len); //word stats of 50 videos
+                                        return Cache.get(query, false);
                                     case CHANNEL:
                                         return Cache.getChannelDetails(query);
+                                    case STATS:
+                                        return YouTubeService.searchVideos(query, 50L);
                                     case TAG:
                                         return SearchByTagSevice.searchByTag(query);
                                     default:
@@ -88,6 +93,9 @@ public class APIActor extends AbstractActor {
                                 break;
                             case CHANNEL:
                                 getSender().tell(new ChannelResponse(result), getSelf());
+                                break;
+                            case STATS:
+                                getSender().tell(new StatsResponse(result), getSelf());
                                 break;
                             case TAG:
                                 getSender().tell(new TagResponse(result), getSelf());

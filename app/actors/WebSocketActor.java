@@ -21,6 +21,7 @@ public class WebSocketActor extends AbstractActor {
     private final ActorRef apiActor;
     private final ActorRef sentimentAnalyzerActor;
     private final ActorRef channelActor;
+    private final ActorRef statisticsActor;
     private final List<SearchHistory> searchResults;
 
     @Override
@@ -51,6 +52,7 @@ public class WebSocketActor extends AbstractActor {
         this.apiActor = getContext().actorOf(APIActor.getProps());
         this.sentimentAnalyzerActor = getContext().actorOf(SentimentAnalyzerActor.getProps());
         this.channelActor = getContext().actorOf(ChannelActor.getProps(getSelf(), apiActor));
+        this.statisticsActor = getContext().actorOf(StatisticsActor.getProps(getSelf(), apiActor));
         this.searchResults = new ArrayList<>();
     }
 
@@ -70,19 +72,20 @@ public class WebSocketActor extends AbstractActor {
         return receiveBuilder()
                 .match(String.class, msg -> {
                     String[] msgSplit = msg.split(":::");
+                    System.out.println(msg);
                     if (msgSplit.length == 2){
                         String msgType = msgSplit[0];
                         String msgValue = msgSplit[1];
-                        System.out.println("MESSAGE RECEIVED: " + msgValue);
+                        System.out.println("MESSAGE RECEIVED: " + msgValue + " type: " + msgType);
                         switch (msgType){
                             case "QUERY":
-                                apiActor.tell(new APIActor.SearchMessage(msgValue, APIActor.SearchType.QUERY, 10), getSelf());
+                                apiActor.tell(new APIActor.SearchMessage(msgValue, APIActor.SearchType.QUERY), getSelf());
                                 break;
                             case "CHANNEL":
                                 channelActor.tell(msgValue, getSelf());
                                 break;
-                            case "STATISTICS":
-                                apiActor.tell(new APIActor.SearchMessage(msgValue, APIActor.SearchType.QUERY, 50), getSelf());
+                            case "STATS":
+                                statisticsActor.tell(msgValue, getSelf());
                                 break;
                             case "TAG":
                                 /*TODO
@@ -107,9 +110,6 @@ public class WebSocketActor extends AbstractActor {
                     SearchHistory result = (SearchHistory) future.get();
                     sentimentAnalyzerActor.tell(result, getSelf());
                     searchResults.add(0, result);
-                })
-                .match(StatisticsActor.StatisticsMessage.class, msg -> {
-                    /*TODO*/
                 })
                 .match(SentimentAnalyzer.Sentiment.class, response -> {
                     getSelf().tell(searchResults, getSelf());

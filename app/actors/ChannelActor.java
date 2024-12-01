@@ -44,7 +44,7 @@ public class ChannelActor extends AbstractActor {
         return receiveBuilder()
                 // Handle search message
                 .match(String.class, msg -> {
-                    apiActor.tell(new APIActor.SearchMessage(msg, APIActor.SearchType.CHANNEL, 10), getSelf());
+                    apiActor.tell(new APIActor.SearchMessage(msg, APIActor.SearchType.CHANNEL), getSelf());
                 })
                 // Handle APIActor responses
                 .match(APIActor.ChannelResponse.class, response -> {
