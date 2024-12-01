@@ -6,10 +6,13 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.pattern.StatusReply;
 import models.Cache;
+import models.SearchHistory;
+import models.VideoInfo;
 import services.SearchByTagSevice;
 import services.YouTubeService;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
 
 public class APIActor extends AbstractActor {
@@ -89,7 +92,12 @@ public class APIActor extends AbstractActor {
                             try {
                                 switch (type){
                                     case QUERY:
-                                        return Cache.get(query, false);
+                                        /*DELETE. JUST FOR TESTING*/
+                                        LinkedList<VideoInfo> sampleResult = new LinkedList<>();
+                                        sampleResult.add(new VideoInfo("testTitle", "vidoeURL/dsads", "Channel Title", "channelURL/sdas", "https://picsum.photos/536/354", "This is the test description", "tagsUrl/dsa"));
+                                        sampleResult.add(new VideoInfo("test 2", "vidoeURL/dsads", "Channel Title", "channelURL/sdas", "https://picsum.photos/536/354", "This is the test description", "tagsUrl/dsa"));
+                                        return new SearchHistory("testQuery", sampleResult);
+//                                        return Cache.get(query, false);
                                     case CHANNEL:
                                         return Cache.getChannelDetails(query);
                                     case STATS:
