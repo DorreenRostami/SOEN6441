@@ -3,6 +3,8 @@ package actors;
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 import models.ChannelInfo;
 
 import java.util.concurrent.CompletableFuture;
@@ -14,6 +16,7 @@ public class ChannelActor extends AbstractActor {
 
     private final ActorRef webSocketActor;
     private final ActorRef apiActor;
+    private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 
     /**
      * Props for creating the ChannelActor.
@@ -37,6 +40,11 @@ public class ChannelActor extends AbstractActor {
     public ChannelActor(ActorRef webSocketActor, ActorRef apiActor) {
         this.webSocketActor = webSocketActor;
         this.apiActor = apiActor;
+    }
+
+    @Override
+    public void preStart() {
+        log.info("ChannelActor started");
     }
 
     @Override

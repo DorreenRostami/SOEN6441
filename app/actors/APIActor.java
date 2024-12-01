@@ -2,6 +2,8 @@ package actors;
 
 import akka.actor.AbstractActor;
 import akka.actor.Props;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 import akka.pattern.StatusReply;
 import models.Cache;
 import services.SearchByTagSevice;
@@ -11,6 +13,8 @@ import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 public class APIActor extends AbstractActor {
+    private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
+
     enum SearchType{
         QUERY,
         CHANNEL,
@@ -66,6 +70,11 @@ public class APIActor extends AbstractActor {
 
     public static Props getProps() {
         return Props.create(APIActor.class);
+    }
+
+    @Override
+    public void preStart() {
+        log.info("APIActor started");
     }
 
     @Override

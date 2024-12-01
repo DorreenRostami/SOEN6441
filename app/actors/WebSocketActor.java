@@ -1,6 +1,8 @@
 package actors;
 
 import akka.actor.*;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 import akka.japi.pf.DeciderBuilder;
 import models.SearchHistory;
 import scala.concurrent.duration.Duration;
@@ -23,20 +25,28 @@ public class WebSocketActor extends AbstractActorWithTimers {
     private static final class Tick {
     }
 
+    private final ActorRef out;
+    private ActorRef apiActor;
+    private ActorRef sentimentAnalyzerActor;
+    private ActorRef channelActor;
+    private ActorRef statisticsActor;
+    private final List<SearchHistory> searchResults;
+    private int searchResultsUpdatedCount = 0;
+    private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
+
     @Override
     public void preStart() {
+        log.info("WebSocketActor started");
         getTimers().startPeriodicTimer(
                 "Timer",
                 new Tick(),
                 Duration.create(10, TimeUnit.SECONDS));
+
+        this.apiActor = getContext().actorOf(APIActor.getProps());
+        this.sentimentAnalyzerActor = getContext().actorOf(SentimentAnalyzerActor.getProps());
+        this.channelActor = getContext().actorOf(ChannelActor.getProps(getSelf(), apiActor));
+        this.statisticsActor = getContext().actorOf(StatisticsActor.getProps(getSelf(), apiActor));
     }
-    private final ActorRef out;
-    private final ActorRef apiActor;
-    private final ActorRef sentimentAnalyzerActor;
-    private final ActorRef channelActor;
-    private final ActorRef statisticsActor;
-    private final List<SearchHistory> searchResults;
-    private int searchResultsUpdatedCount = 0;
 
     @Override
     public SupervisorStrategy supervisorStrategy(){
@@ -63,10 +73,6 @@ public class WebSocketActor extends AbstractActorWithTimers {
      */
     private WebSocketActor(ActorRef out) {
         this.out = out;
-        this.apiActor = getContext().actorOf(APIActor.getProps());
-        this.sentimentAnalyzerActor = getContext().actorOf(SentimentAnalyzerActor.getProps());
-        this.channelActor = getContext().actorOf(ChannelActor.getProps(getSelf(), apiActor));
-        this.statisticsActor = getContext().actorOf(StatisticsActor.getProps(getSelf(), apiActor));
         this.searchResults = new ArrayList<>();
     }
 
