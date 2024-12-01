@@ -1,4 +1,4 @@
-name := """assign2"""
+name := "assign2"
 
 version := "1.0-SNAPSHOT"
 
@@ -17,6 +17,7 @@ libraryDependencies += "com.google.apis" % "google-api-services-youtube" % "v3-r
 // JUnit and Mockito for testing
 libraryDependencies ++= Seq(
   "org.junit.jupiter" % "junit-jupiter" % "5.10.3" % Test,
+  "org.junit.vintage" % "junit-vintage-engine" % "5.10.3" % Test,
   "org.mockito" % "mockito-core" % "5.11.0" % Test,
   "org.mockito" %% "mockito-scala" % "1.17.37" % Test,
   "org.mockito" %% "mockito-scala-scalatest" % "1.17.37" % Test,
@@ -35,5 +36,5 @@ libraryDependencies ++= Seq(
 )
 
 // Test and documentation settings
-fork in Test := false
-scalacOptions in (Compile, doc) ++= Seq("-private")
+Test / fork := false
+Compile / doc / scalacOptions ++= Seq("-private")

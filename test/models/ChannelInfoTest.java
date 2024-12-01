@@ -1,7 +1,7 @@
 package models;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class ChannelInfoTest {
     private final long viewCount = 100000L;
     private SearchHistory videos;
 
-    @BeforeEach
+    @Before
     public void setUp() {
         // Initialize SearchHistory with valid data
         videos = new SearchHistory("12345", List.of(

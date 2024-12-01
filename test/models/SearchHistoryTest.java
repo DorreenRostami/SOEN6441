@@ -1,9 +1,8 @@
 package models;
 
 import com.google.api.services.youtube.model.*;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -30,7 +29,7 @@ public class SearchHistoryTest {
     @Mock
     private SentimentAnalyzer sentimentAnalyzer;
 
-    @BeforeEach
+    @Before
     public void setUp() {
         MockitoAnnotations.openMocks(this);
     }
@@ -42,7 +41,7 @@ public class SearchHistoryTest {
      * @author Dorreen Rostami
      */
     @Test
-    void testAddToSearchHistory() throws IOException {
+    public void testAddToSearchHistory() throws IOException {
         List<SearchHistory> searchHistoryList = new ArrayList<>();
         String query = "query";
         String cachedDescription = "Cached description";
@@ -78,7 +77,7 @@ public class SearchHistoryTest {
      * @author Dorreen Rostami
      */
     @Test
-    void testAddToSearchHistory_keep10() throws IOException {
+    public void testAddToSearchHistory_keep10() throws IOException {
         String cachedDescription = "Cached description";
         String videoId = "v1";
         when(cache.getDescription(videoId)).thenReturn(cachedDescription);
@@ -102,7 +101,7 @@ public class SearchHistoryTest {
      * @author Dorreen Rostami
      */
     @Test
-    void testAddToSearchHistory_throwException() throws IOException {
+    public void testAddToSearchHistory_throwException() throws IOException {
         String videoId = "v1";
         when(cache.getDescription(videoId)).thenThrow(new IOException("Mocked IOException"));
         SearchResult res = TestHelper.createMockSearchResult(videoId, "Title", "Channel", "c1", "https://thumbnail/1", "desc");

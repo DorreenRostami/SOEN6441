@@ -4,9 +4,9 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.testkit.javadsl.TestKit;
 import models.ChannelInfo;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.concurrent.CompletableFuture;
@@ -22,13 +22,13 @@ public class ChannelActorTest {
 
     private static ActorSystem system;
 
-    @BeforeAll
-    public static void setup() {
+    @Before
+    public void setup() {
         system = ActorSystem.create("TestSystem");
     }
 
-    @AfterAll
-    public static void teardown() {
+    @After
+    public void teardown() {
         TestKit.shutdownActorSystem(system);
         system = null;
     }
