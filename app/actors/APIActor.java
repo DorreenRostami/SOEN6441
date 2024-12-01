@@ -92,16 +92,12 @@ public class APIActor extends AbstractActor {
                             try {
                                 switch (type){
                                     case QUERY:
-                                        /*DELETE. JUST FOR TESTING*/
-                                        LinkedList<VideoInfo> sampleResult = new LinkedList<>();
-                                        sampleResult.add(new VideoInfo("testTitle", "vidoeURL/dsads", "Channel Title", "channelURL/sdas", "https://picsum.photos/536/354", "This is the test description", "tagsUrl/dsa"));
-                                        sampleResult.add(new VideoInfo("test 2", "vidoeURL/dsads", "Channel Title", "channelURL/sdas", "https://picsum.photos/536/354", "This is the test description", "tagsUrl/dsa"));
-                                        return new SearchHistory("testQuery", sampleResult);
-//                                        return Cache.get(query, false);
+                                        return Cache.get(query, false);
                                     case CHANNEL:
                                         return Cache.getChannelDetails(query);
                                     case STATS:
-                                        return YouTubeService.searchVideos(query, 50L);
+//                                        return YouTubeService.searchVideos(query, 10L); // Change to 50 later.
+                                        return Cache.get(query, false);
                                     case TAG:
                                         return SearchByTagSevice.searchByTag(query);
                                     case QUERY_UPDATE:

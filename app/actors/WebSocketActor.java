@@ -41,7 +41,7 @@ public class WebSocketActor extends AbstractActorWithTimers {
         getTimers().startPeriodicTimer(
                 "Timer",
                 new Tick(),
-                Duration.create(10, TimeUnit.SECONDS));
+                Duration.create(1000, TimeUnit.SECONDS));
 
         this.apiActor = getContext().actorOf(APIActor.getProps());
         this.sentimentAnalyzerActor = getContext().actorOf(SentimentAnalyzerActor.getProps());
