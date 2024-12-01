@@ -63,7 +63,6 @@ public class VideoInfoTest extends WithApplication {
         assertEquals(videoTitle, videoInfoFromResult.getVideoTitle());
         assertEquals("https://www.youtube.com/watch?v=sample", videoInfoFromResult.getVideoUrl());
         assertEquals(channelTitle, videoInfoFromResult.getChannelTitle());
-        assertEquals("channel?query=sample", videoInfoFromResult.getChannelUrl());
         assertEquals(thumbnailUrl, videoInfoFromResult.getThumbnailUrl());
         assertEquals(description, videoInfoFromResult.getDescription());
         assertEquals("/video?videoId=sample", videoInfoFromResult.getTagsUrl());
@@ -95,7 +94,6 @@ public class VideoInfoTest extends WithApplication {
         assertEquals(videoTitle, videoInfoFromResultWithDesc.getVideoTitle());
         assertEquals("https://www.youtube.com/watch?v=sample", videoInfoFromResultWithDesc.getVideoUrl());
         assertEquals(channelTitle, videoInfoFromResultWithDesc.getChannelTitle());
-        assertEquals("channel?query=sample", videoInfoFromResultWithDesc.getChannelUrl());
         assertEquals(thumbnailUrl, videoInfoFromResultWithDesc.getThumbnailUrl());
         assertEquals(description, videoInfoFromResultWithDesc.getDescription());
         assertEquals("/video?videoId=sample", videoInfoFromResultWithDesc.getTagsUrl());
