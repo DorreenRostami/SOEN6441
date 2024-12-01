@@ -8,6 +8,7 @@ import models.VideoInfo;
 import scala.Tuple2;
 import services.WordStatistics;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -54,16 +55,23 @@ public class StatisticsActor extends AbstractActor {
             this.sortedWordCount = sortedWordCount;
         }
 
-        /**
-         * Generates an HTML representation of the word-level statistics for the search query
-         *
-         * @return a string containing the rendered HTML
-         *
-         * @author Dorreen
-         */
-        public String getHTML(){
-            return views.html.statistics.render(query, sortedWordCount).toString();
+        public String getJson() {
+            StringBuilder json = new StringBuilder();
+            json.append("{ \"query\":\"" + this.query + "\",")
+                    .append("\"words\": [");
+            Iterator<Tuple2<String, Long>> iterator = this.sortedWordCount.iterator();
+            while (iterator.hasNext()) {
+                Tuple2<String, Long> tuple = iterator.next();
+                json.append("{\"word\":\"" + tuple._1 + "\",")
+                        .append("\"count\":" + tuple._2 + "}");
+                if (iterator.hasNext()) {
+                    json.append(",");
+                }
+            }
+            json.append("]}");
+            return json.toString();
         }
+
     }
 
     /**
@@ -107,7 +115,7 @@ public class StatisticsActor extends AbstractActor {
                             .collect(Collectors.toList());
 
                     List<Tuple2<String, Long>> sortedWordCount = WordStatistics.getWordStats(resultText);
-                    webSocketActor.tell(new WebSocketActor.ResponseMessage(new StatisticsMessage(history.getQuery(), sortedWordCount).getHTML()), getSelf());
+                    webSocketActor.tell(new WebSocketActor.ResponseMessage(new StatisticsMessage(history.getQuery(), sortedWordCount).getJson()), getSelf());
                 }).build();
     }
 }

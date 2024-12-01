@@ -3,6 +3,7 @@ package models;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.SearchResultSnippet;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -124,5 +125,19 @@ public class VideoInfo {
                 "<a href=\"" + videoUrl + "\"><img src=\"" + thumbnailUrl + "\"/></a>" +
                 "</div>" +
                 "</div>";
+    }
+
+    public String getJson(){
+        StringBuilder json = new StringBuilder();
+        json.append("{")
+                .append("\"videoTitle\":\"" + videoTitle + "\",")
+                .append("\"videoUrl\":\"" + videoUrl + "\",")
+                .append("\"channelTitle\":\"" + channelTitle + "\",")
+                .append("\"channelUrl\":\"" + channelUrl + "\",")
+                .append("\"thumbnailUrl\":\"" + thumbnailUrl + "\",")
+                .append("\"description\":\"" + description + "\",")
+                .append("\"tagsUrl\":\"" + tagsUrl + "\"")
+                .append("}");
+        return json.toString();
     }
 }
