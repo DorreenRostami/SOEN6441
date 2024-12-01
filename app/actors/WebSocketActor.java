@@ -3,19 +3,32 @@ package actors;
 import akka.actor.*;
 import akka.japi.pf.DeciderBuilder;
 import models.SearchHistory;
+import scala.concurrent.duration.Duration;
 import services.SentimentAnalyzer;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class WebSocketActor extends AbstractActor {
+public class WebSocketActor extends AbstractActorWithTimers {
     public static class ResponseMessage{
         String msg;
         public ResponseMessage(String msg){
             this.msg = msg;
         }
+    }
+
+    private static final class Tick {
+    }
+
+    @Override
+    public void preStart() {
+        getTimers().startPeriodicTimer(
+                "Timer",
+                new Tick(),
+                Duration.create(10, TimeUnit.SECONDS));
     }
     private final ActorRef out;
     private final ActorRef apiActor;
@@ -23,6 +36,7 @@ public class WebSocketActor extends AbstractActor {
     private final ActorRef channelActor;
     private final ActorRef statisticsActor;
     private final List<SearchHistory> searchResults;
+    private int searchResultsUpdatedCount = 0;
 
     @Override
     public SupervisorStrategy supervisorStrategy(){
@@ -102,7 +116,7 @@ public class WebSocketActor extends AbstractActor {
                         getSelf().tell(searchResults, getSelf());
                     }
                 })
-                .match(APIActor.QueryResponse.class, queryResponse -> {
+                .match(APIActor.QueryResponse.class, queryResponse -> { //keep 10 recent searched queries
                     CompletableFuture<Object> future = queryResponse.future;
                     if (searchResults.size() == 10){
                         searchResults.remove(9);
@@ -114,15 +128,41 @@ public class WebSocketActor extends AbstractActor {
                 .match(SentimentAnalyzer.Sentiment.class, response -> {
                     getSelf().tell(searchResults, getSelf());
                 })
-                .match(ResponseMessage.class, response -> {
-                    out.tell(response.msg, getSelf());
-                })
                 .match(List.class, response -> {
                     StringBuilder responseString = new StringBuilder();
                     for (SearchHistory searchHistory: searchResults){
                         responseString.append(searchHistory.getHTML(true));
                     }
                     getSelf().tell(new ResponseMessage(responseString.toString()), getSelf());
+                })
+                .match(ResponseMessage.class, response -> {
+                    out.tell(response.msg, getSelf());
+                })
+                .match(Tick.class, msg -> {
+                    System.out.println("TICK TOCK");
+                    searchResultsUpdatedCount = 0;
+                    for (int i = 0; i < searchResults.size(); i++) {
+                        SearchHistory searchHistory = searchResults.get(i);
+                        apiActor.tell(
+                                new APIActor.SearchMessage(searchHistory.getQuery(), APIActor.SearchType.QUERY_UPDATE),
+                                getSelf()
+                        );
+                    }
+                })
+                .match(APIActor.QueryUpdateResponse.class, queryResponse -> {
+                    CompletableFuture<Object> future = queryResponse.future;
+                    SearchHistory updatedResult = (SearchHistory) future.get();
+                    for (int i = 0; i < searchResults.size(); i++) {
+                        if (searchResults.get(i).getQuery().equals(updatedResult.getQuery())) {
+                            searchResults.set(i, updatedResult);
+                            searchResultsUpdatedCount++;
+                            break;
+                        }
+                    }
+
+                    if(searchResultsUpdatedCount == searchResults.size()){
+                        getSelf().tell(searchResults, getSelf());
+                    }
                 })
                 .build();
     }

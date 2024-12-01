@@ -15,12 +15,20 @@ public class APIActor extends AbstractActor {
         QUERY,
         CHANNEL,
         STATS,
-        TAG
+        TAG,
+        QUERY_UPDATE
     }
 
     static class QueryResponse{
         CompletableFuture<Object> future;
         public QueryResponse(CompletableFuture<Object> future){
+            this.future = future;
+        }
+    }
+
+    static class QueryUpdateResponse{
+        CompletableFuture<Object> future;
+        public QueryUpdateResponse(CompletableFuture<Object> future){
             this.future = future;
         }
     }
@@ -79,6 +87,8 @@ public class APIActor extends AbstractActor {
                                         return YouTubeService.searchVideos(query, 50L);
                                     case TAG:
                                         return SearchByTagSevice.searchByTag(query);
+                                    case QUERY_UPDATE:
+                                        return YouTubeService.searchVideos(query);
                                     default:
                                         /*TODO FIX*/
                                         return null;
@@ -99,6 +109,9 @@ public class APIActor extends AbstractActor {
                                 break;
                             case TAG:
                                 getSender().tell(new TagResponse(result), getSelf());
+                                break;
+                            case QUERY_UPDATE:
+                                getSender().tell(new QueryUpdateResponse(result), getSelf());
                                 break;
                         }
                     } catch (Exception e) {
