@@ -30,8 +30,7 @@ public class HomeController extends Controller {
     }
 
     /**
-     * redicrects the / route to /ytlytis route (typing in localhost:9000 will redirect to localhost:9000/ytlytics
-     * which is the main search page)
+     * Returns the html page for the website
      *
      * @author Dorreen Rostami
      */
@@ -42,7 +41,7 @@ public class HomeController extends Controller {
     /**
      * method for showing the homepage with an empty search history
      * @return a CompletableFuture containing a result which renders the hello page
-     * @author Hamza - initia   l implementation
+     * @author Hamza - initial implementation
      * @author Dorreen - made it asynchronous
      */
     public WebSocket ws(){
