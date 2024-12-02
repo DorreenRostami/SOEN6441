@@ -11,7 +11,6 @@ import org.junit.Test;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 /**
@@ -51,43 +50,42 @@ public class ChannelActorTest {
 
     @Test
     public void testChannelActorHandlesSuccessfulResponse() {
-        TestKit probe = new TestKit(system);
-        ActorRef mockApiActor = mock(ActorRef.class);
-        ActorRef channelActor = system.actorOf(ChannelActor.getProps(probe.getRef(), mockApiActor));
+        TestKit probe = new TestKit(system); // WebSocketActor mock
+        TestKit apiProbe = new TestKit(system); // APIActor mock
+        ActorRef channelActor = system.actorOf(ChannelActor.getProps(probe.getRef(), apiProbe.getRef()));
 
-        // Mock ChannelInfo and future
+        // Mock ChannelInfo and its HTML response
         ChannelInfo mockChannelInfo = mock(ChannelInfo.class);
         when(mockChannelInfo.getHTML()).thenReturn("<h1>Mock Channel</h1>");
 
+        // Mock a successful future
         CompletableFuture<Object> future = CompletableFuture.completedFuture(mockChannelInfo);
         APIActor.ChannelResponse response = new APIActor.ChannelResponse(future);
 
-        // Send the response to the ChannelActor
+        // Send the mocked response to the ChannelActor
         channelActor.tell(response, probe.getRef());
 
-        // Verify that WebSocketActor receives the correct response
-        WebSocketActor.ResponseMessage expectedResponse = new WebSocketActor.ResponseMessage("<h1>Mock Channel</h1>");
-        WebSocketActor.ResponseMessage actualResponse = probe.expectMsgClass(WebSocketActor.ResponseMessage.class);
-        assertEquals(expectedResponse.msg, actualResponse.msg);
+        // Verify WebSocketActor receives the correct HTML message
+        ChannelActor.ChannelActorMessage actualMessage = probe.expectMsgClass(ChannelActor.ChannelActorMessage.class);
+        assertEquals("<h1>Mock Channel</h1>", actualMessage.msg);
     }
 
     @Test
     public void testChannelActorHandlesFailedResponse() {
-        TestKit probe = new TestKit(system);
-        ActorRef mockApiActor = mock(ActorRef.class);
-        ActorRef channelActor = system.actorOf(ChannelActor.getProps(probe.getRef(), mockApiActor));
+        TestKit probe = new TestKit(system); // WebSocketActor mock
+        TestKit apiProbe = new TestKit(system); // APIActor mock
+        ActorRef channelActor = system.actorOf(ChannelActor.getProps(probe.getRef(), apiProbe.getRef()));
 
         // Mock a failed future
         CompletableFuture<Object> failedFuture = new CompletableFuture<>();
         failedFuture.completeExceptionally(new RuntimeException("Test exception"));
         APIActor.ChannelResponse response = new APIActor.ChannelResponse(failedFuture);
 
-        // Send the response to the ChannelActor
+        // Send the mocked failed response to the ChannelActor
         channelActor.tell(response, probe.getRef());
 
-        // Verify that WebSocketActor receives an error response
-        WebSocketActor.ResponseMessage expectedErrorResponse = new WebSocketActor.ResponseMessage("<p>Error: Unable to fetch channel details</p>");
-        WebSocketActor.ResponseMessage actualResponse = probe.expectMsgClass(WebSocketActor.ResponseMessage.class);
-        assertEquals(expectedErrorResponse.msg, actualResponse.msg);
+        // Verify WebSocketActor receives an error message
+        ChannelActor.ChannelActorMessage actualMessage = probe.expectMsgClass(ChannelActor.ChannelActorMessage.class);
+        assertEquals("<p>Error: Unable to fetch channel details</p>", actualMessage.msg);
     }
 }
