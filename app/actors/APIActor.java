@@ -144,6 +144,7 @@ public class APIActor extends AbstractActor {
                             try {
                                 switch (type){
                                     case QUERY:
+                                        System.out.println("."+ query+ ".");
                                         return Cache.get(query, false);
                                     case CHANNEL:
                                         ChannelInfo response = Cache.getChannelDetails(query);

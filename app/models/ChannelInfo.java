@@ -57,6 +57,12 @@ public class ChannelInfo {
     public long getViewCount() { return viewCount; }
     public SearchHistory getVideos(){ return videos; }
 
+    /**
+     * Generates an HTML representation of the channel's information
+     * @return an HTML string representation of the channel's information
+     * @author Hao
+     * @author Hamza - changed to json
+     */
     public String getHTML() {
         StringBuilder html = new StringBuilder();
         html.append("<div class=\"channel-info\">");
