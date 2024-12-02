@@ -186,9 +186,9 @@
         } else if (json.type == "channel"){
             handleChannelResponse(json.response);
         } else if (json.type == "videoDetails"){
+            console.log("Video Details Response Received");
             handleVideoDetailsResponse(json.response);
-        }
-            else if (json.type == "tags"){
+        } else if (json.type == "tags"){
             handleTagsResponse(json.response);
         }
     };
@@ -207,29 +207,29 @@
     }
 
     function handleQueryResponse(response) {
-    console.log("Query Response Received for: " + response.query);
-    let query = new Query(response);
-    let resultsDiv = document.getElementById("results");
-    for (let search of searches) {
-        if (search.query === response.query) {
-            console.log("Query already exists: " + search.query);
-            let el = document.getElementById(`query-${search.query}`);
-            let newNode = query.getNode();
-            if (el) {
-                el.parentNode.replaceChild(newNode, el);
+        console.log("Query Response Received for: " + response.query);
+        let query = new Query(response);
+        let resultsDiv = document.getElementById("results");
+        for (let search of searches) {
+            if (search.query === response.query) {
+                console.log("Query already exists: " + search.query);
+                let el = document.getElementById(`query-${search.query}`);
+                let newNode = query.getNode();
+                if (el) {
+                    el.parentNode.replaceChild(newNode, el);
+                }
+                return;
             }
-            return;
         }
-    }
-    if (searches.length === 10) {
-        let el = document.getElementById(`query-${searches[0].query}`);
-        if (el) {
-            el.remove();
+        if (searches.length === 10) {
+            let el = document.getElementById(`query-${searches[0].query}`);
+            if (el) {
+                el.remove();
+            }
+            searches.shift();
         }
-        searches.shift();
-    }
-    searches.push(query);
-    resultsDiv.prepend(query.getNode());
+        searches.push(query);
+        resultsDiv.prepend(query.getNode());
     }
 
 
@@ -240,7 +240,25 @@
 
     function handleVideoDetailsResponse(response){
         console.log(response);
-        document.getElementById("video_container").innerHTML = response;
+        console.log(response.snippet.title)
+
+        // Create a new Video object
+        let video = new VideoDetail(
+                response.snippet.title,
+                "https://www.youtube.com/watch?v=" + response.id,
+                response.snippet.channelTitle,
+                response.snippet.channelUrl,
+                response.snippet.description,
+                response.snippet.tags,
+                response.snippet.thumbnails.default.url
+        );
+
+        // Get the video container and clear its content
+        let videoContainer = document.getElementById("video_container");
+        videoContainer.innerHTML = "";
+
+        // Append the video node to the container
+        videoContainer.appendChild(video.getNode());
         showPage("videoDetails");
     }
 
@@ -303,9 +321,9 @@
         }
     }
 
-    function onTagsClick(tagsURL){
+    function onTagsClick(tag){
         if (socket.readyState === WebSocket.OPEN) {
-            socket.send("TAG:::" + tagsURL);
+            socket.send("TAG:::" + tag);
         } else {
             console.log("WebSocket is not open. State: " + socket.readyState);
         }
@@ -393,7 +411,92 @@
         }
     }
 
+    class VideoDetail {
+        constructor(title, url, channelTitle, channelUrl, description, tags, thumbnailUrl) {
+            this.title = title;
+            this.url = url;
+            this.channelTitle = channelTitle;
+            this.channelUrl = channelUrl;
+            this.description = description;
+            this.tags = tags;
+            this.thumbnailUrl = thumbnailUrl;
+        }
 
+        getNode() {
+            // Create the video result container
+            const videoNode = document.createElement('div');
+            videoNode.classList.add('video-result');
+            videoNode.id = `video-${this.title}`;
+
+            // Create left part of the video
+            const leftNode = document.createElement('div');
+            leftNode.classList.add('video-result-left');
+
+            // Create the title
+            const titleNode = document.createElement('p');
+            titleNode.classList.add('video-result-left-title');
+            const titleLink = document.createElement('a');
+            titleLink.href = this.url;
+            titleLink.classList.add(`video-result-title`);
+            titleLink.textContent = `Video: ${this.title}`;
+            titleNode.appendChild(titleLink);
+            leftNode.appendChild(titleNode);
+
+            // Create the channel link
+            const channelNode = document.createElement('p');
+            channelNode.classList.add('video-result-left-channel');
+            const channelLink = document.createElement('a');
+            channelLink.href = "#";
+            channelLink.textContent = `Channel: ${this.channelTitle}`;
+            channelLink.onclick = () => onChannelClick(this.channelUrl);
+            channelNode.appendChild(channelLink);
+            leftNode.appendChild(channelNode);
+
+
+            // Create video tags each with a link
+            if (this.tags != null) {
+                const tagsNode = document.createElement('p');
+                tagsNode.classList.add('video-result-left-tags')
+
+                const tagsDescription = document.createTextNode('Tags: ');
+                tagsNode.appendChild(tagsDescription);
+
+                for (let tag of this.tags) {
+                    const tagLink = document.createElement('a');
+                    tagLink.href = "#";
+                    tagLink.textContent = tag;
+                    tagLink.onclick = () => onTagsClick(tag);
+                    tagsNode.appendChild(tagLink);
+                    tagsNode.appendChild(document.createTextNode(' '));
+                }
+                leftNode.appendChild(tagsNode);
+            }
+
+            // Create the description
+            const descriptionNode = document.createElement('p');
+            descriptionNode.classList.add('video-result-left-description');
+            descriptionNode.textContent = this.description;
+            leftNode.appendChild(descriptionNode);
+
+            // Append the left node to the video node
+            videoNode.appendChild(leftNode);
+
+            // Create the right part (thumbnail)
+            const rightNode = document.createElement('div');
+            rightNode.classList.add('video-result-right');
+            const thumbnailLink = document.createElement('a');
+            thumbnailLink.href = this.url;
+            const thumbnailImg = document.createElement('img');
+            thumbnailImg.src = this.thumbnailUrl;
+            thumbnailLink.appendChild(thumbnailImg);
+            rightNode.appendChild(thumbnailLink);
+
+            // Append the right node to the video node
+            videoNode.appendChild(rightNode);
+
+            return videoNode;
+        }
+    }
 
     class Query {
         constructor(response) {
