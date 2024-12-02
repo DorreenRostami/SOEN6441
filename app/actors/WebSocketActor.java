@@ -15,7 +15,17 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+/**
+ * Actor class responsible for managing WebSocket interactions like
+ * sending response messages back to the client.
+ * @author Hamza - intial implementation
+ * @author Dorreen - added functions related to statistics and query periodic update
+ */
 public class WebSocketActor extends AbstractActorWithTimers {
+    /**
+     * Represents a response message sent by and to the WebSocketActor
+     * @author Hamza
+     */
     public static class ResponseMessage{
         String msg;
         public ResponseMessage(String msg){
@@ -23,6 +33,10 @@ public class WebSocketActor extends AbstractActorWithTimers {
         }
     }
 
+    /**
+     * Represents a message sent periodically by the WebSocketActor
+     * @author Dorreen
+     */
     private static final class Tick {}
 
     private final ActorRef out;
@@ -34,13 +48,19 @@ public class WebSocketActor extends AbstractActorWithTimers {
     private int searchResultsUpdatedCount = 0;
     private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 
+    /**
+     * called when the actor starts
+     * A periodic timer is started that triggers with a "Tick" message
+     * Also, actors for interactions throughout the app are created
+     * @author Dorreen Rostami
+     */
     @Override
     public void preStart() {
         log.info("WebSocketActor started");
         getTimers().startPeriodicTimer(
                 "Timer",
                 new Tick(),
-                Duration.create(1000000, TimeUnit.SECONDS));
+                Duration.create(1, TimeUnit.HOURS));
 
         this.apiActor = getContext().actorOf(APIActor.getProps());
         this.sentimentAnalyzerActor = getContext().actorOf(SentimentAnalyzerActor.getProps());
