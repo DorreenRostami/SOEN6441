@@ -52,7 +52,7 @@ public class Cache {
      * @return true if and only if the object exists in cache and the TTL has not expired.
      * @author Hamza Asghar Khan
      */
-    public static boolean hasAValidEntry(String query){
+    private static boolean hasAValidEntry(String query){
         if (store.containsKey(query)){
             CacheEntry entry = store.get(query);
             if ((System.currentTimeMillis() - entry.timestamp) < TTL){
@@ -78,7 +78,8 @@ public class Cache {
             return hasAValidEntry(channelInfoQuery);
         } else if (object instanceof String){
             String descriptionQuery = "description:::" + object;
-            return hasAValidEntry(descriptionQuery);
+            String videoQuery = "videoDetail:::" + object;
+            return hasAValidEntry(descriptionQuery) || hasAValidEntry(videoQuery);
         }
         return false;
     }
@@ -175,5 +176,13 @@ public class Cache {
         Video video = YouTubeService.getVideoDetails(Collections.singletonList(videoId)).get(0);
         put(key, video);
         return video;
+    }
+
+    /**
+     * Clears the Cache
+     * @author Hamza Asghar Khan
+     */
+    public static void reset(){
+        store.clear();
     }
 }
