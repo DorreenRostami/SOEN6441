@@ -99,4 +99,24 @@ public class SearchHistory {
                 .replace("\t", "\\t");
     }
 
+    /**
+     * Returns true if and only if two SearchHistory objects are equal.
+     * @param that Other SearchHistory Object
+     * @return true if and only if the two objects are equal.
+     * @author Hamza Asghar Khan
+     */
+    public boolean equals(SearchHistory that){
+        if (this.query.equals(that.query) &&
+        this.sentiment.equals(that.sentiment)){
+            if (this.results.size() == that.results.size()){
+                for (int i = 0; i < this.results.size(); i++){
+                    if (!this.results.get(i).equals(that.results.get(i))){
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
 }

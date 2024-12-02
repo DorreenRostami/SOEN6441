@@ -1,12 +1,9 @@
 package models;
 
-import com.google.api.services.youtube.model.Video;
 import services.YouTubeService;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -15,21 +12,85 @@ import java.util.Map;
  */
 public class Cache {
     /**
-     * A map containing all the queries that return a List of SearchResult objects as a response
+     * The time a cache value is valid (in milliseconds)
      */
-    private final static Map<String, SearchHistory> listCache = new HashMap<>();
+    private static final long TTL = 60000;
+
     /**
-     * A map containing all the queries that return a ChannelListResponse object as a response
+     * Denotes a single cache entry.
+     * @author Hamza Asghar Khan
      */
-    private final static Map<String, ChannelInfo> channelCache = new HashMap<>();
+    private static class CacheEntry{
+        String key;
+        Object value;
+        long timestamp;
+
+        /**
+         * Creates a cache entry and assigns it the current time as its timestamp
+         * @param query Key/Query for the cache entry
+         * @param value Value to be stored in cache
+         * @author Hamza Asghar Khan
+         */
+        CacheEntry(String query, Object value){
+            this.key = query;
+            this.value = value;
+            this.timestamp = System.currentTimeMillis();
+        }
+    }
+
     /**
-     * A map containing all the videoIds mapped to their descriptions.
+     * Map to store the CacheEntry Objects
      */
-    private final static Map<String, String> descriptionCache = new HashMap<>();
+    private final static Map<String, CacheEntry> store = new HashMap<>();
+
+
     /**
-     * A map containing all the videoIds mapped to their according constructed Video object.
+     * Checks whether a given key has a valid cache entry
+     * @param query Target Query/Key
+     * @return true if and only if the object exists in cache and the TTL has not expired.
+     * @author Hamza Asghar Khan
      */
-    private final static Map<String, Video> videoCache = new HashMap<>();
+    public static boolean hasAValidEntry(String query){
+        if (store.containsKey(query)){
+            CacheEntry entry = store.get(query);
+            if ((System.currentTimeMillis() - entry.timestamp) < TTL){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks whether a given object is valid in the cache
+     * @param object Target Object
+     * @return true if and only if the object exists in cache and the TTL has not expired.
+     * @author Hamza Asghar Khan
+     */
+    public static boolean hasAValidEntry(Object object){
+        if (object instanceof SearchHistory){
+            String channelQuery = "channel:::" + ((SearchHistory) object).getQuery();
+            String videoQuery = "video:::" + ((SearchHistory) object).getQuery();
+            return (hasAValidEntry(channelQuery) || hasAValidEntry(videoQuery));
+        } else if (object instanceof ChannelInfo){
+            String channelInfoQuery = "channelInfo:::" + ((ChannelInfo) object).getChannelId();
+            return hasAValidEntry(channelInfoQuery);
+        } else if (object instanceof String){
+            String descriptionQuery = "description:::" + (String) object;
+            return hasAValidEntry(descriptionQuery);
+        }
+        return false;
+    }
+
+    /**
+     * Places a given key/value pair in the cache
+     * @param key Target Key
+     * @param value Target Value
+     * @author Hamza Asghar Khan
+     */
+    private static void put(String key, Object value){
+        CacheEntry entry = new CacheEntry(key, value);
+        store.put(key, entry);
+    }
 
     /**
      * Returns the response for the provided query. This method takes a query and a boolean to denote whether the query
@@ -42,14 +103,10 @@ public class Cache {
      * @throws IOException In case of an IOException caused by the YouTube API.
      * @author Hamza Asghar Khan
      */
-    public static SearchHistory get(String query, boolean isChannelQuery) throws IOException {
-//        LinkedList<VideoInfo> sampleResult = new LinkedList<>();
-//        sampleResult.add(new VideoInfo("testTitle", "vidoeURL/dsads", "Channel Title", "channelURL/sdas", "https://picsum.photos/536/354", "This is the test description", "tagsUrl/dsa"));
-//        sampleResult.add(new VideoInfo("test 2", "vidoeURL/dsads", "Channel Title", "channelURL/sdas", "https://picsum.photos/536/354", "This is the test description", "tagsUrl/dsa"));
-//        return new SearchHistory("testQuery", sampleResult);
-        String key = isChannelQuery ? "channel:" + query : "video:" + query;
-        if (listCache.containsKey(key)){
-            return listCache.get(key);
+    public static SearchHistory getSearchHistory(String query, boolean isChannelQuery) throws IOException {
+        String key = isChannelQuery ? "channel:::" + query : "video:::" + query;
+        if (hasAValidEntry(key)){
+            return (SearchHistory) store.get(key).value;
         }
         SearchHistory response;
         if (isChannelQuery){
@@ -57,13 +114,8 @@ public class Cache {
         } else {
             response = YouTubeService.searchVideos(query);
         }
-        listCache.put(key, response);
+        put(key, response);
         return response;
-    }
-
-    public static void put(String query, SearchHistory response, boolean isChannelQuery){
-        String key = isChannelQuery ? "channel:" + query : "video:" + query;
-        listCache.put(key, response);
     }
 
     /**
@@ -77,17 +129,13 @@ public class Cache {
      * @author Hamza Asghar Khan
      */
     public static ChannelInfo getChannelDetails(String channelId) throws IOException {
-        if (channelCache.containsKey(channelId)){
-            return channelCache.get(channelId);
+        String key = "channelInfo:::" + channelId;
+        if (hasAValidEntry(key)){
+            return (ChannelInfo) store.get(key).value;
         }
         ChannelInfo response = YouTubeService.getChannelDetails(channelId);
-        channelCache.put(channelId, response);
+        put(key, response);
         return response;
-//        LinkedList<VideoInfo> sampleResult = new LinkedList<>();
-//        sampleResult.add(new VideoInfo("testTitle", "vidoeURL/dsads", "Channel Title", "channelURL/sdas", "https://picsum.photos/536/354", "This is the test description", "tagsUrl/dsa"));
-//        sampleResult.add(new VideoInfo("test 2", "vidoeURL/dsads", "Channel Title", "channelURL/sdas", "https://picsum.photos/536/354", "This is the test description", "tagsUrl/dsa"));
-//        SearchHistory searches =  new SearchHistory("", sampleResult);
-//        return new ChannelInfo("Pulkit Channel", "250", "obama", "https://picsum.photos/536/354", "Pulkit bhosdiwala", 200, 5000, 420, searches);
     }
 
     /**
@@ -100,28 +148,12 @@ public class Cache {
      * @author Hamza Asghar Khan
      */
     public static String getDescription(String videoId) throws IOException{
-        if (descriptionCache.containsKey(videoId)){
-            return descriptionCache.get(videoId);
+        String key = "description:::" + videoId;
+        if (hasAValidEntry(key)){
+            return (String) store.get(key).value;
         }
         String description = YouTubeService.getDescription(videoId);
-        descriptionCache.put(videoId, description);
+        put(key, description);
         return description;
-    }
-
-    /**
-     * Retrieve Video object for the provided videoId. In the event of a cache hit, the according Video object is
-     * fetched from the cache. In the event of a cache miss, the cache is populated using the YouTube API
-     * @param videoId Target VideoId
-     * @return Video object for the request video
-     * @throws IOException In case of API failures
-     * @author Yi Tian
-     */
-    public static Video getVideo(String videoId) throws IOException {
-        if (videoCache.containsKey(videoId)) {
-            return videoCache.get(videoId);
-        }
-        Video video = YouTubeService.getVideoDetails(Collections.singletonList(videoId)).get(0);
-        videoCache.put(videoId, video);
-        return video;
     }
 }

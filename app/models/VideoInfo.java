@@ -142,4 +142,23 @@ public class VideoInfo {
                 .append("}");
         return json.toString();
     }
+
+    /**
+     * Returns true if and only if two SearchHistory objects are equal.
+     * @param that Other SearchHistory Object
+     * @return true if and only if the two objects are equal.
+     * @author Hamza Asghar Khan
+     */
+    public boolean equals(VideoInfo that){
+        return (
+                this.channelTitle.equals(that.channelTitle) &&
+                this.videoUrl.equals(that.videoUrl) &&
+                this.videoTitle.equals(that.videoTitle) &&
+                this.channelUrl.equals(that.channelUrl) &&
+                this.description.equals(that.description) &&
+                this.thumbnailUrl.equals(that.thumbnailUrl) &&
+                this.tagsUrl.equals(that.tagsUrl) &&
+                this.tags.equals(that.tags)
+        );
+    }
 }

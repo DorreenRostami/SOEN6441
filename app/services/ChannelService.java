@@ -37,7 +37,7 @@ public class ChannelService {
      */
     public static List<VideoInfo> searchChannel(String channelId, Cache cache) throws IOException {
         // Fetch videos for the channel
-        SearchHistory results = cache.get(channelId, true);
+        SearchHistory results = cache.getSearchHistory(channelId, true);
         List<VideoInfo> videoInfoList = results.getResults();
 
         if (videoInfoList.size() > 10) {

@@ -45,7 +45,6 @@ public class WebSocketActor extends AbstractActorWithTimers {
     private ActorRef channelActor;
     private ActorRef statisticsActor;
     private final List<SearchHistory> searchResults;
-    private int searchResultsUpdatedCount = 0;
     private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 
     /**
@@ -60,7 +59,7 @@ public class WebSocketActor extends AbstractActorWithTimers {
         getTimers().startPeriodicTimer(
                 "Timer",
                 new Tick(),
-                Duration.create(1, TimeUnit.HOURS));
+                Duration.create(30, TimeUnit.HOURS));
 
         this.apiActor = getContext().actorOf(APIActor.getProps());
         this.sentimentAnalyzerActor = getContext().actorOf(SentimentAnalyzerActor.getProps());
@@ -122,7 +121,6 @@ public class WebSocketActor extends AbstractActorWithTimers {
                                 apiActor.tell(new APIActor.SearchMessage(msgValue, APIActor.SearchType.QUERY), getSelf());
                                 break;
                             case "CHANNEL":
-                                System.out.println("DEBUG: CHANNEL");
                                 channelActor.tell(msgValue, getSelf());
                                 break;
                             case "STATS":
@@ -181,37 +179,27 @@ public class WebSocketActor extends AbstractActorWithTimers {
                      */
                 })
                 .match(ChannelActor.ChannelActorMessage.class, response -> {
-                    System.out.println("CHANNEL ACTOR MESSAGE");
                     String responseString = "{ \"type\": \"channel\", \"response\": \"" + response.msg + "\"}";
-                    System.out.println(response.msg);
                     out.tell(responseString, getSelf());
                 })
                 .match(Tick.class, msg -> {
                     System.out.println("TICK TOCK");
-                    searchResultsUpdatedCount = 0;
-                    for (int i = 0; i < searchResults.size(); i++) {
-                        SearchHistory searchHistory = searchResults.get(i);
+                    for (SearchHistory searchHistory : searchResults) {
                         apiActor.tell(
-                                new APIActor.SearchMessage(searchHistory.getQuery(), APIActor.SearchType.QUERY_UPDATE),
+                                new APIActor.CacheUpdateMessage(searchHistory),
                                 getSelf()
                         );
                     }
                 })
-                .match(APIActor.QueryUpdateResponse.class, queryResponse -> {
-//                    CompletableFuture<Object> future = queryResponse.future;
-//                    SearchHistory updatedResult = (SearchHistory) future.get();
-//                    sentimentAnalyzerActor.tell(updatedResult, getSelf());
-//                    for (int i = 0; i < searchResults.size(); i++) {
-//                        if (searchResults.get(i).getQuery().equals(updatedResult.getQuery())) {
-//                            searchResults.set(i, updatedResult);
-//                            searchResultsUpdatedCount++;
-//                            break;
-//                        }
-//                    }
-//
-//                    if(searchResultsUpdatedCount == searchResults.size()){
-//                        getSelf().tell(searchResults, getSelf());
-//                    }
+                .match(APIActor.CacheUpdateMessage.class, queryResponse -> {
+                    if (queryResponse.value != null){
+                        for (int i = 0; i < searchResults.size(); i++){
+                            if (searchResults.get(i).getQuery().equals(queryResponse.value.getQuery())){
+                                searchResults.add(i, queryResponse.value);
+                                getSelf().tell(new ResponseMessage(queryResponse.value.getJson()), getSelf());
+                            }
+                        }
+                    }
                 })
                 .build();
     }

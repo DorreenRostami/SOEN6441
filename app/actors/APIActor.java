@@ -7,7 +7,9 @@ import akka.event.LoggingAdapter;
 import akka.pattern.StatusReply;
 import models.Cache;
 import models.ChannelInfo;
+import models.SearchHistory;
 import services.SearchByTagSevice;
+import services.SentimentAnalyzer;
 import services.YouTubeService;
 
 import java.io.IOException;
@@ -23,6 +25,13 @@ import java.util.concurrent.CompletableFuture;
 public class APIActor extends AbstractActor {
     private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 
+    static class CacheUpdateMessage{
+        SearchHistory value;
+        CacheUpdateMessage(SearchHistory value){
+            this.value = value;
+        }
+    }
+
     /**
      * Enum representing the types of searches handled by the APIActor
      * @author Hamza - initial
@@ -33,7 +42,6 @@ public class APIActor extends AbstractActor {
         CHANNEL,
         STATS,
         TAG,
-        QUERY_UPDATE
     }
 
     /**
@@ -139,24 +147,21 @@ public class APIActor extends AbstractActor {
                 .match(SearchMessage.class, message -> {
                     String query = message.query;
                     SearchType type = message.type;
+
                     try {
                         CompletableFuture<Object> result = CompletableFuture.supplyAsync(() -> {
                             try {
                                 switch (type){
                                     case QUERY:
-                                        System.out.println("."+ query+ ".");
-                                        return Cache.get(query, false);
+                                        return Cache.getSearchHistory(query, false);
                                     case CHANNEL:
                                         ChannelInfo response = Cache.getChannelDetails(query);
                                         System.out.println(response);
                                         return response;
                                     case STATS:
-                                        return YouTubeService.searchVideos(query, 50L);
-//                                        return Cache.get(query, false);
+                                        return Cache.getSearchHistory(query, false);
                                     case TAG:
                                         return SearchByTagSevice.searchByTag(query);
-                                    case QUERY_UPDATE:
-                                        return YouTubeService.searchVideos(query);
                                     default:
                                         /*TODO FIX*/
                                         return null;
@@ -178,14 +183,25 @@ public class APIActor extends AbstractActor {
                             case TAG:
                                 getSender().tell(new TagResponse(result), getSelf());
                                 break;
-                            case QUERY_UPDATE:
-                                getSender().tell(new QueryUpdateResponse(result), getSelf());
-                                break;
                         }
                     } catch (Exception e) {
                         // Error occurred, return an error message.
                         getSender().tell(new StatusReply.ErrorMessage("An error occurred"), self());
                 }})
+                .match(CacheUpdateMessage.class, message -> {
+                    SearchHistory searchObject = message.value;
+                    try {
+                        if (!Cache.hasAValidEntry(searchObject)){
+                            SearchHistory newValue = Cache.getSearchHistory(searchObject.getQuery(), false);
+                            if (!newValue.equals(searchObject)){
+                                newValue.setSentiment(SentimentAnalyzer.getSentiment(newValue.getResults().stream()));
+                                getSender().tell(new CacheUpdateMessage(newValue), getSelf());
+                            }
+                        }
+                    } catch (Exception e){
+                        getSender().tell(new StatusReply.ErrorMessage("An error occurred"), self());
+                    }
+                })
                 .build();
     }
 }
