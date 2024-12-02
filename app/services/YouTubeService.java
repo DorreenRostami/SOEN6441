@@ -20,7 +20,8 @@ import java.util.List;
  * @author Dorreen Rostami
  */
 public class YouTubeService {
-    private static final String API_KEY = "AIzaSyAa72vg7qEihIBnRy2pz1-_CuUQRTfPKrU";
+    private static final String API_KEY = "test";
+//    private static final String API_KEY = "AIzaSyAa72vg7qEihIBnRy2pz1-_CuUQRTfPKrU";
     //    private static final String API_KEY = "AIzaSyCxx9hUhwCa4RlyJKp3tps1Q7xW398bxsc";
     //    private static final String API_KEY = "AIzaSyB5mlvHtkz-BD5LDx2xyJGirRQvl-Yz6GI";
 //    private static final String API_KEY = "AIzaSyACqubjXenoz7mp2idclHETDE3oyJO47Uo";

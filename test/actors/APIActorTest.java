@@ -44,11 +44,14 @@ public class APIActorTest {
         String query = "testQuery";
         SearchHistory mockedSearchHistory = mock(SearchHistory.class);
         try (MockedStatic<Cache> mockCache = Mockito.mockStatic(Cache.class)) {
-            mockCache.when(() -> Cache.get(query, false)).thenReturn(mockedSearchHistory);
-            System.out.println(Cache.get(query, false)); //THIS WORKS
+            mockCache.when(() -> Cache.getSearchHistory(query, false)).thenReturn(mockedSearchHistory);
+            System.out.println(Cache.getSearchHistory(query, false)); //THIS WORKS
+
+            Thread.sleep(100);
 
             APIActor.SearchMessage searchMessage = new APIActor.SearchMessage(query, APIActor.SearchType.QUERY);
             apiActor.tell(searchMessage, probe.getRef()); //BUT THIS CALLS THE ACTUAL CACHE WTF
+
 
             APIActor.QueryResponse response = probe.expectMsgClass(APIActor.QueryResponse.class);
 

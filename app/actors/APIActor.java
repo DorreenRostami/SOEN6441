@@ -10,7 +10,6 @@ import models.ChannelInfo;
 import models.SearchHistory;
 import services.SearchByTagSevice;
 import services.SentimentAnalyzer;
-import services.YouTubeService;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
@@ -153,13 +152,12 @@ public class APIActor extends AbstractActor {
                             try {
                                 switch (type){
                                     case QUERY:
+                                    case STATS:
                                         return Cache.getSearchHistory(query, false);
                                     case CHANNEL:
                                         ChannelInfo response = Cache.getChannelDetails(query);
                                         System.out.println(response);
                                         return response;
-                                    case STATS:
-                                        return Cache.getSearchHistory(query, false);
                                     case TAG:
                                         return SearchByTagSevice.searchByTag(query);
                                     default:
