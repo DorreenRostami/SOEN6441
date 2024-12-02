@@ -59,15 +59,15 @@ public class SearchHistoryTest {
         assertTrue(history1.equals(history2)); //same
 
         SearchHistory history3 = new SearchHistory("query2", Arrays.asList(video1, video2));
-        history2.setSentiment(SentimentAnalyzer.Sentiment.POSITIVE);
+        history3.setSentiment(SentimentAnalyzer.Sentiment.POSITIVE);
         assertFalse(history1.equals(history3)); //diff query
 
         SearchHistory history4 = new SearchHistory("query1", Arrays.asList(video1));
-        history2.setSentiment(SentimentAnalyzer.Sentiment.POSITIVE);
+        history4.setSentiment(SentimentAnalyzer.Sentiment.POSITIVE);
         assertFalse(history1.equals(history4)); //diff video list size
 
-        SearchHistory history5 = new SearchHistory("query1", Arrays.asList(video1, video3));
-        history2.setSentiment(SentimentAnalyzer.Sentiment.POSITIVE);
+        SearchHistory history5 = new SearchHistory("query1", Arrays.asList(video3, video2));
+        history5.setSentiment(SentimentAnalyzer.Sentiment.POSITIVE);
         assertFalse(history1.equals(history5)); //diff video
     }
 }
