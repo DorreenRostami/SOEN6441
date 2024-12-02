@@ -1,12 +1,6 @@
 package services;
 
-import com.google.api.services.youtube.model.Channel;
-import com.google.api.services.youtube.model.ChannelSnippet;
-import com.google.api.services.youtube.model.ChannelStatistics;
-import com.google.api.services.youtube.model.Thumbnail;
-import com.google.api.services.youtube.model.ThumbnailDetails;
 import models.Cache;
-import models.ChannelInfo;
 import models.SearchHistory;
 import models.VideoInfo;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,7 +43,7 @@ class ChannelServiceTest {
     @Test
     void testSearchChannel() throws IOException {
         try (MockedStatic<Cache> mockedStaticCache = Mockito.mockStatic(Cache.class)) {
-            mockedStaticCache.when(() -> Cache.get("MockChannelID", true)).thenReturn(mockSearchHistory);
+            mockedStaticCache.when(() -> Cache.getSearchHistory("MockChannelID", true)).thenReturn(mockSearchHistory);
 
             List<VideoInfo> videoInfoList = ChannelService.searchChannel("MockChannelID", mockCache);
 
@@ -59,7 +53,7 @@ class ChannelServiceTest {
                 assertEquals("Video Title " + i, videoInfoList.get(i).getVideoTitle());
             }
 
-            mockedStaticCache.verify(() -> Cache.get("MockChannelID", true), times(1));
+            mockedStaticCache.verify(() -> Cache.getSearchHistory("MockChannelID", true), times(1));
         }
     }
 
@@ -67,21 +61,21 @@ class ChannelServiceTest {
     void testSearchChannelWithEmptyResults() throws IOException {
         try (MockedStatic<Cache> mockedStaticCache = Mockito.mockStatic(Cache.class)) {
             when(mockSearchHistory.getResults()).thenReturn(new ArrayList<>()); // Empty results
-            mockedStaticCache.when(() -> Cache.get("EmptyChannelID", true)).thenReturn(mockSearchHistory);
+            mockedStaticCache.when(() -> Cache.getSearchHistory("EmptyChannelID", true)).thenReturn(mockSearchHistory);
 
             List<VideoInfo> videoInfoList = ChannelService.searchChannel("EmptyChannelID", mockCache);
 
             assertNotNull(videoInfoList);
             assertTrue(videoInfoList.isEmpty());
 
-            mockedStaticCache.verify(() -> Cache.get("EmptyChannelID", true), times(1));
+            mockedStaticCache.verify(() -> Cache.getSearchHistory("EmptyChannelID", true), times(1));
         }
     }
 
     @Test
     void testSearchChannelThrowsIOException() throws IOException {
         try (MockedStatic<Cache> mockedStaticCache = Mockito.mockStatic(Cache.class)) {
-            mockedStaticCache.when(() -> Cache.get("InvalidChannelID", true))
+            mockedStaticCache.when(() -> Cache.getSearchHistory("InvalidChannelID", true))
                     .thenThrow(new IOException("Error accessing cache"));
 
             IOException exception = assertThrows(IOException.class, () -> {
@@ -89,7 +83,7 @@ class ChannelServiceTest {
             });
 
             assertEquals("Error accessing cache", exception.getMessage());
-            mockedStaticCache.verify(() -> Cache.get("InvalidChannelID", true), times(1));
+            mockedStaticCache.verify(() -> Cache.getSearchHistory("InvalidChannelID", true), times(1));
         }
     }
 }
