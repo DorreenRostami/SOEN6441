@@ -41,6 +41,8 @@ public class APIActor extends AbstractActor {
         CHANNEL,
         STATS,
         TAG,
+        QUERY_UPDATE,
+        VIDEO_DETAILS,
     }
 
     /**
@@ -72,6 +74,13 @@ public class APIActor extends AbstractActor {
     static class ChannelResponse{
         CompletableFuture<Object> future;
         public ChannelResponse(CompletableFuture<Object> future){
+            this.future = future;
+        }
+    }
+
+    static class VideoDetailsResponse{
+        CompletableFuture<Object> future;
+        public VideoDetailsResponse(CompletableFuture<Object> future){
             this.future = future;
         }
     }
@@ -146,7 +155,6 @@ public class APIActor extends AbstractActor {
                 .match(SearchMessage.class, message -> {
                     String query = message.query;
                     SearchType type = message.type;
-
                     try {
                         CompletableFuture<Object> result = CompletableFuture.supplyAsync(() -> {
                             try {
@@ -158,6 +166,8 @@ public class APIActor extends AbstractActor {
                                         ChannelInfo response = Cache.getChannelDetails(query);
                                         System.out.println(response);
                                         return response;
+                                    case VIDEO_DETAILS:
+                                        return Cache.getVideo(query);
                                     case TAG:
                                         return SearchByTagSevice.searchByTag(query);
                                     default:
@@ -178,8 +188,14 @@ public class APIActor extends AbstractActor {
                             case STATS:
                                 getSender().tell(new StatsResponse(result), getSelf());
                                 break;
+                            case VIDEO_DETAILS:
+                                getSender().tell(new VideoDetailsResponse(result), getSelf());
+                                break;
                             case TAG:
                                 getSender().tell(new TagResponse(result), getSelf());
+                                break;
+                            case QUERY_UPDATE:
+                                getSender().tell(new QueryUpdateResponse(result), getSelf());
                                 break;
                         }
                     } catch (Exception e) {

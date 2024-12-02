@@ -4,6 +4,7 @@ import akka.actor.*;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.pf.DeciderBuilder;
+import com.google.api.services.youtube.model.Video;
 import models.SearchHistory;
 import play.api.libs.json.Json;
 import scala.concurrent.duration.Duration;
@@ -44,6 +45,7 @@ public class WebSocketActor extends AbstractActorWithTimers {
     private ActorRef sentimentAnalyzerActor;
     private ActorRef channelActor;
     private ActorRef statisticsActor;
+    private ActorRef tagActor;
     private final List<SearchHistory> searchResults;
     private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 
@@ -55,7 +57,7 @@ public class WebSocketActor extends AbstractActorWithTimers {
      */
     @Override
     public void preStart() {
-        log.info("WebSocketActor started");
+        log.info("Starting WebSocketActor");
         getTimers().startPeriodicTimer(
                 "Timer",
                 new Tick(),
@@ -65,6 +67,7 @@ public class WebSocketActor extends AbstractActorWithTimers {
         this.sentimentAnalyzerActor = getContext().actorOf(SentimentAnalyzerActor.getProps());
         this.channelActor = getContext().actorOf(ChannelActor.getProps(getSelf(), apiActor));
         this.statisticsActor = getContext().actorOf(StatisticsActor.getProps(getSelf(), apiActor));
+        this.tagActor = getContext().actorOf(TagActor.getProps(getSelf(), apiActor));
     }
 
     @Override
@@ -126,12 +129,16 @@ public class WebSocketActor extends AbstractActorWithTimers {
                             case "STATS":
                                 statisticsActor.tell(msgValue, getSelf());
                                 break;
-                            case "TAG":
+                            case "VIDEOINFO":
                                 /*TODO
                                 * Create a TagActor Class (essentially copy the ChannelActor class already created).
                                 * Implement a getHTML method somewhere appropriate to create the required HTML for the page
                                 * Add the back button to the HTML as well (as can be seen in the ChannelInfo method's getHTML) -- JUST COPY THAT LINE
                                 * */
+                                apiActor.tell(new APIActor.SearchMessage(msgValue, APIActor.SearchType.VIDEO_DETAILS), getSelf());
+                                break;
+                            case "TAG":
+
                                 break;
                             default:
                                 System.out.println("Invalid Socket Call");
@@ -161,8 +168,8 @@ public class WebSocketActor extends AbstractActorWithTimers {
                 .match(ResponseMessage.class, response -> {
                     ActorRef sender = getSender();
                     System.out.println(sender);
-                    System.out.println(channelActor);
-                    System.out.println(sender.equals(channelActor));
+//                    System.out.println(channelActor);
+//                    System.out.println(sender.equals(channelActor));
                     if (sender.equals(getSelf())){
                         String responseString = "{ \"type\": \"query\", \"response\": " + response.msg + "}";
                         out.tell(responseString, getSelf());
@@ -177,9 +184,23 @@ public class WebSocketActor extends AbstractActorWithTimers {
                     /**
                      * Add another if here to add the tags part.
                      */
+                    else if (sender.equals(tagActor)){
+                        String responseString = "{ \"type\": \"tag\", \"response\": " + response.msg + "}";
+                        out.tell(responseString, getSelf());
+                    }
                 })
                 .match(ChannelActor.ChannelActorMessage.class, response -> {
                     String responseString = "{ \"type\": \"channel\", \"response\": \"" + response.msg + "\"}";
+                    out.tell(responseString, getSelf());
+                })
+                .match(APIActor.VideoDetailsResponse.class, response -> {
+                    log.info("Received Video Details Response");
+                    Video v = (Video) response.future.join();
+                    String s =v.toString();
+                    log.info(s);
+                    String responseString =
+                            "{ \"type\": \"videoDetails\", \"response\": \"" + s +
+                            "\"}";
                     out.tell(responseString, getSelf());
                 })
                 .match(Tick.class, msg -> {
