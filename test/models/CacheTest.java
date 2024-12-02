@@ -1,10 +1,12 @@
 package models;
 
 import com.google.api.services.youtube.model.Video;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import services.YouTubeService;
@@ -20,7 +22,7 @@ import static org.mockito.Mockito.*;
  * This class contains unit tests for the {@link Cache} class.
  * @author Hamza Asghar Khan
  */
-class CacheTest {
+public class CacheTest {
 
     AutoCloseable openMocks;
 
@@ -28,8 +30,8 @@ class CacheTest {
      * Initialize the mocks before each test.
      * @author Hamza Asghar Khan
      */
-    @BeforeEach
-    void setUp() {
+    @Before
+    public void setUp() {
         Cache.reset();
         openMocks = MockitoAnnotations.openMocks(this);
     }
@@ -39,8 +41,8 @@ class CacheTest {
      * @throws Exception In case an exception is thrown while closing the Mocks.
      * @author Hamza Asghar Khan
      */
-    @AfterEach
-    void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         openMocks.close();
     }
 
@@ -51,7 +53,7 @@ class CacheTest {
      * @author Hamza Asghar Khan
      */
     @Test
-    void testGetSearchHistory_ChannelFalse() throws IOException {
+    public void testGetSearchHistory_ChannelFalse() throws IOException {
         String query = "video";
         List<VideoInfo> results = new ArrayList<>();
         results.add(new VideoInfo("testVideo", "video.com", "testChannel", "channel.com", "thumbnail.com", "Test description", "tags.com"));
@@ -60,17 +62,17 @@ class CacheTest {
             mockedYoutubeService.when(() -> YouTubeService.searchVideos(query)).thenReturn(mockResult);
 
             SearchHistory result = Cache.getSearchHistory(query, false); //cache miss
-            Assertions.assertEquals(mockResult, result);
+            assertEquals(mockResult, result);
 
             result = Cache.getSearchHistory(query, false); //should be in cache now
-            Assertions.assertEquals(mockResult, result);
+            assertEquals(mockResult, result);
 
             mockedYoutubeService.verify(() -> YouTubeService.searchVideos(query), times(1));
         }
     }
 
     @Test
-    void testGetSearchHistory_ChannelTrue() throws IOException {
+    public void testGetSearchHistory_ChannelTrue() throws IOException {
         String query = "video";
         List<VideoInfo> results = new ArrayList<>();
         results.add(new VideoInfo("testVideo", "video.com", "testChannel", "channel.com", "thumbnail.com", "Test description", "tags.com"));
@@ -79,17 +81,17 @@ class CacheTest {
             mockedYoutubeService.when(() -> YouTubeService.searchChannelVideos(query)).thenReturn(mockResult);
 
             SearchHistory result = Cache.getSearchHistory(query, true); //cache miss
-            Assertions.assertEquals(mockResult, result);
+            assertEquals(mockResult, result);
 
             result = Cache.getSearchHistory(query, true); //should be in cache now
-            Assertions.assertEquals(mockResult, result);
+            assertEquals(mockResult, result);
 
             mockedYoutubeService.verify(() -> YouTubeService.searchChannelVideos(query), times(1));
         }
     }
 
     @Test
-    void testGetChannelDetails() throws IOException {
+    public void testGetChannelDetails() throws IOException {
         String query = "video";
         List<VideoInfo> videos = new ArrayList<>();
         videos.add(new VideoInfo("video", "video.com", "testChannel", "channel.com", "thumbnail.com", "Test description", "tags.com"));
@@ -98,29 +100,29 @@ class CacheTest {
         try (MockedStatic<YouTubeService> mockedYoutubeService = mockStatic(YouTubeService.class);) {
             mockedYoutubeService.when(() -> YouTubeService.getChannelDetails(query)).thenReturn(mockResult);
             ChannelInfo result = Cache.getChannelDetails(query); //cache miss
-            Assertions.assertEquals(mockResult, result);
+            assertEquals(mockResult, result);
             result = Cache.getChannelDetails(query); //should be in cache now
-            Assertions.assertEquals(mockResult, result);
+            assertEquals(mockResult, result);
             mockedYoutubeService.verify(() -> YouTubeService.getChannelDetails(query), times(1));
         }
     }
 
     @Test
-    void testGetDescription() throws IOException {
+    public void testGetDescription() throws IOException {
         String query = "video";
         String mockDescription = "Mock Description";
         try (MockedStatic<YouTubeService> mockedYoutubeService = mockStatic(YouTubeService.class);) {
             mockedYoutubeService.when(() -> YouTubeService.getDescription(query)).thenReturn(mockDescription);
             String result = Cache.getDescription(query); //cache miss
-            Assertions.assertEquals(mockDescription, result);
+            assertEquals(mockDescription, result);
             result = Cache.getDescription(query); //should be in cache now
-            Assertions.assertEquals(mockDescription, result);
+            assertEquals(mockDescription, result);
             mockedYoutubeService.verify(() -> YouTubeService.getDescription(query), times(1));
         }
     }
 
     @Test
-    void testGetVideo() throws IOException {
+    public void testGetVideo() throws IOException {
         String query = "video";
         Video video = mock(Video.class);
         try (MockedStatic<YouTubeService> mockedYoutubeService = mockStatic(YouTubeService.class);) {
@@ -128,9 +130,9 @@ class CacheTest {
             MockedStatic<Cache> mockedCache = mockStatic(Cache.class);
             mockedCache.when(() -> Cache.getVideo(query)).thenReturn(video);
             Video result = Cache.getVideo(query); //cache miss
-            Assertions.assertEquals(video, result);
+            assertEquals(video, result);
             result = Cache.getVideo(query); //should be in cache now
-            Assertions.assertEquals(video, result);
+            assertEquals(video, result);
             mockedCache.close();
         }
     }
@@ -140,24 +142,24 @@ class CacheTest {
      * @author Dorreen
      */
     @Test
-    void testHasAValidEntry_Query() {
+    public void testHasAValidEntry_Query() {
         Object invalidObject = new Object();
         boolean result = Cache.hasAValidEntry(invalidObject);
-        Assertions.assertFalse(result);
+        assertFalse(result);
     }
 
 
     @Test
-    void testHasAValidEntry_Object() throws IOException {
+    public void testHasAValidEntry_Object() throws IOException {
         String query = "video";
         String description = "Mock Description";
         List<VideoInfo> videos = new ArrayList<>();
         videos.add(new VideoInfo("video", "video.com", "testChannel", "channel.com", "thumbnail.com", "Test description", "tags.com"));
         SearchHistory history = new SearchHistory("video", videos);
         ChannelInfo channelInfo = new ChannelInfo("testTitle", "video", "channel.com", "thumbnail.com", "test description", 32, 32, 12, history);
-        Assertions.assertFalse(Cache.hasAValidEntry(history));
-        Assertions.assertFalse(Cache.hasAValidEntry(channelInfo));
-        Assertions.assertFalse(Cache.hasAValidEntry(query));
+        assertFalse(Cache.hasAValidEntry(history));
+        assertFalse(Cache.hasAValidEntry(channelInfo));
+        assertFalse(Cache.hasAValidEntry(query));
         try (MockedStatic<YouTubeService> mockedYoutubeService = mockStatic(YouTubeService.class);) {
             mockedYoutubeService.when(() -> YouTubeService.getDescription(query)).thenReturn(description);
             mockedYoutubeService.when(() -> YouTubeService.searchVideos(query, 10)).thenReturn(history);
@@ -165,9 +167,9 @@ class CacheTest {
             Cache.getDescription(query); //cache miss
             Cache.getSearchHistory(query, false); //cache miss
             Cache.getChannelDetails(query); //cache miss
-            Assertions.assertTrue(Cache.hasAValidEntry(channelInfo));
-            Assertions.assertTrue(Cache.hasAValidEntry(history));
-            Assertions.assertTrue(Cache.hasAValidEntry(query));
+            assertTrue(Cache.hasAValidEntry(channelInfo));
+            assertTrue(Cache.hasAValidEntry(history));
+            assertTrue(Cache.hasAValidEntry(query));
             mockedYoutubeService.verify(() -> YouTubeService.getDescription(query), times(1));
         }
     }
@@ -179,7 +181,7 @@ class CacheTest {
      * @author Dorreen
      */
     @Test
-    void testGetVideoWithID() throws IOException {
+    public void testGetVideoWithID() throws IOException {
         String videoId = "testVideoId";
         Video mockVideo = mock(Video.class);
 
@@ -188,10 +190,10 @@ class CacheTest {
                     .thenReturn(Collections.singletonList(mockVideo));
 
             Video result = Cache.getVideo(videoId);
-            Assertions.assertEquals(mockVideo, result, "Video should match the mocked video on cache miss.");
+            assertEquals(mockVideo, result);
 
             result = Cache.getVideo(videoId);
-            Assertions.assertEquals(mockVideo, result, "Video should match the mocked video from cache.");
+            assertEquals(mockVideo, result);
 
             mockedYoutubeService.verify(() -> YouTubeService.getVideoDetails(Collections.singletonList(videoId)), times(1));
         }
