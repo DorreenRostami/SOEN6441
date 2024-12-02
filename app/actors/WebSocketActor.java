@@ -130,15 +130,15 @@ public class WebSocketActor extends AbstractActorWithTimers {
                                 statisticsActor.tell(msgValue, getSelf());
                                 break;
                             case "VIDEOINFO":
-                                /*TODO
-                                * Create a TagActor Class (essentially copy the ChannelActor class already created).
-                                * Implement a getHTML method somewhere appropriate to create the required HTML for the page
-                                * Add the back button to the HTML as well (as can be seen in the ChannelInfo method's getHTML) -- JUST COPY THAT LINE
-                                * */
                                 apiActor.tell(new APIActor.SearchMessage(msgValue, APIActor.SearchType.VIDEO_DETAILS), getSelf());
                                 break;
                             case "TAG":
-
+                                /*TODO
+                                 * Create a TagActor Class (essentially copy the ChannelActor class already created).
+                                 * Implement a getHTML method somewhere appropriate to create the required HTML for the page
+                                 * Add the back button to the HTML as well (as can be seen in the ChannelInfo method's getHTML) -- JUST COPY THAT LINE
+                                 * */
+                                tagActor.tell(msgValue, getSelf());
                                 break;
                             default:
                                 System.out.println("Invalid Socket Call");
@@ -181,13 +181,6 @@ public class WebSocketActor extends AbstractActorWithTimers {
                         String responseString = "{ \"type\": \"statistics\", \"response\": " + response.msg + "}";
                         out.tell(responseString, getSelf());
                     }
-                    /**
-                     * Add another if here to add the tags part.
-                     */
-                    else if (sender.equals(tagActor)){
-                        String responseString = "{ \"type\": \"tag\", \"response\": " + response.msg + "}";
-                        out.tell(responseString, getSelf());
-                    }
                 })
                 .match(ChannelActor.ChannelActorMessage.class, response -> {
                     String responseString = "{ \"type\": \"channel\", \"response\": \"" + response.msg + "\"}";
@@ -201,6 +194,10 @@ public class WebSocketActor extends AbstractActorWithTimers {
                     String responseString =
                             "{ \"type\": \"videoDetails\", \"response\": " + s +
                             "}";
+                    out.tell(responseString, getSelf());
+                })
+                .match(TagActor.TagActorMessage.class, response -> {
+                    String responseString = "{ \"type\": \"tag\", \"response\": " + response.msg + "}";
                     out.tell(responseString, getSelf());
                 })
                 .match(Tick.class, msg -> {
