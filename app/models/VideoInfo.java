@@ -3,7 +3,6 @@ package models;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.SearchResultSnippet;
 
-import java.util.Iterator;
 import java.util.List;
 
 import static models.SearchHistory.escapeJson;
@@ -157,8 +156,7 @@ public class VideoInfo {
                 this.channelUrl.equals(that.channelUrl) &&
                 this.description.equals(that.description) &&
                 this.thumbnailUrl.equals(that.thumbnailUrl) &&
-                this.tagsUrl.equals(that.tagsUrl) &&
-                this.tags.equals(that.tags)
+                this.tagsUrl.equals(that.tagsUrl)
         );
     }
 }

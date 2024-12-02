@@ -106,8 +106,7 @@ public class SearchHistory {
      * @author Hamza Asghar Khan
      */
     public boolean equals(SearchHistory that){
-        if (this.query.equals(that.query) &&
-        this.sentiment.equals(that.sentiment)){
+        if (this.query.equals(that.query) && this.sentiment.equals(that.sentiment)){
             if (this.results.size() == that.results.size()){
                 for (int i = 0; i < this.results.size(); i++){
                     if (!this.results.get(i).equals(that.results.get(i))){
