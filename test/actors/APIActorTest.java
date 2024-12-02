@@ -2,6 +2,7 @@ package actors;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import akka.actor.Props;
 import akka.testkit.javadsl.TestKit;
 import models.Cache;
 import models.SearchHistory;
@@ -10,13 +11,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import services.YouTubeService;
 
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 public class APIActorTest {
 
@@ -43,21 +43,19 @@ public class APIActorTest {
     public void testHandleSearchQuery() throws Exception {
         String query = "testQuery";
         SearchHistory mockedSearchHistory = mock(SearchHistory.class);
-        try (MockedStatic<Cache> mockCache = Mockito.mockStatic(Cache.class)) {
+        CompletableFuture<Object> mockedFuture = mock(CompletableFuture.class);
+        try (MockedStatic<Cache> mockCache = mockStatic(Cache.class)) {
             mockCache.when(() -> Cache.getSearchHistory(query, false)).thenReturn(mockedSearchHistory);
-            System.out.println(Cache.getSearchHistory(query, false)); //THIS WORKS
-
-            Thread.sleep(100);
-
+            mockCache.when(() -> Cache.getSearchHistory(query, true)).thenReturn(mockedSearchHistory);
+            ActorSystem system = ActorSystem.create();
+            TestKit probe = new TestKit(system);
+            ActorRef apiActor = system.actorOf(Props.create(APIActor.class));
             APIActor.SearchMessage searchMessage = new APIActor.SearchMessage(query, APIActor.SearchType.QUERY);
-            apiActor.tell(searchMessage, probe.getRef()); //BUT THIS CALLS THE ACTUAL CACHE WTF
-
-
+            apiActor.tell(searchMessage, probe.getRef());
             APIActor.QueryResponse response = probe.expectMsgClass(APIActor.QueryResponse.class);
-
-            CompletableFuture<Object> future = response.future;
-            SearchHistory result = (SearchHistory) future.get();
-
+            when(mockedFuture.get()).thenReturn(mockedSearchHistory);
+            response.future = mockedFuture;
+            SearchHistory result = (SearchHistory) response.future.get();
             assertEquals(mockedSearchHistory, result);
         }
     }
