@@ -186,9 +186,9 @@
         } else if (json.type == "channel"){
             handleChannelResponse(json.response);
         } else if (json.type == "videoDetails"){
+            console.log("Video Details Response Received");
             handleVideoDetailsResponse(json.response);
-        }
-            else if (json.type == "tags"){
+        } else if (json.type == "tags"){
             handleTagsResponse(json.response);
         }
     };
@@ -207,29 +207,29 @@
     }
 
     function handleQueryResponse(response) {
-    console.log("Query Response Received for: " + response.query);
-    let query = new Query(response);
-    let resultsDiv = document.getElementById("results");
-    for (let search of searches) {
-        if (search.query === response.query) {
-            console.log("Query already exists: " + search.query);
-            let el = document.getElementById(`query-${search.query}`);
-            let newNode = query.getNode();
-            if (el) {
-                el.parentNode.replaceChild(newNode, el);
+        console.log("Query Response Received for: " + response.query);
+        let query = new Query(response);
+        let resultsDiv = document.getElementById("results");
+        for (let search of searches) {
+            if (search.query === response.query) {
+                console.log("Query already exists: " + search.query);
+                let el = document.getElementById(`query-${search.query}`);
+                let newNode = query.getNode();
+                if (el) {
+                    el.parentNode.replaceChild(newNode, el);
+                }
+                return;
             }
-            return;
         }
-    }
-    if (searches.length === 10) {
-        let el = document.getElementById(`query-${searches[0].query}`);
-        if (el) {
-            el.remove();
+        if (searches.length === 10) {
+            let el = document.getElementById(`query-${searches[0].query}`);
+            if (el) {
+                el.remove();
+            }
+            searches.shift();
         }
-        searches.shift();
-    }
-    searches.push(query);
-    resultsDiv.prepend(query.getNode());
+        searches.push(query);
+        resultsDiv.prepend(query.getNode());
     }
 
 
@@ -240,7 +240,24 @@
 
     function handleVideoDetailsResponse(response){
         console.log(response);
-        document.getElementById("video_container").innerHTML = response;
+        console.log(response.snippet.title)
+
+        // Create a new Video object
+        let video = new Video(
+                response.snippet.title,
+                "https://www.youtube.com/watch?v=" + response.id,
+                response.snippet.channelUrl,
+                response.snippet.description,
+                null,
+                response.snippet.thumbnails.default.url
+        );
+
+        // Get the video container and clear its content
+        let videoContainer = document.getElementById("video_container");
+        videoContainer.innerHTML = "";
+
+        // Append the video node to the container
+        videoContainer.appendChild(video.getNode());
         showPage("videoDetails");
     }
 

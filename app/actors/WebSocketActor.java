@@ -168,8 +168,8 @@ public class WebSocketActor extends AbstractActorWithTimers {
                 .match(ResponseMessage.class, response -> {
                     ActorRef sender = getSender();
                     System.out.println(sender);
-//                    System.out.println(channelActor);
-//                    System.out.println(sender.equals(channelActor));
+                    System.out.println(channelActor);
+                    System.out.println(sender.equals(channelActor));
                     if (sender.equals(getSelf())){
                         String responseString = "{ \"type\": \"query\", \"response\": " + response.msg + "}";
                         out.tell(responseString, getSelf());
@@ -199,8 +199,8 @@ public class WebSocketActor extends AbstractActorWithTimers {
                     String s =v.toString();
                     log.info(s);
                     String responseString =
-                            "{ \"type\": \"videoDetails\", \"response\": \"" + s +
-                            "\"}";
+                            "{ \"type\": \"videoDetails\", \"response\": " + s +
+                            "}";
                     out.tell(responseString, getSelf());
                 })
                 .match(Tick.class, msg -> {
