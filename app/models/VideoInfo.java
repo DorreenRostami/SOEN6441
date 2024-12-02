@@ -62,7 +62,7 @@ public class VideoInfo {
                 ? snippet.getThumbnails().getDefault().getUrl()
                 : null;
         this.description = snippet != null ? snippet.getDescription() : null;
-        this.tagsUrl = videoId != null ? "/video?videoId=" + videoId : "/video?videoId=null";
+        this.tagsUrl = videoId != null ? videoId : "null";
     }
 
     /**

@@ -133,6 +133,12 @@
     </form>
     <div id="results"></div>
 </div>
+<div id="page__videoDetails" class="page hidden">
+    <button id="back_to_main" onclick="return onBackClick()">Back</button>
+    <div class="container" id="video_container">
+
+</div>
+</div>
 <div id="page__tags" class="page hidden">
     <button id="back_to_main" onclick="return onBackClick()">Back</button>
     <div class="container" id="tags_container">
@@ -160,6 +166,7 @@
     let pages = {
         "main": document.getElementById("page__main"),
         "statistics": document.getElementById("page__statistics"),
+        "videoDetails": document.getElementById("page__videoDetails"),
         "tags": document.getElementById("page__tags"),
         "channel": document.getElementById("page__channel")
     }
@@ -178,7 +185,10 @@
             handleStatisticsResponse(json.response);
         } else if (json.type == "channel"){
             handleChannelResponse(json.response);
-        } else if (json.type == "tags"){
+        } else if (json.type == "videoDetails"){
+            handleVideoDetailsResponse(json.response);
+        }
+            else if (json.type == "tags"){
             handleTagsResponse(json.response);
         }
     };
@@ -229,6 +239,12 @@
         showPage("channel");
     }
 
+    function handleVideoDetailsResponse(response){
+        console.log(response);
+        document.getElementById("video_container").innerHTML = response;
+        showPage("videoDetails");
+    }
+
     function handleTagsResponse(response){
         console.log(response);
         showPage("tags");
@@ -276,6 +292,14 @@
     function onQueryStatsClick(query){
         if (socket.readyState === WebSocket.OPEN) {
             socket.send("STATS:::" + query);
+        } else {
+            console.log("WebSocket is not open. State: " + socket.readyState);
+        }
+    }
+
+    function onVideoInfoClick(tagsURL){
+        if (socket.readyState === WebSocket.OPEN) {
+            socket.send("VIDEOINFO:::" + tagsURL);
         } else {
             console.log("WebSocket is not open. State: " + socket.readyState);
         }
@@ -341,7 +365,7 @@
             const tagsLink = document.createElement('a');
             tagsLink.href = "#";
             tagsLink.textContent = 'Tags';
-            tagsLink.onclick = () => onTagsClick(this.tagsUrl);
+            tagsLink.onclick = () => onVideoInfoClick(this.tagsUrl);
             tagsNode.appendChild(tagsLink);
             leftNode.appendChild(tagsNode);
 

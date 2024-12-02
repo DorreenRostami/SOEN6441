@@ -1,8 +1,11 @@
 package models;
 
+import com.google.api.services.youtube.model.Video;
 import services.YouTubeService;
 
+import javax.inject.Inject;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,6 +18,12 @@ public class Cache {
      * The time a cache value is valid (in milliseconds)
      */
     private static final long TTL = 60000;
+
+    /**
+     * A map containing all the videoIds mapped to their according constructed Video object.
+     */
+    private static final Map<String, Video> videoCache = new HashMap<>();
+
 
     /**
      * Denotes a single cache entry.
@@ -155,5 +164,22 @@ public class Cache {
         String description = YouTubeService.getDescription(videoId);
         put(key, description);
         return description;
+    }
+
+    /**
+     * Retrieve Video object for the provided videoId. In the event of a cache hit, the according Video object is
+     * fetched from the cache. In the event of a cache miss, the cache is populated using the YouTube API
+     * @param videoId Target VideoId
+     * @return Video object for the request video
+     * @throws IOException In case of API failures
+     * @author Yi Tian
+     */
+    public static Video getVideo(String videoId) throws IOException {
+        if (videoCache.containsKey(videoId)) {
+            return videoCache.get(videoId);
+        }
+        Video video = YouTubeService.getVideoDetails(Collections.singletonList(videoId)).get(0);
+        videoCache.put(videoId, video);
+        return video;
     }
 }
