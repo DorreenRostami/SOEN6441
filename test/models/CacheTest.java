@@ -1,6 +1,5 @@
 package models;
 
-import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Video;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -13,7 +12,6 @@ import services.YouTubeService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
@@ -138,9 +136,12 @@ class CacheTest {
     }
 
     @Test
-    void testHasAValidEntry_Query() throws IOException {
-
+    void testHasAValidEntry_Query() {
+        Object invalidObject = new Object();
+        boolean result = Cache.hasAValidEntry(invalidObject);
+        Assertions.assertFalse(result);
     }
+
 
     @Test
     void testHasAValidEntry_Object() throws IOException {
@@ -165,7 +166,25 @@ class CacheTest {
             Assertions.assertTrue(Cache.hasAValidEntry(query));
             mockedYoutubeService.verify(() -> YouTubeService.getDescription(query), times(1));
         }
-
-
     }
+
+    @Test
+    void testGetVideoWithID() throws IOException {
+        String videoId = "testVideoId";
+        Video mockVideo = mock(Video.class);
+
+        try (MockedStatic<YouTubeService> mockedYoutubeService = mockStatic(YouTubeService.class)) {
+            mockedYoutubeService.when(() -> YouTubeService.getVideoDetails(Collections.singletonList(videoId)))
+                    .thenReturn(Collections.singletonList(mockVideo));
+
+            Video result = Cache.getVideo(videoId);
+            Assertions.assertEquals(mockVideo, result, "Video should match the mocked video on cache miss.");
+
+            result = Cache.getVideo(videoId);
+            Assertions.assertEquals(mockVideo, result, "Video should match the mocked video from cache.");
+
+            mockedYoutubeService.verify(() -> YouTubeService.getVideoDetails(Collections.singletonList(videoId)), times(1));
+        }
+    }
+
 }
