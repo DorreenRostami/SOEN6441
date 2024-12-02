@@ -135,6 +135,10 @@ class CacheTest {
         }
     }
 
+    /**
+     * Tests the validity of a cache entry for an invalid object and ensures it returns false
+     * @author Dorreen
+     */
     @Test
     void testHasAValidEntry_Query() {
         Object invalidObject = new Object();
@@ -168,6 +172,12 @@ class CacheTest {
         }
     }
 
+    /**
+     * Tests the caching behavior of retrieving video details using a video ID.
+     * first call should be cache miss, second should be hit
+     *
+     * @author Dorreen
+     */
     @Test
     void testGetVideoWithID() throws IOException {
         String videoId = "testVideoId";
