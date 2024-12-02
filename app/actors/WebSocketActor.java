@@ -23,8 +23,7 @@ public class WebSocketActor extends AbstractActorWithTimers {
         }
     }
 
-    private static final class Tick {
-    }
+    private static final class Tick {}
 
     private final ActorRef out;
     private ActorRef apiActor;
@@ -41,7 +40,7 @@ public class WebSocketActor extends AbstractActorWithTimers {
         getTimers().startPeriodicTimer(
                 "Timer",
                 new Tick(),
-                Duration.create(1000, TimeUnit.SECONDS));
+                Duration.create(1000000, TimeUnit.SECONDS));
 
         this.apiActor = getContext().actorOf(APIActor.getProps());
         this.sentimentAnalyzerActor = getContext().actorOf(SentimentAnalyzerActor.getProps());
@@ -103,6 +102,7 @@ public class WebSocketActor extends AbstractActorWithTimers {
                                 apiActor.tell(new APIActor.SearchMessage(msgValue, APIActor.SearchType.QUERY), getSelf());
                                 break;
                             case "CHANNEL":
+                                System.out.println("DEBUG: CHANNEL");
                                 channelActor.tell(msgValue, getSelf());
                                 break;
                             case "STATS":
@@ -137,18 +137,20 @@ public class WebSocketActor extends AbstractActorWithTimers {
                 })
                 .match(List.class, response -> {
                     for (SearchHistory searchHistory: searchResults){
-                        System.out.println("Here");
-                        System.out.println(searchHistory.getJson());
                         getSelf().tell(new ResponseMessage(searchHistory.getJson()), getSelf());
                     }
                 })
                 .match(ResponseMessage.class, response -> {
                     ActorRef sender = getSender();
+                    System.out.println(sender);
+                    System.out.println(channelActor);
+                    System.out.println(sender.equals(channelActor));
                     if (sender.equals(getSelf())){
                         String responseString = "{ \"type\": \"query\", \"response\": " + response.msg + "}";
                         out.tell(responseString, getSelf());
                     } else if (sender.equals(channelActor)){
                         String responseString = "{ \"type\": \"channel\", \"response\": " + response.msg + "}";
+                        System.out.println(response.msg);
                         out.tell(responseString, getSelf());
                     } else if (sender.equals(statisticsActor)){
                         String responseString = "{ \"type\": \"statistics\", \"response\": " + response.msg + "}";
@@ -157,6 +159,12 @@ public class WebSocketActor extends AbstractActorWithTimers {
                     /**
                      * Add another if here to add the tags part.
                      */
+                })
+                .match(ChannelActor.ChannelActorMessage.class, response -> {
+                    System.out.println("CHANNEL ACTOR MESSAGE");
+                    String responseString = "{ \"type\": \"channel\", \"response\": \"" + response.msg + "\"}";
+                    System.out.println(response.msg);
+                    out.tell(responseString, getSelf());
                 })
                 .match(Tick.class, msg -> {
                     System.out.println("TICK TOCK");

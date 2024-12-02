@@ -43,22 +43,22 @@ public class Cache {
      * @author Hamza Asghar Khan
      */
     public static SearchHistory get(String query, boolean isChannelQuery) throws IOException {
-        LinkedList<VideoInfo> sampleResult = new LinkedList<>();
-        sampleResult.add(new VideoInfo("testTitle", "vidoeURL/dsads", "Channel Title", "channelURL/sdas", "https://picsum.photos/536/354", "This is the test description", "tagsUrl/dsa"));
-        sampleResult.add(new VideoInfo("test 2", "vidoeURL/dsads", "Channel Title", "channelURL/sdas", "https://picsum.photos/536/354", "This is the test description", "tagsUrl/dsa"));
-        return new SearchHistory("testQuery", sampleResult);
-//        String key = isChannelQuery ? "channel:" + query : "video:" + query;
-//        if (listCache.containsKey(key)){
-//            return listCache.get(key);
-//        }
-//        SearchHistory response;
-//        if (isChannelQuery){
-//            response = YouTubeService.searchChannelVideos(query);
-//        } else {
-//            response = YouTubeService.searchVideos(query);
-//        }
-//        listCache.put(key, response);
-//        return response;
+//        LinkedList<VideoInfo> sampleResult = new LinkedList<>();
+//        sampleResult.add(new VideoInfo("testTitle", "vidoeURL/dsads", "Channel Title", "channelURL/sdas", "https://picsum.photos/536/354", "This is the test description", "tagsUrl/dsa"));
+//        sampleResult.add(new VideoInfo("test 2", "vidoeURL/dsads", "Channel Title", "channelURL/sdas", "https://picsum.photos/536/354", "This is the test description", "tagsUrl/dsa"));
+//        return new SearchHistory("testQuery", sampleResult);
+        String key = isChannelQuery ? "channel:" + query : "video:" + query;
+        if (listCache.containsKey(key)){
+            return listCache.get(key);
+        }
+        SearchHistory response;
+        if (isChannelQuery){
+            response = YouTubeService.searchChannelVideos(query);
+        } else {
+            response = YouTubeService.searchVideos(query);
+        }
+        listCache.put(key, response);
+        return response;
     }
 
     public static void put(String query, SearchHistory response, boolean isChannelQuery){
@@ -83,6 +83,11 @@ public class Cache {
         ChannelInfo response = YouTubeService.getChannelDetails(channelId);
         channelCache.put(channelId, response);
         return response;
+//        LinkedList<VideoInfo> sampleResult = new LinkedList<>();
+//        sampleResult.add(new VideoInfo("testTitle", "vidoeURL/dsads", "Channel Title", "channelURL/sdas", "https://picsum.photos/536/354", "This is the test description", "tagsUrl/dsa"));
+//        sampleResult.add(new VideoInfo("test 2", "vidoeURL/dsads", "Channel Title", "channelURL/sdas", "https://picsum.photos/536/354", "This is the test description", "tagsUrl/dsa"));
+//        SearchHistory searches =  new SearchHistory("", sampleResult);
+//        return new ChannelInfo("Pulkit Channel", "250", "obama", "https://picsum.photos/536/354", "Pulkit bhosdiwala", 200, 5000, 420, searches);
     }
 
     /**

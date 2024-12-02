@@ -13,6 +13,12 @@ import java.util.concurrent.CompletableFuture;
  * Actor to handle channel-related operations, forwarding requests to the APIActor and responses to the WebSocketActor.
  */
 public class ChannelActor extends AbstractActor {
+    public static class ChannelActorMessage{
+        String msg;
+        public ChannelActorMessage(String msg) {
+            this.msg = msg;
+        }
+    }
 
     private final ActorRef webSocketActor;
     private final ActorRef apiActor;
@@ -59,10 +65,10 @@ public class ChannelActor extends AbstractActor {
                     try {
                         CompletableFuture<Object> future = response.future;
                         ChannelInfo channelInfo = (ChannelInfo) future.get(); // Get result from the future
-                        webSocketActor.tell(new WebSocketActor.ResponseMessage(channelInfo.getHTML()), getSelf());
+                        webSocketActor.tell(new ChannelActorMessage(channelInfo.getHTML()), getSelf());
                     } catch (Exception e) {
                         String errorMessage = "<p>Error: Unable to fetch channel details</p>";
-                        webSocketActor.tell(new WebSocketActor.ResponseMessage(errorMessage), getSelf());
+                        webSocketActor.tell(new ChannelActorMessage(errorMessage), getSelf());
                     }
                 })
                 .build();

@@ -1,5 +1,7 @@
 package models;
 
+import static models.SearchHistory.escapeJson;
+
 /**
  * a class which contains all the information we need to keep about channels to show them in the main search page
  * @author Hao
@@ -57,9 +59,6 @@ public class ChannelInfo {
 
     public String getHTML() {
         StringBuilder html = new StringBuilder();
-        html.append("<button class=\"back-button\" onclick=\"return onBackClick()\">Back</button>");
-
-        // Add HTML to display the channel details
         html.append("<div class=\"channel-info\">");
         html.append("<h1>").append(title).append("</h1>");
         html.append("<img src=\"").append(thumbnailUrl).append("\" alt=\"Channel Thumbnail\">");
@@ -73,6 +72,6 @@ public class ChannelInfo {
         // Add HTML to display the videos
         html.append(videos.getHTML(false));
 
-        return html.toString();
+        return escapeJson(html.toString());
     }
 }

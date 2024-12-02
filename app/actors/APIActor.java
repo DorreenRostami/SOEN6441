@@ -6,6 +6,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.pattern.StatusReply;
 import models.Cache;
+import models.ChannelInfo;
 import models.SearchHistory;
 import models.VideoInfo;
 import services.SearchByTagSevice;
@@ -94,10 +95,12 @@ public class APIActor extends AbstractActor {
                                     case QUERY:
                                         return Cache.get(query, false);
                                     case CHANNEL:
-                                        return Cache.getChannelDetails(query);
+                                        ChannelInfo response = Cache.getChannelDetails(query);
+                                        System.out.println(response);
+                                        return response;
                                     case STATS:
-//                                        return YouTubeService.searchVideos(query, 10L); // Change to 50 later.
-                                        return Cache.get(query, false);
+                                        return YouTubeService.searchVideos(query, 50L);
+//                                        return Cache.get(query, false);
                                     case TAG:
                                         return SearchByTagSevice.searchByTag(query);
                                     case QUERY_UPDATE:

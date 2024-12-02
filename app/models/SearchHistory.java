@@ -110,7 +110,7 @@ public class SearchHistory {
     public String getJson() {
         StringBuilder json = new StringBuilder();
         json.append("{")
-            .append("\"query\":\"" + query + "\",")
+            .append("\"query\":\"" + escapeJson(query) + "\",")
             .append("\"sentiment\":\"" + sentiment.emoji + "\",")
             .append("\"results\": [");
         Iterator<VideoInfo> resultIterator = results.iterator();
@@ -124,6 +124,20 @@ public class SearchHistory {
         json.append("]")
             .append("}");
         return json.toString();
+    }
+
+    public static String escapeJson(String input) {
+        if (input == null) {
+            return ""; // Or "null" if you want JSON null values
+        }
+        return input
+                .replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\b", "\\b")
+                .replace("\f", "\\f")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
     }
 
 }

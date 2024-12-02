@@ -6,6 +6,8 @@ import com.google.api.services.youtube.model.SearchResultSnippet;
 import java.util.Iterator;
 import java.util.List;
 
+import static models.SearchHistory.escapeJson;
+
 /**
  * Class for information about a YouTube video
  * @author Hao & Dorreen
@@ -130,13 +132,13 @@ public class VideoInfo {
     public String getJson(){
         StringBuilder json = new StringBuilder();
         json.append("{")
-                .append("\"videoTitle\":\"" + videoTitle + "\",")
-                .append("\"videoUrl\":\"" + videoUrl + "\",")
-                .append("\"channelTitle\":\"" + channelTitle + "\",")
-                .append("\"channelUrl\":\"" + channelUrl + "\",")
-                .append("\"thumbnailUrl\":\"" + thumbnailUrl + "\",")
-                .append("\"description\":\"" + description + "\",")
-                .append("\"tagsUrl\":\"" + tagsUrl + "\"")
+                .append("\"videoTitle\":\"" + escapeJson(videoTitle) + "\",")
+                .append("\"videoUrl\":\"" + escapeJson(videoUrl) + "\",")
+                .append("\"channelTitle\":\"" + escapeJson(channelTitle) + "\",")
+                .append("\"channelUrl\":\"" + escapeJson(channelUrl) + "\",")
+                .append("\"thumbnailUrl\":\"" + escapeJson(thumbnailUrl) + "\",")
+                .append("\"description\":\"" + escapeJson(description) + "\",")
+                .append("\"tagsUrl\":\"" + escapeJson(tagsUrl) + "\"")
                 .append("}");
         return json.toString();
     }
