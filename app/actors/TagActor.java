@@ -6,6 +6,7 @@ import akka.actor.Props;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import models.ChannelInfo;
+import models.SearchHistory;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -55,20 +56,19 @@ public class TagActor extends AbstractActor {
         return receiveBuilder()
                 // Handle search message
                 .match(String.class, msg -> {
-                    apiActor.tell(new APIActor.SearchMessage(msg, APIActor.SearchType.CHANNEL), getSelf());
+                    apiActor.tell(new APIActor.SearchMessage(msg, APIActor.SearchType.TAG), getSelf());
                 })
                 // Handle APIActor responses
-                .match(APIActor.ChannelResponse.class, response -> {
+                .match(APIActor.TagResponse.class, response -> {
                     try {
                         CompletableFuture<Object> future = response.future;
-                        ChannelInfo channelInfo = (ChannelInfo) future.get(); // Get result from the future
-                        webSocketActor.tell(new ChannelActor.ChannelActorMessage(channelInfo.getHTML()), getSelf());
+                        SearchHistory searchHistory = (SearchHistory) future.get(); // Get result from the future
+                        webSocketActor.tell(new TagActorMessage(searchHistory.getJson()), getSelf());
                     } catch (Exception e) {
-                        String errorMessage = "<p>Error: Unable to fetch channel details</p>";
-                        webSocketActor.tell(new ChannelActor.ChannelActorMessage(errorMessage), getSelf());
+                        String errorMessage = "<p>Error: Unable to fetch tag related videos</p>";
+                        webSocketActor.tell(new TagActorMessage(errorMessage), getSelf());
                     }
                 })
                 .build();
-
     }
 }
