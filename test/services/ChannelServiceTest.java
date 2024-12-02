@@ -9,8 +9,8 @@ import models.Cache;
 import models.ChannelInfo;
 import models.SearchHistory;
 import models.VideoInfo;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
@@ -18,17 +18,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-class ChannelServiceTest {
+public class ChannelServiceTest {
 
     private Cache mockCache;
     private SearchHistory mockSearchHistory;
     private List<VideoInfo> mockVideoList;
 
-    @BeforeEach
-    void setUp() {
+    @Before
+    public void setUp() {
         // Mock Cache
         mockCache = mock(Cache.class);
 
@@ -47,7 +47,7 @@ class ChannelServiceTest {
     }
 
     @Test
-    void testSearchChannel() throws IOException {
+    public void testSearchChannel() throws IOException {
         try (MockedStatic<Cache> mockedStaticCache = Mockito.mockStatic(Cache.class)) {
             mockedStaticCache.when(() -> Cache.get("MockChannelID", true)).thenReturn(mockSearchHistory);
 
@@ -64,7 +64,7 @@ class ChannelServiceTest {
     }
 
     @Test
-    void testSearchChannelWithEmptyResults() throws IOException {
+    public void testSearchChannelWithEmptyResults() throws IOException {
         try (MockedStatic<Cache> mockedStaticCache = Mockito.mockStatic(Cache.class)) {
             when(mockSearchHistory.getResults()).thenReturn(new ArrayList<>()); // Empty results
             mockedStaticCache.when(() -> Cache.get("EmptyChannelID", true)).thenReturn(mockSearchHistory);
@@ -79,7 +79,7 @@ class ChannelServiceTest {
     }
 
     @Test
-    void testSearchChannelThrowsIOException() throws IOException {
+    public void testSearchChannelThrowsIOException() throws IOException {
         try (MockedStatic<Cache> mockedStaticCache = Mockito.mockStatic(Cache.class)) {
             mockedStaticCache.when(() -> Cache.get("InvalidChannelID", true))
                     .thenThrow(new IOException("Error accessing cache"));

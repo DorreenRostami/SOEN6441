@@ -8,7 +8,7 @@ import services.SentimentAnalyzer;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Unit tests for the {@link SearchHistory} class
