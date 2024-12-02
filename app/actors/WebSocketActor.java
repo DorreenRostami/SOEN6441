@@ -59,7 +59,7 @@ public class WebSocketActor extends AbstractActorWithTimers {
         getTimers().startPeriodicTimer(
                 "Timer",
                 new Tick(),
-                Duration.create(1, TimeUnit.HOURS));
+                Duration.create(30, TimeUnit.HOURS));
 
         this.apiActor = getContext().actorOf(APIActor.getProps());
         this.sentimentAnalyzerActor = getContext().actorOf(SentimentAnalyzerActor.getProps());
@@ -121,7 +121,6 @@ public class WebSocketActor extends AbstractActorWithTimers {
                                 apiActor.tell(new APIActor.SearchMessage(msgValue, APIActor.SearchType.QUERY), getSelf());
                                 break;
                             case "CHANNEL":
-                                System.out.println("DEBUG: CHANNEL");
                                 channelActor.tell(msgValue, getSelf());
                                 break;
                             case "STATS":
@@ -180,9 +179,7 @@ public class WebSocketActor extends AbstractActorWithTimers {
                      */
                 })
                 .match(ChannelActor.ChannelActorMessage.class, response -> {
-                    System.out.println("CHANNEL ACTOR MESSAGE");
                     String responseString = "{ \"type\": \"channel\", \"response\": \"" + response.msg + "\"}";
-                    System.out.println(response.msg);
                     out.tell(responseString, getSelf());
                 })
                 .match(Tick.class, msg -> {
