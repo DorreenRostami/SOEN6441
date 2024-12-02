@@ -149,7 +149,6 @@
 <div id="page__channel" class="page hidden">
     <button id="back_to_main" onclick="return onBackClick()">Back</button>
     <div class="container" id="channel_container">
-
     </div>
 </div>
 </body>
@@ -170,6 +169,7 @@
     };
 
     socket.onmessage = function(event) {
+        console.log(event.data);
         let json = JSON.parse(event.data);
         console.log("Message Received");
         if (json.type == "query"){
@@ -225,6 +225,7 @@
 
     function handleChannelResponse(response){
         console.log(response);
+        document.getElementById("channel_container").innerHTML = response;
         showPage("channel");
     }
 
