@@ -48,44 +48,6 @@ public class SearchHistory {
         return results;
     }
 
-
-    /**
-     * Append the results found from the YouTube API to the search history (which includes the 10 most
-     * recent queries and 10 videos for each query, so 100 videos in total)
-     *
-     * @param searchHistoryList The current list of search history to which the new entry will be added
-     * @param query The search query
-     * @param results A list of YouTube SearchResult objects containing video details
-     * @return The updated searchHistoryList containing the new entries
-     * @author Dorreen Rostami - implementation
-     *
-     * @author Hao - changed channelURL so that clicking on it opens a web page containing all available profile
-     * information about a channel instead of opening the channel in YouTube
-     *
-     * @author Hamza Asghar Khan - Updated the video description to get the full description and not a snippet
-     */
-    public static List<SearchHistory> addToSearchHistory(List<SearchHistory> searchHistoryList, String query, List<SearchResult> results, Cache cache){
-        List<VideoInfo> videoInfoList = results.stream().map(result -> {
-            String videoId = result.getId().getVideoId();
-
-            //get full description instead of a snippet of it
-            String description = "";
-            try {
-                description = cache.getDescription(videoId);
-            } catch (IOException e){
-                System.out.println("Unable to fetch description for videoId: " + videoId);
-            }
-            return new VideoInfo(result, description);
-        }).collect(Collectors.toList());
-
-        // limit to 10 most recent search histories
-        if (searchHistoryList.size() > 10) {
-            searchHistoryList = searchHistoryList.subList(0, 10);
-        }
-
-        return searchHistoryList;
-    }
-
     /**
      * Generates an HTML string for displaying search results (and the query title if on results page)
      * @param showQuery a boolean indicating whether to display the query title and sentiment
@@ -140,4 +102,24 @@ public class SearchHistory {
                 .replace("\t", "\\t");
     }
 
+    /**
+     * Returns true if and only if two SearchHistory objects are equal.
+     * @param that Other SearchHistory Object
+     * @return true if and only if the two objects are equal.
+     * @author Hamza Asghar Khan
+     */
+    public boolean equals(SearchHistory that){
+        if (this.query.equals(that.query) &&
+        this.sentiment.equals(that.sentiment)){
+            if (this.results.size() == that.results.size()){
+                for (int i = 0; i < this.results.size(); i++){
+                    if (!this.results.get(i).equals(that.results.get(i))){
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
 }

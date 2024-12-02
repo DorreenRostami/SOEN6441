@@ -19,6 +19,6 @@ public class SearchByTagSevice {
      * @author Yi Tian
      */
     public static SearchHistory searchByTag(String tag) throws IOException {
-        return Cache.get("##" + tag, false);
+        return Cache.getSearchHistory("##" + tag, false);
     }
 }
