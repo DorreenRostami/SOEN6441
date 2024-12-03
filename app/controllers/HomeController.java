@@ -1,10 +1,7 @@
 package controllers;
 
-import actors.APIActor;
 import actors.WebSocketActor;
-import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-import akka.actor.Props;
 import akka.stream.Materializer;
 import play.libs.F;
 import play.libs.streams.ActorFlow;
@@ -44,12 +41,10 @@ public class HomeController extends Controller {
      * method for showing the homepage with an empty search history
      * @return a CompletableFuture containing a result which renders the hello page
      * @author Hamza
-     * @author Dorreen - added api actor
      */
     public WebSocket ws(){
-        ActorRef apiActor = actorSystem.actorOf(Props.create(APIActor.class));
         return WebSocket.Text.acceptOrResult(request -> CompletableFuture.completedFuture(F.Either.Right(
-                ActorFlow.actorRef(out -> WebSocketActor.props(out, apiActor), actorSystem, materializer)
+                ActorFlow.actorRef(WebSocketActor::props, actorSystem, materializer)
         )));
     }
 

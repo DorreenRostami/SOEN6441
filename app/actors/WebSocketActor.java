@@ -62,11 +62,6 @@ public class WebSocketActor extends AbstractActorWithTimers {
                 "Timer",
                 new Tick(),
                 Duration.create(30, TimeUnit.HOURS));
-
-        this.sentimentAnalyzerActor = getContext().actorOf(SentimentAnalyzerActor.getProps());
-        this.channelActor = getContext().actorOf(ChannelActor.getProps(getSelf(), apiActor));
-        this.statisticsActor = getContext().actorOf(StatisticsActor.getProps(getSelf(), apiActor));
-        this.tagActor = getContext().actorOf(TagActor.getProps(getSelf(), apiActor));
     }
 
     /**
@@ -100,15 +95,16 @@ public class WebSocketActor extends AbstractActorWithTimers {
      * Constructor for WebSocketActor
      *
      * @param out WebSocket connection
-     * @param apiActor ActorRef for the API actor
-     *
      * @author Hamza Asghar Khan
-     * @author Dorreen - added api actor
      */
-    private WebSocketActor(ActorRef out, ActorRef apiActor) {
+    private WebSocketActor(ActorRef out) {
         this.out = out;
-        this.apiActor = apiActor;
         this.searchResults = new ArrayList<>();
+        this.apiActor = getContext().actorOf(APIActor.getProps());
+        this.sentimentAnalyzerActor = getContext().actorOf(SentimentAnalyzerActor.getProps());
+        this.channelActor = getContext().actorOf(ChannelActor.getProps(getSelf(), apiActor));
+        this.statisticsActor = getContext().actorOf(StatisticsActor.getProps(getSelf(), apiActor));
+        this.tagActor = getContext().actorOf(TagActor.getProps(getSelf(), apiActor));
     }
 
     /**
@@ -116,10 +112,45 @@ public class WebSocketActor extends AbstractActorWithTimers {
      *
      * @param out WebSocket connection
      * @return Props instance
-     * @author Dorreen
+     * @author Dorreen Rostami
      */
-    public static Props props(ActorRef out, ActorRef apiActor) {
-        return Props.create(WebSocketActor.class, () -> new WebSocketActor(out, apiActor));
+    public static Props props(ActorRef out) {
+        return Props.create(WebSocketActor.class, () -> new WebSocketActor(out));
+    }
+
+
+    /**
+     * Constructor for WebSocketActor used for injecting actors during testing
+     *
+     * @param out The WebSocket connection
+     * @param apiActor The API actor
+     * @param channelActor The actor for channel queries
+     * @param statisticsActor The actor for word level statistics
+     * @param tagActor The actor for video tags
+     * @author Dorreen Rostami
+     */
+    private WebSocketActor(ActorRef out, ActorRef apiActor, ActorRef channelActor, ActorRef statisticsActor, ActorRef tagActor) {
+        this.out = out;
+        this.apiActor = apiActor;
+        this.channelActor = channelActor;
+        this.statisticsActor = statisticsActor;
+        this.tagActor = tagActor;
+        this.searchResults = new ArrayList<>();
+    }
+
+    /**
+     * Create Props for WebSocketActor used for injecting actors during testing
+     *
+     * @param out The WebSocket connection
+     * @param apiActor The API actor
+     * @param channelActor The actor for channel queries
+     * @param statisticsActor The actor for word level statistics
+     * @param tagActor The actor for video tags
+     * @return Props instance
+     * @author Dorreen Rostami
+     */
+    public static Props props(ActorRef out, ActorRef apiActor, ActorRef channelActor, ActorRef statisticsActor, ActorRef tagActor) {
+        return Props.create(WebSocketActor.class, () -> new WebSocketActor(out, apiActor, channelActor, statisticsActor, tagActor));
     }
 
     /**

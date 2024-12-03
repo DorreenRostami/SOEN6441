@@ -11,14 +11,10 @@ import static org.junit.Assert.assertEquals;
 
 public class WebSocketActorTest {
     private ActorSystem system;
-    private TestKit apiProbe;
-    private ActorRef webSocketActor;
 
     @Before
     public void setup() {
         system = ActorSystem.create();
-        apiProbe = new TestKit(system);
-        webSocketActor = system.actorOf(WebSocketActor.props(apiProbe.getRef(), apiProbe.getRef()));
     }
 
     @After
@@ -32,6 +28,8 @@ public class WebSocketActorTest {
      */
     @Test
     public void testHandleQuery() {
+        TestKit apiProbe = new TestKit(system);
+        ActorRef webSocketActor = system.actorOf(WebSocketActor.props(apiProbe.getRef(), apiProbe.getRef(), null, null, null));
         String testMessage = "QUERY:::testQuery";
         webSocketActor.tell(testMessage, ActorRef.noSender());
         APIActor.SearchMessage receivedMessage = apiProbe.expectMsgClass(APIActor.SearchMessage.class);
