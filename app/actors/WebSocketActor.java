@@ -63,13 +63,21 @@ public class WebSocketActor extends AbstractActorWithTimers {
                 new Tick(),
                 Duration.create(30, TimeUnit.HOURS));
 
-        this.apiActor = getContext().actorOf(APIActor.getProps());
         this.sentimentAnalyzerActor = getContext().actorOf(SentimentAnalyzerActor.getProps());
         this.channelActor = getContext().actorOf(ChannelActor.getProps(getSelf(), apiActor));
         this.statisticsActor = getContext().actorOf(StatisticsActor.getProps(getSelf(), apiActor));
         this.tagActor = getContext().actorOf(TagActor.getProps(getSelf(), apiActor));
     }
 
+    /**
+     * Defines how the actor handles child failures
+     * - Resume the child actor for TimeoutException
+     * - Restart the child actor for RuntimeException
+     * - Escalate other exceptions to the actor system
+     *
+     * @return SupervisorStrategy the fault handling strategy
+     * @author Hamza
+     */
     @Override
     public SupervisorStrategy supervisorStrategy(){
         return new OneForOneStrategy(
@@ -87,14 +95,19 @@ public class WebSocketActor extends AbstractActorWithTimers {
                 ).build()
         );
     }
+
     /**
      * Constructor for WebSocketActor
      *
      * @param out WebSocket connection
+     * @param apiActor ActorRef for the API actor
+     *
      * @author Hamza Asghar Khan
+     * @author Dorreen - added api actor
      */
-    private WebSocketActor(ActorRef out) {
+    private WebSocketActor(ActorRef out, ActorRef apiActor) {
         this.out = out;
+        this.apiActor = apiActor;
         this.searchResults = new ArrayList<>();
     }
 
@@ -105,10 +118,21 @@ public class WebSocketActor extends AbstractActorWithTimers {
      * @return Props instance
      * @author Dorreen
      */
-    public static Props props(ActorRef out) {
-        return Props.create(WebSocketActor.class, () -> new WebSocketActor(out));
+    public static Props props(ActorRef out, ActorRef apiActor) {
+        return Props.create(WebSocketActor.class, () -> new WebSocketActor(out, apiActor));
     }
 
+    /**
+     * Defines the actor's behavior by specifying how it handles incoming messages.
+     * - WebSocket messages: QUERY, CHANNEL, STATS, VIDEOINFO, TAG
+     * - Periodic updates
+     * - Responses from child actors
+     *
+     * @return Receive message handling behavior
+     * @author Hamza - initial & cache lookup for periodic updates
+     * @author Dorreen - implmentations for STATS and Tick for periodic updates
+     * @author Yi Tian - implementations related to TAG and VIDEOINFO
+     */
     @Override
     public Receive createReceive() {
         return receiveBuilder()
@@ -133,11 +157,6 @@ public class WebSocketActor extends AbstractActorWithTimers {
                                 apiActor.tell(new APIActor.SearchMessage(msgValue, APIActor.SearchType.VIDEO_DETAILS), getSelf());
                                 break;
                             case "TAG":
-                                /*TODO
-                                 * Create a TagActor Class (essentially copy the ChannelActor class already created).
-                                 * Implement a getHTML method somewhere appropriate to create the required HTML for the page
-                                 * Add the back button to the HTML as well (as can be seen in the ChannelInfo method's getHTML) -- JUST COPY THAT LINE
-                                 * */
                                 tagActor.tell(msgValue, getSelf());
                                 break;
                             default:
