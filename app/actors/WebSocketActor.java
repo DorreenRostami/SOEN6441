@@ -124,14 +124,16 @@ public class WebSocketActor extends AbstractActorWithTimers {
      *
      * @param out The WebSocket connection
      * @param apiActor The API actor
+     * @param sentimentAnalyzerActor actor for sentiment
      * @param channelActor The actor for channel queries
      * @param statisticsActor The actor for word level statistics
      * @param tagActor The actor for video tags
      * @author Dorreen Rostami
      */
-    private WebSocketActor(ActorRef out, ActorRef apiActor, ActorRef channelActor, ActorRef statisticsActor, ActorRef tagActor) {
+    private WebSocketActor(ActorRef out, ActorRef apiActor, ActorRef sentimentAnalyzerActor, ActorRef channelActor, ActorRef statisticsActor, ActorRef tagActor) {
         this.out = out;
         this.apiActor = apiActor;
+        this.sentimentAnalyzerActor = sentimentAnalyzerActor;
         this.channelActor = channelActor;
         this.statisticsActor = statisticsActor;
         this.tagActor = tagActor;
@@ -143,14 +145,15 @@ public class WebSocketActor extends AbstractActorWithTimers {
      *
      * @param out The WebSocket connection
      * @param apiActor The API actor
+     * @param sentimentAnalyzerActor actor for sentiment
      * @param channelActor The actor for channel queries
      * @param statisticsActor The actor for word level statistics
      * @param tagActor The actor for video tags
      * @return Props instance
      * @author Dorreen Rostami
      */
-    public static Props props(ActorRef out, ActorRef apiActor, ActorRef channelActor, ActorRef statisticsActor, ActorRef tagActor) {
-        return Props.create(WebSocketActor.class, () -> new WebSocketActor(out, apiActor, channelActor, statisticsActor, tagActor));
+    public static Props props(ActorRef out, ActorRef apiActor, ActorRef sentimentAnalyzerActor, ActorRef channelActor, ActorRef statisticsActor, ActorRef tagActor) {
+        return Props.create(WebSocketActor.class, () -> new WebSocketActor(out, apiActor, sentimentAnalyzerActor, channelActor, statisticsActor, tagActor));
     }
 
     /**
