@@ -63,7 +63,9 @@ public class TagActor extends AbstractActor {
                     try {
                         CompletableFuture<Object> future = response.future;
                         SearchHistory searchHistory = (SearchHistory) future.get(); // Get result from the future
-                        webSocketActor.tell(new TagActorMessage(searchHistory.getJson()), getSelf());
+                        String tagResultJson = searchHistory.getJson();
+                        TagActorMessage tagActorMessage = new TagActorMessage(tagResultJson);
+                        webSocketActor.tell(tagActorMessage, getSelf());
                     } catch (Exception e) {
                         String errorMessage = "<p>Error: Unable to fetch tag related videos</p>";
                         webSocketActor.tell(new TagActorMessage(errorMessage), getSelf());

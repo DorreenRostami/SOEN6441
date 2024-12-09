@@ -188,7 +188,8 @@
         } else if (json.type == "videoDetails"){
             console.log("Video Details Response Received");
             handleVideoDetailsResponse(json.response);
-        } else if (json.type == "tags"){
+        } else if (json.type == "tag"){
+            console.log("Tag Search Response Received");
             handleTagsResponse(json.response);
         }
     };
@@ -263,6 +264,11 @@
     }
 
     function handleTagsResponse(response){
+        console.log("Tag Search Response Received");
+        let query = new Query(response);
+        let tagsContainer = document.getElementById("tags_container");
+        tagsContainer.innerHTML = "";
+        tagsContainer.appendChild(query.getNode());
         showPage("tags");
     }
 

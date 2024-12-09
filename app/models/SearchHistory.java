@@ -70,7 +70,7 @@ public class SearchHistory {
         StringBuilder json = new StringBuilder();
         json.append("{")
             .append("\"query\":\"" + escapeJson(query) + "\",")
-            .append("\"sentiment\":\"" + sentiment.emoji + "\",")
+            .append("\"sentiment\":\"" + (sentiment != null ? sentiment.emoji : " ") + "\",")
             .append("\"results\": [");
         Iterator<VideoInfo> resultIterator = results.iterator();
         VideoInfo videoResult;
