@@ -17,15 +17,27 @@ import java.util.List;
 public class ChannelService {
 
     public static ChannelInfo getChannelInfo(Channel channel, SearchHistory videos) {
+        if (channel == null) {
+            throw new IllegalArgumentException("Channel cannot be null");
+        }
+
+        if (channel.getSnippet() == null || channel.getStatistics() == null) {
+            throw new IllegalStateException("Channel snippet or statistics cannot be null");
+        }
+
         return new ChannelInfo(
                 channel.getSnippet().getTitle(),
                 channel.getId(),
                 "https://www.youtube.com/channel/" + channel.getId(),
-                channel.getSnippet().getThumbnails().getDefault().getUrl(),
+                channel.getSnippet().getThumbnails() != null ?
+                        channel.getSnippet().getThumbnails().getDefault().getUrl() : null,
                 channel.getSnippet().getDescription(),
-                channel.getStatistics().getSubscriberCount().longValue(),
-                channel.getStatistics().getVideoCount().longValue(),
-                channel.getStatistics().getViewCount().longValue(),
+                channel.getStatistics().getSubscriberCount() != null ?
+                        channel.getStatistics().getSubscriberCount().longValue() : 0L,
+                channel.getStatistics().getVideoCount() != null ?
+                        channel.getStatistics().getVideoCount().longValue() : 0L,
+                channel.getStatistics().getViewCount() != null ?
+                        channel.getStatistics().getViewCount().longValue() : 0L,
                 videos
         );
     }
